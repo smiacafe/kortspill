@@ -1367,7 +1367,7 @@ async function fetchAiSuggestions() {
   const chipsEl = document.getElementById('aiChips');
   chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner white"></div><span style="color:rgba(255,255,255,.8)">Henter forslag…</span></div>`;
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{
