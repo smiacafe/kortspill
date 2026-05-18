@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Finn par – Kortspill</title>
+<style>
+:root {
+  --primary: #4A90D9;
+  --primary-dark: #2c6fad;
+  --primary-light: #e8f2fc;
+  --secondary: #F5A623;
+  --success: #5bb943;
+  --danger: #e02020;
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --text: #1a2233;
+  --text-light: #7a8599;
+  --border: #dde3ec;
+  --shadow: 0 2px 10px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.14);
+  --radius: 18px;
+  --radius-sm: 10px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  background: var(--surface);
+  box-shadow: 0 1px 0 var(--border), var(--shadow);
+  padding: 0 16px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.nav-back {
+  background: var(--bg);
+  border: none;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.nav-back:hover { background: var(--border); }
+.nav-back.visible { display: flex; }
+.nav-title {
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-btn {
+  background: var(--bg);
+  border: none;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.nav-btn:hover { background: var(--border); }
+
+/* ── SCREENS ── */
+.screen { display: none; padding: 20px; max-width: 860px; margin: 0 auto; padding-bottom: 40px; }
+.screen.active { display: block; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 22px;
+  border-radius: 12px; border: none;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap; text-decoration: none;
+  font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b01818; }
+.btn-ghost { background: none; border: none; color: var(--text-light); font-size: 14px; cursor: pointer; padding: 6px 10px; border-radius: 8px; font-family: inherit; }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #4a9e37; }
+.btn-icon { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background .15s; line-height: 1; }
+.btn-icon:hover { background: var(--bg); }
+.btn-lg { padding: 15px 30px; font-size: 17px; }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+
+/* ── HOME ── */
+.home-hero {
+  text-align: center;
+  padding: 32px 0 28px;
+}
+.home-hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -.5px; }
+.home-hero p { color: var(--text-light); margin-top: 6px; font-size: 16px; }
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:480px){ .home-grid { grid-template-columns: 1fr; } }
+
+.mode-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 36px 20px 30px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  border: 3px solid transparent;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  -webkit-user-select: none; user-select: none;
+}
+.mode-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.mode-card:active { transform: translateY(-2px); }
+.mode-card.teacher { border-color: var(--primary); }
+.mode-card.student { border-color: var(--secondary); }
+.mode-icon { font-size: 60px; display: block; margin-bottom: 14px; }
+.mode-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.mode-desc { color: var(--text-light); font-size: 14px; line-height: 1.4; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.section-title { font-size: 20px; font-weight: 700; }
+
+/* ── CARD SET LIST (TEACHER) ── */
+.set-list { display: flex; flex-direction: column; gap: 10px; }
+.set-item {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .15s;
+}
+.set-item:hover { transform: translateX(3px); }
+.set-icon { font-size: 36px; flex-shrink: 0; }
+.set-info { flex: 1; min-width: 0; }
+.set-name { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-meta { color: var(--text-light); font-size: 13px; margin-top: 2px; }
+.set-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+/* ── EMPTY STATE ── */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+.empty-icon { font-size: 60px; margin-bottom: 14px; }
+.empty-text { font-size: 17px; margin-bottom: 22px; }
+
+/* ── SET NAME INPUT ── */
+.set-name-input {
+  width: 100%;
+  font-size: 26px; font-weight: 700;
+  border: none; border-bottom: 3px solid var(--border);
+  padding: 8px 2px;
+  margin-bottom: 22px;
+  background: none; outline: none; color: var(--text);
+  transition: border-color .2s;
+  font-family: inherit;
+}
+.set-name-input:focus { border-color: var(--primary); }
+.set-name-input::placeholder { color: var(--border); }
+
+/* ── AI SECTION ── */
+.ai-section {
+  background: linear-gradient(135deg, #5563de 0%, #7c3aed 100%);
+  border-radius: var(--radius);
+  padding: 20px;
+  color: #fff;
+  margin-bottom: 22px;
+}
+.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ai-title { font-size: 17px; font-weight: 700; }
+.ai-desc { font-size: 13px; opacity: .85; margin-bottom: 14px; line-height: 1.4; }
+.ai-row { display: flex; gap: 10px; }
+.ai-input {
+  flex: 1; padding: 11px 14px;
+  border-radius: 10px; border: none;
+  font-size: 15px; background: rgba(255,255,255,.92);
+  color: var(--text); outline: none; font-family: inherit;
+}
+.ai-input:focus { background: #fff; }
+.ai-btn {
+  padding: 11px 18px; border-radius: 10px; border: none;
+  background: rgba(255,255,255,.2); color: #fff;
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: background .15s; white-space: nowrap; font-family: inherit;
+}
+.ai-btn:hover { background: rgba(255,255,255,.3); }
+.ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.ai-chip {
+  background: rgba(255,255,255,.9); color: #4a0090;
+  border: none; padding: 7px 15px;
+  border-radius: 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.ai-chip:hover { background: #fff; transform: translateY(-1px); }
+.ai-chip.used { background: rgba(255,255,255,.3); color: rgba(255,255,255,.8); cursor: default; }
+
+/* ── CARDS GRID (EDITOR) ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 80px;
+}
+.card-thumb {
+  background: var(--surface);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: transform .2s;
+  aspect-ratio: 1;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.card-thumb:hover { transform: scale(1.04); }
+.card-thumb-img {
+  flex: 1; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.card-thumb-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-thumb-label {
+  padding: 6px 8px;
+  font-size: 12px; font-weight: 600;
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface);
+}
+.card-thumb-label span:first-child {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;
+}
+.add-card-btn {
+  background: var(--bg);
+  border: 3px dashed var(--border);
+  border-radius: 12px; aspect-ratio: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+  font-size: 32px; color: var(--text-light);
+  gap: 6px;
+}
+.add-card-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.add-card-text { font-size: 13px; font-weight: 600; }
+
+/* ── CARD EDITOR ── */
+.card-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:580px){ .card-editor-grid { grid-template-columns: 1fr; } }
+
+.editor-panel {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.editor-panel-title {
+  font-size: 13px; font-weight: 700; color: var(--text-light);
+  text-transform: uppercase; letter-spacing: .6px;
+  margin-bottom: 14px;
+}
+
+.card-text-input {
+  width: 100%; padding: 12px 14px;
+  border: 2px solid var(--border); border-radius: 10px;
+  font-size: 18px; font-weight: 600; outline: none;
+  color: var(--text); transition: border-color .2s; font-family: inherit;
+  margin-bottom: 18px;
+}
+.card-text-input:focus { border-color: var(--primary); }
+
+/* ── IMAGE PANEL ── */
+.img-preview {
+  width: 100%; aspect-ratio: 1;
+  background: var(--bg); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; overflow: hidden; position: relative;
+}
+.img-preview img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview .img-placeholder { font-size: 56px; }
+.img-btn-group { display: flex; flex-direction: column; gap: 8px; }
+.img-url-input {
+  width: 100%; padding: 9px 12px;
+  border: 2px solid var(--border); border-radius: 9px;
+  font-size: 13px; outline: none; font-family: inherit;
+  transition: border-color .2s; color: var(--text);
+}
+.img-url-input:focus { border-color: var(--primary); }
+
+/* ── AUDIO PANEL ── */
+.audio-center { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.record-ring {
+  position: relative;
+  width: 84px; height: 84px;
+}
+.record-ring-svg {
+  position: absolute; inset: 0;
+  transform: rotate(-90deg);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.record-ring-svg.visible { opacity: 1; }
+.record-ring-circle {
+  fill: none; stroke: #ff3b30; stroke-width: 4;
+  stroke-dasharray: 226; stroke-dashoffset: 226;
+  transition: stroke-dashoffset .5s linear;
+  stroke-linecap: round;
+}
+.rec-btn {
+  position: absolute; inset: 6px;
+  border-radius: 50%; border: none;
+  background: var(--danger); color: #fff;
+  font-size: 28px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(224,32,32,.4);
+  transition: all .2s;
+}
+.rec-btn:hover { transform: scale(1.07); }
+.rec-btn.recording { animation: recPulse 1.4s infinite; }
+@keyframes recPulse {
+  0%,100% { box-shadow: 0 4px 14px rgba(224,32,32,.4); }
+  50% { box-shadow: 0 4px 22px rgba(224,32,32,.7); }
+}
+.rec-status { font-size: 13px; color: var(--text-light); text-align: center; line-height: 1.4; }
+.rec-timer { font-size: 22px; font-weight: 700; color: var(--danger); display: none; letter-spacing: .5px; }
+.audio-divider { color: var(--text-light); font-size: 13px; }
+.audio-player { width: 100%; margin-top: 4px; }
+
+/* ── BOTTOM ACTION BAR ── */
+.action-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; gap: 10px; justify-content: flex-end;
+  z-index: 150;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+.action-bar-left { margin-right: auto; }
+
+/* ── STUDENT CARD SELECT ── */
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 18px;
+}
+.student-set-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.student-set-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.student-set-card:active { transform: translateY(-2px); }
+.student-preview {
+  height: 150px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+  padding: 8px; background: var(--bg);
+}
+.student-preview-cell {
+  border-radius: 7px; overflow: hidden;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.student-preview-cell img { width: 100%; height: 100%; object-fit: cover; }
+.student-set-info { padding: 14px 16px; }
+.student-set-name { font-size: 17px; font-weight: 700; }
+.student-set-count { font-size: 13px; color: var(--text-light); margin-top: 3px; }
+
+/* ── DIFFICULTY ── */
+.diff-header { text-align: center; padding: 28px 0 22px; }
+.diff-header h2 { font-size: 24px; font-weight: 800; }
+.diff-header p { color: var(--text-light); margin-top: 6px; }
+.diff-grid {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.diff-btn {
+  flex: 1; min-width: 100px;
+  padding: 16px 12px; border: 2.5px solid var(--border);
+  border-radius: 12px; background: var(--surface);
+  cursor: pointer; text-align: center;
+  transition: all .15s; font-family: inherit;
+}
+.diff-btn .diff-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+.diff-btn .diff-label { font-size: 15px; font-weight: 700; display: block; }
+.diff-btn .diff-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; display: block; }
+.diff-btn.active { border-color: var(--primary); background: var(--primary-light); }
+.diff-btn:hover { border-color: var(--primary); }
+
+/* ── GAME ── */
+.game-bar {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  display: flex; justify-content: space-around;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.game-stat { text-align: center; }
+.game-stat-val { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1; }
+.game-stat-label { font-size: 12px; color: var(--text-light); margin-top: 3px; }
+
+.game-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.gc {
+  aspect-ratio: 1;
+  perspective: 900px;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+}
+.gc-inner {
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .45s cubic-bezier(.4,0,.2,1);
+  position: relative; border-radius: 12px;
+}
+.gc.flipped .gc-inner,
+.gc.matched .gc-inner { transform: rotateY(180deg); }
+
+.gc-front, .gc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 12px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.gc-front {
+  background: linear-gradient(135deg, #5563de, #7c3aed);
+  color: #fff; font-size: 36px;
+  box-shadow: var(--shadow);
+}
+.gc-front-pattern {
+  position: absolute; inset: 0; opacity: .15;
+  background: repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 10px);
+}
+.gc-back {
+  transform: rotateY(180deg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  flex-direction: column;
+}
+.gc-back img { width: 100%; height: 75%; object-fit: cover; }
+.gc-no-img { font-size: 44px; flex: 1; display: flex; align-items: center; justify-content: center; }
+.gc-label {
+  width: 100%; padding: 4px 6px;
+  font-size: 13px; font-weight: 600; text-align: center;
+  background: var(--surface);
+  height: 25%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.gc.matched .gc-back {
+  border: 4px solid var(--success);
+  box-shadow: 0 0 18px rgba(91,185,67,.5);
+}
+.gc.wrong .gc-inner { animation: wrongShake .4s; }
+@keyframes wrongShake {
+  0%,100% { transform: rotateY(180deg) translateX(0); }
+  25% { transform: rotateY(180deg) translateX(-6px); }
+  75% { transform: rotateY(180deg) translateX(6px); }
+}
+
+/* ── WIN SCREEN ── */
+.win-wrap { text-align: center; padding: 40px 20px; }
+.win-emoji { font-size: 88px; display: block; margin-bottom: 18px; animation: winBounce .6s infinite alternate; }
+@keyframes winBounce { from { transform: translateY(0); } to { transform: translateY(-18px); } }
+.win-title { font-size: 34px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+.win-sub { font-size: 17px; color: var(--text-light); margin-bottom: 30px; line-height: 1.5; }
+.win-actions { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
+
+/* ── SETTINGS ── */
+.settings-group { margin-bottom: 28px; }
+.settings-group-title { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+.settings-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 10px;
+}
+.settings-label { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.settings-desc { font-size: 13px; color: var(--text-light); margin-bottom: 10px; line-height: 1.4; }
+.settings-input {
+  width: 100%; padding: 10px 13px;
+  border: 2px solid var(--border); border-radius: 9px;
+  font-size: 14px; outline: none; font-family: monospace;
+  margin-bottom: 10px; color: var(--text);
+  transition: border-color .2s;
+}
+.settings-input:focus { border-color: var(--primary); }
+
+/* ── IMAGE SEARCH MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 500; display: none;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  padding: 10px 20px 30px;
+  width: 100%; max-width: 640px;
+  max-height: 82dvh; overflow-y: auto;
+  animation: modalUp .3s ease;
+}
+@keyframes modalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border); border-radius: 2px;
+  margin: 10px auto 18px;
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.search-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.search-input {
+  flex: 1; padding: 11px 14px;
+  border: 2px solid var(--border); border-radius: 10px;
+  font-size: 15px; outline: none; font-family: inherit;
+  transition: border-color .2s; color: var(--text);
+}
+.search-input:focus { border-color: var(--primary); }
+.img-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.img-result {
+  aspect-ratio: 1; border-radius: 9px; overflow: hidden;
+  cursor: pointer; transition: transform .15s;
+}
+.img-result:hover { transform: scale(1.05); }
+.img-result img { width: 100%; height: 100%; object-fit: cover; }
+.modal-info { text-align: center; padding: 20px; color: var(--text-light); font-size: 14px; line-height: 1.6; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1a2233; color: #fff;
+  padding: 11px 24px; border-radius: 24px;
+  font-size: 14px; font-weight: 600; z-index: 9999;
+  transition: transform .3s; pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+/* ── SPINNER ── */
+.spinner-wrap { display: flex; align-items: center; gap: 10px; color: var(--text-light); padding: 16px; }
+.spinner {
+  width: 22px; height: 22px;
+  border: 3px solid var(--border); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0;
+}
+.spinner.white { border-color: rgba(255,255,255,.3); border-top-color: #fff; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── UTILS ── */
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+label { font-weight: 600; font-size: 14px; display: block; margin-bottom: 5px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <button class="nav-back" id="navBack" onclick="goBack()" aria-label="Tilbake">←</button>
+  <span class="nav-title" id="navTitle">🎴 Finn par</span>
+  <button class="nav-btn" id="navSettingsBtn" onclick="goSettings()" title="Innstillinger" aria-label="Innstillinger">⚙️</button>
+</nav>
+
+<!-- ── SCREEN: HOME ── -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <h1>🎴 Finn par</h1>
+    <p>Velg hvem du er for å komme i gang</p>
+  </div>
+  <div class="home-grid">
+    <div class="mode-card teacher" onclick="enterTeacher()" role="button" tabindex="0">
+      <span class="mode-icon">👩‍🏫</span>
+      <div class="mode-title">Lærer</div>
+      <div class="mode-desc">Lag og rediger kortsett med bilder og lyd</div>
+    </div>
+    <div class="mode-card student" onclick="enterStudent()" role="button" tabindex="0">
+      <span class="mode-icon">🧒</span>
+      <div class="mode-title">Elev</div>
+      <div class="mode-desc">Spill kortspillet og finn alle parene</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: TEACHER SETS ── -->
+<div class="screen" id="screen-teacher-sets">
+  <div class="section-header">
+    <span class="section-title">Mine kortsett</span>
+    <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
+  </div>
+  <div id="teacherList" class="set-list"></div>
+  <div id="teacherEmpty" class="empty" style="display:none">
+    <div class="empty-icon">🃏</div>
+    <div class="empty-text">Ingen kortsett ennå</div>
+    <button class="btn btn-primary btn-lg" onclick="newSet()">+ Lag ditt første kortsett</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: EDIT SET ── -->
+<div class="screen" id="screen-edit-set">
+  <input class="set-name-input" id="setNameInput" type="text" placeholder="Navn på kortsettet..." autocomplete="off" />
+
+  <div class="ai-section">
+    <div class="ai-header">
+      <span style="font-size:20px;">✨</span>
+      <span class="ai-title">AI-forslag til kortinnhold</span>
+    </div>
+    <div class="ai-desc">Skriv inn et tema, så foreslår AI hva kortene kan inneholde. Krever Claude API-nøkkel i innstillinger.</div>
+    <div class="ai-row">
+      <input class="ai-input" type="text" id="aiTopicInput" placeholder="F.eks. frukter, dyr, norske byer…" autocomplete="off"
+             onkeydown="if(event.key==='Enter')fetchAiSuggestions()" />
+      <button class="ai-btn" onclick="fetchAiSuggestions()">Foreslå</button>
+    </div>
+    <div class="ai-chips" id="aiChips"></div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-title">Kort (<span id="cardCountLabel">0</span>)</span>
+  </div>
+  <div class="cards-grid" id="cardsGrid"></div>
+
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
+    <button class="btn btn-primary" onclick="saveSet()">💾 Lagre kortsett</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: EDIT CARD ── -->
+<div class="screen" id="screen-edit-card">
+  <label for="cardTextInput">Tekst på kortet</label>
+  <input class="card-text-input" id="cardTextInput" type="text" placeholder="Hva viser kortet?" autocomplete="off" />
+
+  <div class="card-editor-grid">
+    <!-- IMAGE -->
+    <div class="editor-panel">
+      <div class="editor-panel-title">🖼️ Bilde</div>
+      <div class="img-preview" id="imgPreview">
+        <span class="img-placeholder">🖼️</span>
+      </div>
+      <div class="img-btn-group">
+        <button class="btn btn-secondary btn-full btn-sm" onclick="triggerImgUpload()">📁 Last opp fra enhet</button>
+        <button class="btn btn-secondary btn-full btn-sm" onclick="openImageSearch()">🔍 Søk på nettet</button>
+        <input class="img-url-input" type="url" id="imgUrlInput" placeholder="Lim inn bilde-URL…"
+               oninput="loadImageUrl(this.value)" autocomplete="off" />
+      </div>
+      <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImgFile(this)" />
+    </div>
+
+    <!-- AUDIO -->
+    <div class="editor-panel">
+      <div class="editor-panel-title">🎤 Lyd</div>
+      <div class="audio-center">
+        <!-- Record button (hidden while audio is confirmed) -->
+        <div class="record-ring" id="recRingWrap">
+          <svg class="record-ring-svg" id="recRingSvg" viewBox="0 0 76 76">
+            <circle class="record-ring-circle" id="recRingCircle" cx="38" cy="38" r="36"/>
+          </svg>
+          <button class="rec-btn" id="recBtn" onclick="toggleRecording()" aria-label="Ta opp lyd">🎤</button>
+        </div>
+        <div class="rec-status" id="recStatus">Trykk for å ta opp lyd</div>
+        <div class="rec-timer" id="recTimer">0:00</div>
+
+        <!-- Audio player — shown in pending and confirmed states -->
+        <audio class="audio-player" id="audioPlayer" controls style="display:none;width:100%"></audio>
+
+        <!-- Pending: awaiting confirmation after recording -->
+        <div id="audioPending" style="display:none;width:100%;display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-success btn-full btn-sm" onclick="confirmAudio()">✅ Bruk denne lyden</button>
+          <button class="btn btn-secondary btn-full btn-sm" onclick="discardPendingAudio()">🔄 Ta opp på nytt</button>
+        </div>
+
+        <!-- Confirmed: audio saved to card -->
+        <div id="audioConfirmed" style="display:none;width:100%;display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-secondary btn-full btn-sm" onclick="rerecordAudio()">🎤 Ta opp ny lyd</button>
+          <button class="btn btn-danger btn-full btn-sm" onclick="deleteAudio()">🗑️ Slett lyd</button>
+        </div>
+
+        <span class="audio-divider" id="audioDivider">— eller —</span>
+        <button class="btn btn-secondary btn-full btn-sm" id="audioUploadBtn" onclick="triggerAudioUpload()">📂 Last opp lydfil</button>
+      </div>
+      <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="handleAudioFile(this)" />
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-left">
+      <button class="btn btn-danger btn-sm" id="deleteCardBtn" onclick="deleteCard()" style="display:none">🗑️ Slett</button>
+    </div>
+    <button class="btn btn-secondary" onclick="cancelCardEdit()">Avbryt</button>
+    <button class="btn btn-primary" onclick="saveCard()">Lagre kort</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: STUDENT SELECT ── -->
+<div class="screen" id="screen-student-select">
+  <div style="text-align:center;padding:24px 0 20px">
+    <h2 style="font-size:24px;font-weight:800">🎮 Velg et kortspill</h2>
+    <p style="color:var(--text-light);margin-top:6px">Trykk på et spill for å starte</p>
+  </div>
+  <div id="studentList" class="student-grid"></div>
+  <div id="studentEmpty" class="empty" style="display:none">
+    <div class="empty-icon">😴</div>
+    <div class="empty-text">Ingen kortsett er laget ennå</div>
+    <p style="color:var(--text-light)">Be læreren din om å lage et kortsett!</p>
+  </div>
+</div>
+
+<!-- ── SCREEN: DIFFICULTY ── -->
+<div class="screen" id="screen-difficulty">
+  <div class="diff-header">
+    <h2 id="diffSetName">Velg antall par</h2>
+    <p>Hvor mange par vil du finne?</p>
+  </div>
+  <div class="diff-grid" id="diffGrid"></div>
+  <button class="btn btn-primary btn-full btn-lg" onclick="startGame()">▶️ Start spillet!</button>
+</div>
+
+<!-- ── SCREEN: GAME ── -->
+<div class="screen" id="screen-game">
+  <div class="game-bar">
+    <div class="game-stat">
+      <div class="game-stat-val" id="statAttempts">0</div>
+      <div class="game-stat-label">Forsøk</div>
+    </div>
+    <div class="game-stat">
+      <div class="game-stat-val" id="statMatches">0</div>
+      <div class="game-stat-label">Par funnet</div>
+    </div>
+    <div class="game-stat">
+      <div class="game-stat-val" id="statTotal">0</div>
+      <div class="game-stat-label">Par totalt</div>
+    </div>
+  </div>
+  <div class="game-grid" id="gameGrid"></div>
+</div>
+
+<!-- ── SCREEN: WIN ── -->
+<div class="screen" id="screen-win">
+  <div class="win-wrap">
+    <span class="win-emoji">🎉</span>
+    <div class="win-title">Gratulerer!</div>
+    <div class="win-sub" id="winSub"></div>
+    <div class="win-actions">
+      <button class="btn btn-primary btn-full btn-lg" onclick="playAgain()">🔄 Spill igjen</button>
+      <button class="btn btn-secondary btn-full" onclick="goToStudentSelect()">📚 Velg annet spill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: SETTINGS ── -->
+<div class="screen" id="screen-settings">
+  <div class="settings-group">
+    <div class="settings-group-title">✨ AI-forslag</div>
+    <div class="settings-card">
+      <div class="settings-label">Claude API-nøkkel</div>
+      <div class="settings-desc">Legg til en Anthropic API-nøkkel for å bruke AI-forslag til kortinnhold i lærervisningen. Hent nøkkel gratis på <strong>console.anthropic.com</strong>.</div>
+      <input class="settings-input" type="password" id="settingClaude" placeholder="sk-ant-…" autocomplete="off" />
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">🔍 Bildesøk</div>
+    <div class="settings-card">
+      <div class="settings-label">Pixabay API-nøkkel</div>
+      <div class="settings-desc">For å søke etter bilder fra internett når du lager kort. Registrer deg gratis på <strong>pixabay.com</strong> for å få en nøkkel.</div>
+      <input class="settings-input" type="password" id="settingPixabay" placeholder="Din Pixabay API-nøkkel…" autocomplete="off" />
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">📦 Data</div>
+    <div class="settings-card">
+      <div class="settings-label">Eksporter kortsett</div>
+      <div class="settings-desc">Last ned alle kortsett som en fil. Nyttig for sikkerhetskopi eller deling med andre lærere.</div>
+      <button class="btn btn-secondary btn-sm mt-3" onclick="exportData()">📤 Eksporter alle kortsett</button>
+    </div>
+    <div class="settings-card mt-3">
+      <div class="settings-label">Importer kortsett</div>
+      <div class="settings-desc">Last inn kortsett fra en eksportert fil.</div>
+      <button class="btn btn-secondary btn-sm mt-3" onclick="document.getElementById('importFileInput').click()">📥 Importer</button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(this)" />
+    </div>
+  </div>
+</div>
+
+<!-- ── IMAGE SEARCH MODAL ── -->
+<div class="modal-overlay" id="imgSearchModal" onclick="handleModalClick(event)">
+  <div class="modal" id="imgSearchModalInner">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Søk etter bilde</div>
+    <div class="search-row">
+      <input class="search-input" type="search" id="imgSearchInput" placeholder="Søk etter bilder…"
+             onkeydown="if(event.key==='Enter')doImageSearch()" autocomplete="off" />
+      <button class="btn btn-primary" onclick="doImageSearch()">Søk</button>
+    </div>
+    <div id="imgSearchResults">
+      <div class="modal-info" id="imgSearchHint">Skriv inn et søkeord og trykk Søk</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   DATABASE (IndexedDB)
+   ============================================================ */
+let db;
+const DB_NAME = 'FinnParDB';
+const DB_VER = 1;
+const ST_SETS = 'cardSets';
+const ST_CFG  = 'config';
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(ST_SETS)) d.createObjectStore(ST_SETS, { keyPath: 'id' });
+      if (!d.objectStoreNames.contains(ST_CFG))  d.createObjectStore(ST_CFG,  { keyPath: 'k' });
+    };
+    r.onsuccess = e => { db = e.target.result; res(db); };
+    r.onerror   = () => rej(r.error);
+  });
+}
+
+function tx(store, mode = 'readonly') {
+  return db.transaction(store, mode).objectStore(store);
+}
+
+function dbGet(store, key) {
+  return new Promise((res, rej) => { const r = tx(store).get(key); r.onsuccess = () => res(r.result); r.onerror = rej; });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => { const r = tx(store).getAll(); r.onsuccess = () => res(r.result); r.onerror = rej; });
+}
+
+function dbPut(store, val) {
+  return new Promise((res, rej) => { const r = tx(store,'readwrite').put(val); r.onsuccess = () => res(r.result); r.onerror = rej; });
+}
+
+function dbDel(store, key) {
+  return new Promise((res, rej) => { const r = tx(store,'readwrite').delete(key); r.onsuccess = () => res(); r.onerror = rej; });
+}
+
+async function getCfg(k) { const r = await dbGet(ST_CFG, k); return r ? r.v : null; }
+async function setCfg(k, v) { return dbPut(ST_CFG, { k, v }); }
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const NAV_TITLES = {
+  'home':            '🎴 Finn par',
+  'teacher-sets':    '👩‍🏫 Lærervisning',
+  'edit-set':        '✏️ Rediger kortsett',
+  'edit-card':       '🃏 Rediger kort',
+  'student-select':  '🎮 Velg spill',
+  'difficulty':      '🎯 Vanskelighetsgrad',
+  'game':            '🎴 Finn par',
+  'win':             '🎉 Ferdig!',
+  'settings':        '⚙️ Innstillinger',
+};
+
+let history = ['home'];
+
+function currentScreen() { return history[history.length - 1]; }
+
+function showScreen(name, push = true) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (push) history.push(name); else history[history.length - 1] = name;
+  document.getElementById('navTitle').textContent = NAV_TITLES[name] || '';
+  document.getElementById('navBack').classList.toggle('visible', history.length > 1);
+  document.getElementById('navSettingsBtn').style.display = name === 'settings' ? 'none' : '';
+}
+
+function goBack() {
+  if (history.length <= 1) return;
+  const leaving = history.pop();
+  const dest    = currentScreen();
+  showScreen(dest, false);
+
+  if (dest === 'teacher-sets') loadTeacherSets();
+  else if (dest === 'edit-set' && leaving === 'edit-card') refreshCardsGrid();
+  else if (dest === 'student-select') loadStudentSets();
+}
+
+function enterTeacher() { showScreen('teacher-sets'); loadTeacherSets(); }
+function enterStudent()  { showScreen('student-select'); loadStudentSets(); }
+
+function goSettings() {
+  showScreen('settings');
+  loadSettingsUI();
+}
+
+/* ============================================================
+   TEACHER – CARD SET LIST
+   ============================================================ */
+async function loadTeacherSets() {
+  const sets  = (await dbGetAll(ST_SETS)).sort((a,b) => b.createdAt - a.createdAt);
+  const list  = document.getElementById('teacherList');
+  const empty = document.getElementById('teacherEmpty');
+  if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = sets.map(s => `
+    <div class="set-item" onclick="editSet('${s.id}')">
+      <div class="set-icon">🃏</div>
+      <div class="set-info">
+        <div class="set-name">${esc(s.name || 'Uten navn')}</div>
+        <div class="set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}</div>
+      </div>
+      <div class="set-actions" onclick="event.stopPropagation()">
+        <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser" aria-label="Dupliser">📋</button>
+        <button class="btn-icon" onclick="delSet('${s.id}')" title="Slett" aria-label="Slett">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   TEACHER – EDIT SET
+   ============================================================ */
+let workingSet = null; // the set currently being edited
+
+function newSet() {
+  workingSet = { id: uid(), name: '', createdAt: Date.now(), cards: [] };
+  openEditSet();
+}
+
+async function editSet(id) {
+  const s = await dbGet(ST_SETS, id);
+  if (!s) return;
+  workingSet = deepCopy(s);
+  openEditSet();
+}
+
+function openEditSet() {
+  document.getElementById('setNameInput').value = workingSet.name;
+  document.getElementById('aiTopicInput').value = '';
+  document.getElementById('aiChips').innerHTML = '';
+  refreshCardsGrid();
+  showScreen('edit-set');
+}
+
+function refreshCardsGrid() {
+  const cards = workingSet.cards;
+  document.getElementById('cardCountLabel').textContent = cards.length;
+  document.getElementById('cardsGrid').innerHTML =
+    cards.map((c, i) => `
+      <div class="card-thumb" onclick="editCard(${i})">
+        <div class="card-thumb-img">
+          ${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : `<span style="font-size:36px">🖼️</span>`}
+        </div>
+        <div class="card-thumb-label">
+          <span>${esc(c.text) || '—'}</span>
+          <span>${c.audioData ? '🔊' : '🔇'}</span>
+        </div>
+      </div>`).join('') +
+    `<div class="add-card-btn" onclick="addCard()">
+       <span>＋</span>
+       <span class="add-card-text">Legg til kort</span>
+     </div>`;
+}
+
+async function saveSet() {
+  workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
+  await dbPut(ST_SETS, workingSet);
+  toast('Kortsett lagret 💾', 'success');
+  goBack();
+}
+
+async function delSet(id) {
+  if (!confirm('Vil du slette dette kortsettet?')) return;
+  await dbDel(ST_SETS, id);
+  toast('Kortsett slettet');
+  loadTeacherSets();
+}
+
+async function dupSet(id) {
+  const s = await dbGet(ST_SETS, id);
+  if (!s) return;
+  const copy = deepCopy(s);
+  copy.id = uid();
+  copy.name = s.name + ' (kopi)';
+  copy.createdAt = Date.now();
+  await dbPut(ST_SETS, copy);
+  toast('Kortsett duplisert 📋', 'success');
+  loadTeacherSets();
+}
+
+/* ============================================================
+   TEACHER – EDIT CARD
+   ============================================================ */
+let workingCard = null;
+let workingCardIndex = -1;
+
+function addCard() {
+  workingCardIndex = -1;
+  workingCard = { id: uid(), text: '', imageData: null, audioData: null };
+  openCardEditor();
+}
+
+function editCard(i) {
+  workingCardIndex = i;
+  workingCard = deepCopy(workingSet.cards[i]);
+  openCardEditor();
+}
+
+function openCardEditor() {
+  stopRecording();
+  document.getElementById('cardTextInput').value = workingCard.text || '';
+
+  // Image
+  const prev = document.getElementById('imgPreview');
+  prev.innerHTML = workingCard.imageData
+    ? `<img src="${workingCard.imageData}" alt="Bilde">`
+    : `<span class="img-placeholder">🖼️</span>`;
+  document.getElementById('imgUrlInput').value = '';
+
+  // Audio
+  pendingAudio = null;
+  const player = document.getElementById('audioPlayer');
+  if (workingCard.audioData) {
+    player.src = workingCard.audioData;
+    setAudioState('confirmed');
+  } else {
+    player.src = '';
+    setAudioState('none');
+  }
+  document.getElementById('deleteCardBtn').style.display = workingCardIndex >= 0 ? '' : 'none';
+
+  showScreen('edit-card');
+}
+
+async function saveCard() {
+  workingCard.text = document.getElementById('cardTextInput').value.trim();
+  if (workingCardIndex === -1) {
+    workingSet.cards.push(workingCard);
+  } else {
+    workingSet.cards[workingCardIndex] = workingCard;
+  }
+  // Auto-save to DB so cards survive a page refresh even without pressing "Lagre kortsett"
+  workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
+  await dbPut(ST_SETS, workingSet);
+  goBack();
+}
+
+function deleteCard() {
+  if (workingCardIndex < 0) return;
+  if (!confirm('Vil du slette dette kortet?')) return;
+  workingSet.cards.splice(workingCardIndex, 1);
+  goBack();
+}
+
+function cancelCardEdit() {
+  stopRecording();
+  goBack();
+}
+
+/* ============================================================
+   IMAGE HANDLING
+   ============================================================ */
+function triggerImgUpload() { document.getElementById('imgFileInput').click(); }
+
+function handleImgFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => compressImg(e.target.result, 700, 700).then(setCardImage);
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function loadImageUrl(url) {
+  if (!url || url.length < 10) return;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const c = document.createElement('canvas');
+      const max = 700;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > max || h > max) { const r = Math.min(max/w, max/h); w = Math.round(w*r); h = Math.round(h*r); }
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      setCardImage(c.toDataURL('image/jpeg', .85));
+    } catch { setCardImage(url); }
+  };
+  img.onerror = () => {};
+  img.src = url;
+}
+
+function setCardImage(dataOrUrl) {
+  workingCard.imageData = dataOrUrl;
+  document.getElementById('imgPreview').innerHTML = `<img src="${dataOrUrl}" alt="Bilde">`;
+}
+
+function compressImg(dataUrl, maxW, maxH) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxW || h > maxH) { const r = Math.min(maxW/w, maxH/h); w = Math.round(w*r); h = Math.round(h*r); }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', .85));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/* ── Image Search Modal ── */
+async function openImageSearch() {
+  document.getElementById('imgSearchModal').classList.add('open');
+  const text = document.getElementById('cardTextInput').value.trim();
+  const key  = await getCfg('pixabay');
+  if (!key) {
+    document.getElementById('imgSearchResults').innerHTML = `
+      <div class="modal-info">
+        💡 Legg til en gratis Pixabay API-nøkkel i <strong>Innstillinger</strong> for å søke etter bilder fra nettet.<br><br>
+        Du kan registrere deg på <strong>pixabay.com</strong> og få en gratis nøkkel.<br><br>
+        <button class="btn btn-secondary btn-sm" onclick="closeImgModal();goSettings()">⚙️ Åpne innstillinger</button>
+      </div>`;
+    document.getElementById('imgSearchInput').value = text;
+    return;
+  }
+  document.getElementById('imgSearchInput').value = text;
+  document.getElementById('imgSearchResults').innerHTML = `<div class="modal-info" id="imgSearchHint">Skriv et søkeord og trykk Søk</div>`;
+  if (text) doImageSearch();
+}
+
+function closeImgModal() {
+  document.getElementById('imgSearchModal').classList.remove('open');
+}
+
+function handleModalClick(e) {
+  if (e.target === document.getElementById('imgSearchModal')) closeImgModal();
+}
+
+async function doImageSearch() {
+  const q   = document.getElementById('imgSearchInput').value.trim();
+  if (!q) return;
+  const key = await getCfg('pixabay');
+  if (!key) return;
+  const res = document.getElementById('imgSearchResults');
+  res.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div> Søker…</div>`;
+  try {
+    const url  = `https://pixabay.com/api/?key=${encodeURIComponent(key)}&q=${encodeURIComponent(q)}&image_type=photo&safesearch=true&per_page=18&lang=no`;
+    const data = await fetch(url).then(r => r.json());
+    if (!data.hits?.length) { res.innerHTML = `<div class="modal-info">Ingen bilder funnet for «${esc(q)}». Prøv et annet søkeord.</div>`; return; }
+    res.innerHTML = `<div class="img-grid">${data.hits.map(h =>
+      `<div class="img-result" onclick="pickSearchImg('${escAttr(h.webformatURL)}')">
+         <img src="${h.previewURL}" alt="${esc(h.tags)}" loading="lazy">
+       </div>`).join('')}</div>`;
+  } catch(e) {
+    res.innerHTML = `<div class="modal-info">Søkefeil — sjekk API-nøkkelen din i innstillinger.</div>`;
+  }
+}
+
+async function pickSearchImg(url) {
+  closeImgModal();
+  toast('Laster ned bilde…');
+  try {
+    const blob = await fetch(url).then(r => r.blob());
+    const dr   = new FileReader();
+    dr.onload  = e => compressImg(e.target.result, 700, 700).then(setCardImage);
+    dr.readAsDataURL(blob);
+  } catch { setCardImage(url); }
+  toast('Bilde valgt ✓', 'success');
+}
+
+/* ============================================================
+   AUDIO RECORDING
+   ============================================================ */
+let mediaRec = null, recChunks = [], recSecs = 0, recInterval = null, isRec = false;
+let pendingAudio = null; // recorded but not yet confirmed
+
+// audioState: 'none' | 'recording' | 'pending' | 'confirmed'
+function setAudioState(state) {
+  const recWrap    = document.getElementById('recRingWrap');
+  const recStatus  = document.getElementById('recStatus');
+  const recTimer   = document.getElementById('recTimer');
+  const player     = document.getElementById('audioPlayer');
+  const pending    = document.getElementById('audioPending');
+  const confirmed  = document.getElementById('audioConfirmed');
+  const divider    = document.getElementById('audioDivider');
+  const uploadBtn  = document.getElementById('audioUploadBtn');
+
+  // Reset all
+  recWrap.style.display   = 'flex';
+  recTimer.style.display  = 'none';
+  player.style.display    = 'none';
+  pending.style.display   = 'none';
+  confirmed.style.display = 'none';
+  divider.style.display   = '';
+  uploadBtn.style.display = '';
+  document.getElementById('recBtn').textContent = '🎤';
+  document.getElementById('recBtn').classList.remove('recording');
+  document.getElementById('recRingSvg').classList.remove('visible');
+  document.getElementById('recRingCircle').style.strokeDashoffset = 226;
+
+  if (state === 'none') {
+    recStatus.textContent = 'Trykk for å ta opp lyd';
+
+  } else if (state === 'recording') {
+    recStatus.textContent = 'Tar opp… trykk for å stoppe';
+    recTimer.style.display = '';
+    document.getElementById('recBtn').textContent = '⏹️';
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recRingSvg').classList.add('visible');
+    divider.style.display   = 'none';
+    uploadBtn.style.display = 'none';
+
+  } else if (state === 'pending') {
+    recWrap.style.display   = 'none';
+    recStatus.textContent   = 'Hørtes det bra ut?';
+    player.style.display    = '';
+    pending.style.display   = 'flex';
+    divider.style.display   = 'none';
+    uploadBtn.style.display = 'none';
+
+  } else if (state === 'confirmed') {
+    recWrap.style.display   = 'none';
+    recStatus.textContent   = 'Lyd er lagt til ✓';
+    player.style.display    = '';
+    confirmed.style.display = 'flex';
+    divider.style.display   = 'none';
+    uploadBtn.style.display = 'none';
+  }
+}
+
+async function toggleRecording() {
+  isRec ? stopRecording() : await startRecording();
+}
+
+async function startRecording() {
+  pendingAudio = null;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRec = new MediaRecorder(stream);
+    recChunks = []; recSecs = 0;
+
+    mediaRec.ondataavailable = e => { if (e.data.size) recChunks.push(e.data); };
+    mediaRec.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob   = new Blob(recChunks, { type: 'audio/webm' });
+      const reader = new FileReader();
+      reader.onload = e => {
+        pendingAudio = e.target.result;
+        document.getElementById('audioPlayer').src = pendingAudio;
+        setAudioState('pending');
+      };
+      reader.readAsDataURL(blob);
+    };
+
+    mediaRec.start();
+    isRec = true;
+    setAudioState('recording');
+
+    recInterval = setInterval(() => {
+      recSecs++;
+      const m = Math.floor(recSecs/60), s = recSecs%60;
+      document.getElementById('recTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+      const pct = Math.min(recSecs / 60, 1);
+      document.getElementById('recRingCircle').style.strokeDashoffset = 226 * (1 - pct);
+    }, 1000);
+  } catch(e) {
+    toast('Mikrofontilgang nektet – sjekk nettleserinnstillingene', 'error');
+  }
+}
+
+function stopRecording() {
+  if (!isRec) return;
+  isRec = false;
+  clearInterval(recInterval);
+  if (mediaRec?.state !== 'inactive') mediaRec.stop();
+}
+
+function confirmAudio() {
+  if (!pendingAudio) return;
+  workingCard.audioData = pendingAudio;
+  pendingAudio = null;
+  setAudioState('confirmed');
+  toast('Lyd lagret ✓', 'success');
+}
+
+function discardPendingAudio() {
+  pendingAudio = null;
+  document.getElementById('audioPlayer').src = '';
+  setAudioState('none');
+}
+
+function deleteAudio() {
+  workingCard.audioData = null;
+  document.getElementById('audioPlayer').src = '';
+  setAudioState('none');
+  toast('Lyd slettet');
+}
+
+function rerecordAudio() {
+  workingCard.audioData = null;
+  document.getElementById('audioPlayer').src = '';
+  setAudioState('none');
+}
+
+function triggerAudioUpload() { document.getElementById('audioFileInput').click(); }
+
+function handleAudioFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    workingCard.audioData = e.target.result;
+    document.getElementById('audioPlayer').src = e.target.result;
+    setAudioState('confirmed');
+    toast('Lydfil lastet opp ✓', 'success');
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+/* ============================================================
+   AI SUGGESTIONS
+   ============================================================ */
+async function fetchAiSuggestions() {
+  const topic  = document.getElementById('aiTopicInput').value.trim();
+  if (!topic) { toast('Skriv inn et tema først', 'error'); return; }
+  const apiKey = await getCfg('claude');
+  if (!apiKey) { toast('Legg til Claude API-nøkkel i innstillinger', 'error'); goSettings(); return; }
+
+  const chipsEl = document.getElementById('aiChips');
+  chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner white"></div><span style="color:rgba(255,255,255,.8)">Henter forslag…</span></div>`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        messages: [{
+          role: 'user',
+          content: `Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`
+        }]
+      }),
+    });
+
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
+    const data  = await resp.json();
+    const words = data.content[0].text.split('\n').map(w => w.trim()).filter(w => w && w.length < 60);
+
+    chipsEl.innerHTML = words.map(w => {
+      const used = workingSet.cards.some(c => c.text.toLowerCase() === w.toLowerCase());
+      return `<button class="ai-chip${used?' used':''}" onclick="addChip('${escAttr(w)}')">${esc(w)}${used?' ✓':' +'}</button>`;
+    }).join('');
+  } catch(e) {
+    chipsEl.innerHTML = `<span style="color:rgba(255,255,255,.8);font-size:13px">Feil: ${esc(e.message)}</span>`;
+  }
+}
+
+function addChip(text) {
+  if (workingSet.cards.some(c => c.text.toLowerCase() === text.toLowerCase())) return;
+  workingSet.cards.push({ id: uid(), text, imageData: null, audioData: null });
+  refreshCardsGrid();
+  // Mark chip as used
+  document.querySelectorAll('.ai-chip').forEach(ch => {
+    const label = ch.textContent.replace(' +','').replace(' ✓','').trim();
+    if (label.toLowerCase() === text.toLowerCase()) { ch.classList.add('used'); ch.textContent = text + ' ✓'; }
+  });
+  toast(`«${text}» lagt til ✓`, 'success');
+}
+
+/* ============================================================
+   STUDENT – SELECT
+   ============================================================ */
+async function loadStudentSets() {
+  const sets  = (await dbGetAll(ST_SETS)).filter(s => s.cards?.length >= 2).sort((a,b) => b.createdAt - a.createdAt);
+  const list  = document.getElementById('studentList');
+  const empty = document.getElementById('studentEmpty');
+  if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = sets.map(s => {
+    const preview = s.cards.slice(0,4).map(c =>
+      `<div class="student-preview-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+    return `
+      <div class="student-set-card" onclick="selectSet('${s.id}')">
+        <div class="student-preview">${preview}</div>
+        <div class="student-set-info">
+          <div class="student-set-name">${esc(s.name || 'Uten navn')}</div>
+          <div class="student-set-count">${s.cards.length} kortpar</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   DIFFICULTY SELECTION
+   ============================================================ */
+let selectedSetForGame = null;
+let selectedPairs = 0;
+
+async function selectSet(id) {
+  const s = await dbGet(ST_SETS, id);
+  if (!s) return;
+  selectedSetForGame = s;
+  buildDifficultyScreen(s);
+}
+
+function buildDifficultyScreen(s) {
+  document.getElementById('diffSetName').textContent = s.name;
+  const total = s.cards.length;
+
+  // Build difficulty levels
+  const levels = [];
+  const targets = [4, 6, 8, 10, total];
+  const seenPairs = new Set();
+  const emojis = ['🌱','🌿','🌳','🏆','⭐'];
+  const labels = ['Enkel','Middels','Vanskelig','Ekspert','Alle'];
+
+  targets.forEach((n, i) => {
+    const pairs = Math.min(n, total);
+    if (!seenPairs.has(pairs)) {
+      seenPairs.add(pairs);
+      levels.push({ pairs, emoji: emojis[i], label: labels[i] });
+    }
+  });
+
+  selectedPairs = levels[0].pairs;
+
+  document.getElementById('diffGrid').innerHTML = levels.map((l, i) => `
+    <button class="diff-btn${i===0?' active':''}" onclick="pickDiff(this,${l.pairs})">
+      <span class="diff-emoji">${l.emoji}</span>
+      <span class="diff-label">${l.label}</span>
+      <span class="diff-sub">${l.pairs} par</span>
+    </button>`).join('');
+
+  showScreen('difficulty');
+}
+
+function pickDiff(btn, pairs) {
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPairs = pairs;
+}
+
+/* ============================================================
+   GAME
+   ============================================================ */
+let game = null;
+let audioCtx = null;
+
+function startGame() {
+  const cards = shuffle([...selectedSetForGame.cards]).slice(0, selectedPairs);
+  const instances = shuffle([
+    ...cards.map(c => ({ ...c, iid: uid(), matched: false, flipped: false })),
+    ...cards.map(c => ({ ...c, iid: uid(), matched: false, flipped: false })),
+  ]);
+
+  game = { cards: instances, flipped: [], matches: 0, attempts: 0, total: selectedPairs, locked: false };
+
+  document.getElementById('statAttempts').textContent = '0';
+  document.getElementById('statMatches').textContent  = '0';
+  document.getElementById('statTotal').textContent    = selectedPairs;
+
+  renderGameGrid();
+  showScreen('game');
+}
+
+function renderGameGrid() {
+  const count = game.cards.length;
+  // Choose columns: 4 is ideal for tablets; use 3 if very few cards
+  const cols = count <= 6 ? 3 : 4;
+  const grid = document.getElementById('gameGrid');
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.innerHTML = game.cards.map((c, i) => `
+    <div class="gc" id="gc-${c.iid}" onclick="flipCard(${i})">
+      <div class="gc-inner">
+        <div class="gc-front">
+          <div class="gc-front-pattern"></div>
+          🎴
+        </div>
+        <div class="gc-back">
+          ${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : `<div class="gc-no-img">🖼️</div>`}
+          <div class="gc-label">${esc(c.text)}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i) {
+  if (game.locked) return;
+  const c = game.cards[i];
+  if (c.flipped || c.matched) return;
+  if (game.flipped.length >= 2) return;
+
+  c.flipped = true;
+  const el = document.getElementById('gc-' + c.iid);
+  el.classList.add('flipped');
+
+  // Play card audio if available
+  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} }
+
+  game.flipped.push(i);
+
+  if (game.flipped.length === 2) {
+    game.locked = true;
+    game.attempts++;
+    document.getElementById('statAttempts').textContent = game.attempts;
+
+    const [i1, i2] = game.flipped;
+    const c1 = game.cards[i1], c2 = game.cards[i2];
+
+    if (c1.id === c2.id) {
+      // MATCH
+      setTimeout(() => {
+        c1.matched = true; c2.matched = true;
+        document.getElementById('gc-' + c1.iid).classList.add('matched');
+        document.getElementById('gc-' + c2.iid).classList.add('matched');
+        game.flipped = []; game.locked = false;
+        game.matches++;
+        document.getElementById('statMatches').textContent = game.matches;
+        playTone([523, 659, 784], 'sine', 0.3);
+        if (game.matches === game.total) setTimeout(showWin, 700);
+      }, 500);
+    } else {
+      // NO MATCH
+      setTimeout(() => {
+        // Show wrong animation
+        document.getElementById('gc-' + c1.iid).classList.add('wrong');
+        document.getElementById('gc-' + c2.iid).classList.add('wrong');
+        playTone([200], 'triangle', 0.2);
+      }, 300);
+      setTimeout(() => {
+        c1.flipped = false; c2.flipped = false;
+        const e1 = document.getElementById('gc-' + c1.iid);
+        const e2 = document.getElementById('gc-' + c2.iid);
+        e1.classList.remove('flipped','wrong');
+        e2.classList.remove('flipped','wrong');
+        game.flipped = []; game.locked = false;
+      }, 1300);
+    }
+  }
+}
+
+function showWin() {
+  const att = game.attempts, pairs = game.total;
+  document.getElementById('winSub').textContent =
+    `Du brukte ${att} forsøk og fant ${pairs} par. ${att <= pairs + 2 ? 'Fantastisk jobbet! 🌟' : att <= pairs * 2 ? 'Bra jobba! 👍' : 'Du klarte det! 🎊'}`;
+  playTone([523,587,659,698,784], 'sine', 0.35);
+  showScreen('win');
+}
+
+function playAgain() {
+  buildDifficultyScreen(selectedSetForGame);
+}
+
+function goToStudentSelect() {
+  history = ['home', 'student-select'];
+  showScreen('student-select', false);
+  loadStudentSets();
+}
+
+/* ── Audio tone generator ── */
+function playTone(freqs, type = 'sine', vol = 0.3) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = type; osc.frequency.value = freq;
+      const t = audioCtx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(vol, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+      osc.start(t); osc.stop(t + 0.35);
+    });
+  } catch {}
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+async function loadSettingsUI() {
+  document.getElementById('settingClaude').value   = await getCfg('claude')   || '';
+  document.getElementById('settingPixabay').value  = await getCfg('pixabay')  || '';
+}
+
+async function saveSettings() {
+  await setCfg('claude',   document.getElementById('settingClaude').value.trim());
+  await setCfg('pixabay',  document.getElementById('settingPixabay').value.trim());
+  toast('Innstillinger lagret ✓', 'success');
+}
+
+/* ============================================================
+   IMPORT / EXPORT
+   ============================================================ */
+async function exportData() {
+  const sets = await dbGetAll(ST_SETS);
+  const blob = new Blob([JSON.stringify({ ver:1, sets, ts: Date.now() })], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href: url, download: `kortspill-${new Date().toISOString().slice(0,10)}.json` });
+  a.click(); URL.revokeObjectURL(url);
+  toast('Eksportert ✓', 'success');
+}
+
+async function importData(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data.sets)) throw new Error('Ugyldig fil');
+      for (const s of data.sets) await dbPut(ST_SETS, s);
+      toast(`${data.sets.length} kortsett importert ✓`, 'success');
+    } catch { toast('Kunne ikke lese filen', 'error'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(s) { return String(s || '').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+function fmtDate(ts) {
+  return new Date(ts).toLocaleDateString('no-NO', { day:'numeric', month:'long', year:'numeric' });
+}
+
+let toastTimer;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
+    if (history.length > 1) goBack();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+(async function init() {
+  await openDB();
+  showScreen('home', false);
+  history = ['home'];
+})();
+</script>
+</body>
+</html>
