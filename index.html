@@ -647,8 +647,17 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
           <button class="btn btn-danger btn-full btn-sm" onclick="deleteAudio()">🗑️ Slett lyd</button>
         </div>
 
+        <!-- TTS active state -->
+        <div id="audioTts" style="display:none;width:100%;flex-direction:column;gap:8px">
+          <div style="background:var(--primary-light);border-radius:10px;padding:10px;text-align:center;color:var(--primary);font-weight:700;font-size:14px">🗣️ Automatisk oppleser aktivert</div>
+          <button class="btn btn-secondary btn-full btn-sm" onclick="previewTts()">🔊 Test lyden</button>
+          <button class="btn btn-secondary btn-full btn-sm" onclick="rerecordAudio()">🎤 Ta opp egen lyd i stedet</button>
+          <button class="btn btn-danger btn-full btn-sm" onclick="disableTts()">🗑️ Fjern lyd</button>
+        </div>
+
         <span class="audio-divider" id="audioDivider">— eller —</span>
         <button class="btn btn-secondary btn-full btn-sm" id="audioUploadBtn" onclick="triggerAudioUpload()">📂 Last opp lydfil</button>
+        <button class="btn btn-secondary btn-full btn-sm" id="audioTtsBtn" onclick="enableTts()">🗣️ Bruk automatisk oppleser</button>
       </div>
       <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="handleAudioFile(this)" />
     </div>
@@ -954,7 +963,8 @@ function flipCard(i) {
   if (c.flipped || c.matched || game.flipped.length >= 2) return;
   c.flipped = true;
   document.getElementById('gc-' + c.iid).classList.add('flipped');
-  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} }
+  if (c.audioData)    { try { new Audio(c.audioData).play(); } catch {} }
+  else if (c.ttsEnabled) { speakText(c.text); }
   game.flipped.push(i);
   if (game.flipped.length === 2) {
     game.locked = true;
@@ -1077,7 +1087,7 @@ function refreshCardsGrid() {
         </div>
         <div class="card-thumb-label">
           <span>${esc(c.text) || '—'}</span>
-          <span>${c.audioData ? '🔊' : '🔇'}</span>
+          <span>${c.audioData ? '🔊' : c.ttsEnabled ? '🗣️' : '🔇'}</span>
         </div>
       </div>`).join('') +
     `<div class="add-card-btn" onclick="addCard()"><span>＋</span><span class="add-card-text">Legg til kort</span></div>`;
@@ -1123,8 +1133,9 @@ function openCardEditor() {
   document.getElementById('imgUrlInput').value = '';
   pendingAudio = null;
   const player = document.getElementById('audioPlayer');
-  if (workingCard.audioData) { player.src = workingCard.audioData; setAudioState('confirmed'); }
-  else                       { player.src = ''; setAudioState('none'); }
+  if (workingCard.audioData)    { player.src = workingCard.audioData; setAudioState('confirmed'); }
+  else if (workingCard.ttsEnabled) { player.src = ''; setAudioState('tts'); }
+  else                             { player.src = ''; setAudioState('none'); }
   document.getElementById('deleteCardBtn').style.display = workingCardIndex >= 0 ? '' : 'none';
   showScreen('edit-card');
 }
@@ -1244,22 +1255,27 @@ let mediaRec = null, recChunks = [], recSecs = 0, recInterval = null, isRec = fa
 let pendingAudio = null;
 
 function setAudioState(state) {
-  const recWrap   = document.getElementById('recRingWrap');
-  const recStatus = document.getElementById('recStatus');
-  const recTimer  = document.getElementById('recTimer');
-  const player    = document.getElementById('audioPlayer');
-  const pending   = document.getElementById('audioPending');
-  const confirmed = document.getElementById('audioConfirmed');
-  const divider   = document.getElementById('audioDivider');
-  const uploadBtn = document.getElementById('audioUploadBtn');
+  const recWrap    = document.getElementById('recRingWrap');
+  const recStatus  = document.getElementById('recStatus');
+  const recTimer   = document.getElementById('recTimer');
+  const player     = document.getElementById('audioPlayer');
+  const pending    = document.getElementById('audioPending');
+  const confirmed  = document.getElementById('audioConfirmed');
+  const ttsBox     = document.getElementById('audioTts');
+  const divider    = document.getElementById('audioDivider');
+  const uploadBtn  = document.getElementById('audioUploadBtn');
+  const ttsBtn     = document.getElementById('audioTtsBtn');
 
-  recWrap.style.display   = 'flex';
-  recTimer.style.display  = 'none';
-  player.style.display    = 'none';
-  pending.style.display   = 'none';
-  confirmed.style.display = 'none';
-  divider.style.display   = '';
-  uploadBtn.style.display = '';
+  // Reset all
+  recWrap.style.display    = 'flex';
+  recTimer.style.display   = 'none';
+  player.style.display     = 'none';
+  pending.style.display    = 'none';
+  confirmed.style.display  = 'none';
+  ttsBox.style.display     = 'none';
+  divider.style.display    = '';
+  uploadBtn.style.display  = '';
+  ttsBtn.style.display     = '';
   document.getElementById('recBtn').textContent = '🎤';
   document.getElementById('recBtn').classList.remove('recording');
   document.getElementById('recRingSvg').classList.remove('visible');
@@ -1273,19 +1289,24 @@ function setAudioState(state) {
     document.getElementById('recBtn').textContent = '⏹️';
     document.getElementById('recBtn').classList.add('recording');
     document.getElementById('recRingSvg').classList.add('visible');
-    divider.style.display = 'none'; uploadBtn.style.display = 'none';
+    divider.style.display = 'none'; uploadBtn.style.display = 'none'; ttsBtn.style.display = 'none';
   } else if (state === 'pending') {
     recWrap.style.display = 'none';
     recStatus.textContent = 'Hørtes det bra ut?';
     player.style.display  = '';
     pending.style.display = 'flex';
-    divider.style.display = 'none'; uploadBtn.style.display = 'none';
+    divider.style.display = 'none'; uploadBtn.style.display = 'none'; ttsBtn.style.display = 'none';
   } else if (state === 'confirmed') {
-    recWrap.style.display    = 'none';
-    recStatus.textContent    = 'Lyd er lagt til ✓';
-    player.style.display     = '';
-    confirmed.style.display  = 'flex';
-    divider.style.display    = 'none'; uploadBtn.style.display = 'none';
+    recWrap.style.display   = 'none';
+    recStatus.textContent   = 'Lyd er lagt til ✓';
+    player.style.display    = '';
+    confirmed.style.display = 'flex';
+    divider.style.display   = 'none'; uploadBtn.style.display = 'none'; ttsBtn.style.display = 'none';
+  } else if (state === 'tts') {
+    recWrap.style.display  = 'none';
+    recStatus.textContent  = '';
+    ttsBox.style.display   = 'flex';
+    divider.style.display  = 'none'; uploadBtn.style.display = 'none'; ttsBtn.style.display = 'none';
   }
 }
 
@@ -1334,11 +1355,45 @@ function discardPendingAudio() {
 }
 
 function deleteAudio() {
-  workingCard.audioData = null; document.getElementById('audioPlayer').src = ''; setAudioState('none'); toast('Lyd slettet');
+  workingCard.audioData = null; workingCard.ttsEnabled = false;
+  document.getElementById('audioPlayer').src = ''; setAudioState('none'); toast('Lyd slettet');
 }
 
 function rerecordAudio() {
-  workingCard.audioData = null; document.getElementById('audioPlayer').src = ''; setAudioState('none');
+  workingCard.audioData = null; workingCard.ttsEnabled = false;
+  document.getElementById('audioPlayer').src = ''; setAudioState('none');
+}
+
+/* ── TTS helpers ── */
+function speakText(text) {
+  if (!text) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'nb-NO';
+  utt.rate = 0.85;
+  // Prefer a Norwegian voice if available
+  const voices = speechSynthesis.getVoices();
+  const norVoice = voices.find(v => v.lang.startsWith('nb') || v.lang.startsWith('no'));
+  if (norVoice) utt.voice = norVoice;
+  speechSynthesis.speak(utt);
+}
+
+function enableTts() {
+  workingCard.ttsEnabled = true;
+  workingCard.audioData  = null;
+  setAudioState('tts');
+  toast('Automatisk oppleser aktivert ✓', 'success');
+}
+
+function disableTts() {
+  workingCard.ttsEnabled = false;
+  setAudioState('none');
+}
+
+function previewTts() {
+  const text = document.getElementById('cardTextInput').value.trim() || workingCard.text;
+  if (!text) { toast('Skriv inn tekst på kortet først', 'error'); return; }
+  speakText(text);
 }
 
 function triggerAudioUpload() { document.getElementById('audioFileInput').click(); }
@@ -1426,7 +1481,7 @@ async function createAllCards() {
     const imageData = pixabayKey ? await fetchPixabayImage(word, pixabayKey) : null;
     done++;
     showProgress();
-    return { id: uid(), text: word, imageData, audioData: null };
+    return { id: uid(), text: word, imageData, audioData: null, ttsEnabled: true };
   }));
 
   workingSet.cards.push(...newCards);
