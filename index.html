@@ -198,6 +198,20 @@ body {
 }
 .ai-chip:hover { background: #fff; transform: translateY(-1px); }
 .ai-chip.used  { background: rgba(255,255,255,.3); color: rgba(255,255,255,.8); cursor: default; }
+.ai-create-all-btn {
+  width: 100%; padding: 11px 18px; margin-top: 4px;
+  border-radius: 12px; border: 2px solid rgba(255,255,255,.6);
+  background: rgba(255,255,255,.15); color: #fff;
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: all .15s; font-family: inherit; text-align: center;
+}
+.ai-create-all-btn:hover { background: rgba(255,255,255,.28); border-color: #fff; }
+.ai-progress-bar-wrap {
+  background: rgba(255,255,255,.2); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px;
+}
+.ai-progress-bar {
+  background: #fff; height: 100%; border-radius: 10px; width: 0%; transition: width .3s;
+}
 
 /* ── CARDS GRID (EDITOR) ── */
 .cards-grid {
@@ -664,9 +678,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="settings-group">
     <div class="settings-group-title">✨ AI-forslag</div>
     <div class="settings-card">
-      <div class="settings-label">Claude API-nøkkel</div>
-      <div class="settings-desc">For AI-forslag til kortinnhold. Hent nøkkel gratis på <strong>console.anthropic.com</strong>.</div>
-      <input class="settings-input" type="password" id="settingClaude" placeholder="sk-ant-…" autocomplete="off" />
+      <div class="settings-label">Gemini API-nøkkel</div>
+      <div class="settings-desc">For AI-forslag til kortinnhold. Hent gratis nøkkel på <strong>aistudio.google.com</strong>.</div>
+      <input class="settings-input" type="password" id="settingClaude" placeholder="AIzaSy…" autocomplete="off" />
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
   </div>
@@ -1343,6 +1357,8 @@ function handleAudioFile(input) {
 /* ============================================================
    AI SUGGESTIONS
    ============================================================ */
+let pendingChipWords = [];
+
 async function fetchAiSuggestions() {
   const topic  = document.getElementById('aiTopicInput').value.trim();
   if (!topic) { toast('Skriv inn et tema først', 'error'); return; }
@@ -1351,23 +1367,95 @@ async function fetchAiSuggestions() {
   const chipsEl = document.getElementById('aiChips');
   chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner white"></div><span style="color:rgba(255,255,255,.8)">Henter forslag…</span></div>`;
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:400, messages:[{
-        role:'user', content:`Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`
-      }] }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{
+        text: `Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`
+      }] }] }),
     });
     if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
     const data  = await resp.json();
-    const words = data.content[0].text.split('\n').map(w => w.trim()).filter(w => w && w.length < 60);
-    chipsEl.innerHTML = words.map(w => {
+    const words = data.candidates[0].content.parts[0].text.split('\n').map(w => w.trim()).filter(w => w && w.length < 60);
+
+    pendingChipWords = words;
+    const pixabayKey = await getCfg('pixabay');
+    const newWords   = words.filter(w => !workingSet.cards.some(c => c.text.toLowerCase() === w.toLowerCase()));
+
+    let html = words.map(w => {
       const used = workingSet.cards.some(c => c.text.toLowerCase() === w.toLowerCase());
       return `<button class="ai-chip${used?' used':''}" onclick="addChip('${escAttr(w)}')">${esc(w)}${used?' ✓':' +'}</button>`;
     }).join('');
+
+    if (newWords.length > 0) {
+      const imgNote = pixabayKey ? ' med bilder' : '';
+      html += `<button class="ai-create-all-btn" onclick="createAllCards()">✨ Lag alle ${newWords.length} kort automatisk${imgNote}</button>`;
+    }
+
+    chipsEl.innerHTML = html;
   } catch(e) {
     chipsEl.innerHTML = `<span style="color:rgba(255,255,255,.8);font-size:13px">Feil: ${esc(e.message)}</span>`;
   }
+}
+
+async function createAllCards() {
+  const pixabayKey = await getCfg('pixabay');
+  const words = pendingChipWords.filter(w => !workingSet.cards.some(c => c.text.toLowerCase() === w.toLowerCase()));
+  if (!words.length) { toast('Alle ord er allerede lagt til', 'error'); return; }
+
+  const chipsEl = document.getElementById('aiChips');
+  let done = 0;
+
+  const showProgress = () => {
+    const pct = Math.round(done / words.length * 100);
+    chipsEl.innerHTML = `
+      <div style="width:100%;color:rgba(255,255,255,.95)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div class="spinner white" style="flex-shrink:0"></div>
+          <span style="font-size:14px">Lager kort${pixabayKey ? ' og finner bilder' : ''}… (${done}/${words.length})</span>
+        </div>
+        <div class="ai-progress-bar-wrap">
+          <div class="ai-progress-bar" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  };
+
+  showProgress();
+
+  const newCards = await Promise.all(words.map(async word => {
+    const imageData = pixabayKey ? await fetchPixabayImage(word, pixabayKey) : null;
+    done++;
+    showProgress();
+    return { id: uid(), text: word, imageData, audioData: null };
+  }));
+
+  workingSet.cards.push(...newCards);
+  workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
+  await dbPut(ST_SETS, workingSet);
+  refreshCardsGrid();
+
+  const withImg = newCards.filter(c => c.imageData).length;
+  const imgMsg  = pixabayKey ? ` · ${withImg} av ${newCards.length} fikk bilder` : '';
+  chipsEl.innerHTML = `<div style="color:#fff;font-size:14px;text-align:center;padding:6px 0;line-height:1.5">
+    ✅ ${newCards.length} kort laget${imgMsg}!<br>
+    <span style="opacity:.8;font-size:13px">Gå til kortene nedenfor for å legge til lyd 🎤</span>
+  </div>`;
+  toast(`${newCards.length} kort laget ✓`, 'success');
+}
+
+async function fetchPixabayImage(word, key) {
+  try {
+    const url  = `https://pixabay.com/api/?key=${encodeURIComponent(key)}&q=${encodeURIComponent(word)}&image_type=photo&safesearch=true&per_page=3&lang=no`;
+    const data = await fetch(url).then(r => r.json());
+    if (!data.hits?.length) return null;
+    const blob   = await fetch(data.hits[0].webformatURL).then(r => r.blob());
+    const dataUrl = await new Promise(res => {
+      const reader = new FileReader();
+      reader.onload = e => res(e.target.result);
+      reader.readAsDataURL(blob);
+    });
+    return await compressImg(dataUrl, 700, 700);
+  } catch { return null; }
 }
 
 function addChip(text) {
