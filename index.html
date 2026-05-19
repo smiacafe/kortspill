@@ -594,6 +594,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
   <div class="section-header">
     <span class="section-title">Kort (<span id="cardCountLabel">0</span>)</span>
+    <button class="btn btn-secondary" style="padding:7px 14px;font-size:13px" onclick="addTtsToAll()" title="Slå på automatisk lyd for alle kort som mangler lyd">🗣️ Lyd for alle</button>
   </div>
   <div class="cards-grid" id="cardsGrid"></div>
 
@@ -1169,6 +1170,15 @@ async function dupSet(id) {
    TEACHER – EDIT CARD
    ============================================================ */
 let workingCard = null, workingCardIndex = -1;
+
+async function addTtsToAll() {
+  const missing = workingSet.cards.filter(c => !c.audioData && !c.ttsEnabled);
+  if (!missing.length) { toast('Alle kort har allerede lyd 🗣️'); return; }
+  missing.forEach(c => { c.ttsEnabled = true; });
+  try { await sbUpsertSet(workingSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); return; }
+  refreshCardsGrid();
+  toast(`Lyd lagt til for ${missing.length} kort 🗣️`, 'success');
+}
 
 function addCard()  { workingCardIndex = -1; workingCard = { id: uid(), text: '', imageData: null, audioData: null }; openCardEditor(); }
 function editCard(i){ workingCardIndex = i;  workingCard = deepCopy(workingSet.cards[i]); openCardEditor(); }
