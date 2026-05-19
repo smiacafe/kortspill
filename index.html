@@ -782,6 +782,44 @@ async function getCfg(k)    { const r = await dbGet(ST_CFG, k); return r ? r.v :
 async function setCfg(k, v) { return dbPut(ST_CFG, { k, v }); }
 
 /* ============================================================
+   SUPABASE – CLOUD CARD SETS
+   ============================================================ */
+const SUPABASE_URL = 'https://jxixrrpgqbjvglpkcecl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_RSs4GqMaSVBZWoSPOYpnfA_VZemoUgG';
+
+function sbHeaders(extra = {}) {
+  return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
+}
+function sbRowToSet(r) {
+  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime() };
+}
+async function sbGetAllSets() {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  return (await resp.json()).map(sbRowToSet);
+}
+async function sbGetSet(id) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets?id=eq.${encodeURIComponent(id)}&select=*`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  const rows = await resp.json();
+  return rows.length ? sbRowToSet(rows[0]) : null;
+}
+async function sbUpsertSet(set) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards })
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+async function sbDeleteSet(id) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE', headers: sbHeaders()
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+
+/* ============================================================
    NAVIGATION
    ============================================================ */
 const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings']);
@@ -863,7 +901,9 @@ async function submitPassword() {
    STUDENT – SELECT
    ============================================================ */
 async function loadStudentSets() {
-  const sets  = (await dbGetAll(ST_SETS)).filter(s => s.cards?.length >= 2).sort((a,b) => b.createdAt - a.createdAt);
+  let sets;
+  try { sets = (await sbGetAllSets()).filter(s => s.cards?.length >= 2); }
+  catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
   const list  = document.getElementById('studentList');
   const empty = document.getElementById('studentEmpty');
   if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
@@ -888,7 +928,7 @@ async function loadStudentSets() {
 let selectedSetForGame = null, selectedPairs = 0;
 
 async function selectSet(id) {
-  const s = await dbGet(ST_SETS, id);
+  const s = await sbGetSet(id);
   if (!s) return;
   selectedSetForGame = s;
   buildDifficultyScreen(s);
@@ -1032,14 +1072,21 @@ function playTone(freqs, type = 'sine', vol = 0.3) {
    TEACHER – CARD SET LIST
    ============================================================ */
 async function loadTeacherSets() {
-  const sets  = (await dbGetAll(ST_SETS)).sort((a,b) => b.createdAt - a.createdAt);
+  let sets;
+  try { sets = await sbGetAllSets(); }
+  catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
   const list  = document.getElementById('teacherList');
   const empty = document.getElementById('teacherEmpty');
   if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
   empty.style.display = 'none';
-  list.innerHTML = sets.map(s => `
+  list.innerHTML = sets.map(s => {
+    const cardWithImg = s.cards.find(c => c.imageData);
+    const thumb = cardWithImg
+      ? `<div style="width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`
+      : `<div style="width:52px;height:52px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🃏</div>`;
+    return `
     <div class="set-item" onclick="editSet('${s.id}')">
-      <div class="set-icon">🃏</div>
+      ${thumb}
       <div class="set-info">
         <div class="set-name">${esc(s.name || 'Uten navn')}</div>
         <div class="set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}</div>
@@ -1048,7 +1095,8 @@ async function loadTeacherSets() {
         <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser">📋</button>
         <button class="btn-icon" onclick="delSet('${s.id}')" title="Slett">🗑️</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* ============================================================
@@ -1062,7 +1110,7 @@ function newSet() {
 }
 
 async function editSet(id) {
-  const s = await dbGet(ST_SETS, id);
+  const s = await sbGetSet(id);
   if (!s) return;
   workingSet = deepCopy(s);
   openEditSet();
@@ -1095,24 +1143,24 @@ function refreshCardsGrid() {
 
 async function saveSet() {
   workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
-  await dbPut(ST_SETS, workingSet);
+  try { await sbUpsertSet(workingSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); return; }
   toast('Kortsett lagret 💾', 'success');
   goBack();
 }
 
 async function delSet(id) {
   if (!confirm('Vil du slette dette kortsettet?')) return;
-  await dbDel(ST_SETS, id);
+  try { await sbDeleteSet(id); } catch(err) { toast('Sletting feilet: ' + err.message, 'error'); return; }
   toast('Kortsett slettet');
   loadTeacherSets();
 }
 
 async function dupSet(id) {
-  const s = await dbGet(ST_SETS, id);
+  const s = await sbGetSet(id);
   if (!s) return;
   const copy = deepCopy(s);
   copy.id = uid(); copy.name = s.name + ' (kopi)'; copy.createdAt = Date.now();
-  await dbPut(ST_SETS, copy);
+  try { await sbUpsertSet(copy); } catch(err) { toast('Duplisering feilet: ' + err.message, 'error'); return; }
   toast('Kortsett duplisert 📋', 'success');
   loadTeacherSets();
 }
@@ -1144,9 +1192,8 @@ async function saveCard() {
   workingCard.text = document.getElementById('cardTextInput').value.trim();
   if (workingCardIndex === -1) workingSet.cards.push(workingCard);
   else workingSet.cards[workingCardIndex] = workingCard;
-  // Auto-save so cards survive a page refresh
   workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
-  await dbPut(ST_SETS, workingSet);
+  try { await sbUpsertSet(workingSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); return; }
   goBack();
 }
 
@@ -1486,7 +1533,7 @@ async function createAllCards() {
 
   workingSet.cards.push(...newCards);
   workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
-  await dbPut(ST_SETS, workingSet);
+  try { await sbUpsertSet(workingSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); }
   refreshCardsGrid();
 
   const withImg = newCards.filter(c => c.imageData).length;
@@ -1546,7 +1593,7 @@ async function saveSettings() {
    IMPORT / EXPORT
    ============================================================ */
 async function exportData() {
-  const sets = await dbGetAll(ST_SETS);
+  const sets = await sbGetAllSets();
   const blob = new Blob([JSON.stringify({ ver:1, sets, ts: Date.now() })], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = Object.assign(document.createElement('a'), { href: url, download: `kortspill-${new Date().toISOString().slice(0,10)}.json` });
@@ -1561,7 +1608,7 @@ async function importData(input) {
     try {
       const data = JSON.parse(e.target.result);
       if (!Array.isArray(data.sets)) throw new Error('Ugyldig fil');
-      for (const s of data.sets) await dbPut(ST_SETS, s);
+      for (const s of data.sets) await sbUpsertSet(s);
       toast(`${data.sets.length} kortsett importert ✓`, 'success');
     } catch { toast('Kunne ikke lese filen', 'error'); }
   };
