@@ -889,8 +889,32 @@ function dbGet(store, key)  { return new Promise((res,rej) => { const r=tx(store
 function dbGetAll(store)    { return new Promise((res,rej) => { const r=tx(store).getAll();     r.onsuccess=()=>res(r.result); r.onerror=rej; }); }
 function dbPut(store, val)  { return new Promise((res,rej) => { const r=tx(store,'readwrite').put(val); r.onsuccess=()=>res(r.result); r.onerror=rej; }); }
 function dbDel(store, key)  { return new Promise((res,rej) => { const r=tx(store,'readwrite').delete(key); r.onsuccess=()=>res(); r.onerror=rej; }); }
-async function getCfg(k)    { const r = await dbGet(ST_CFG, k); return r ? r.v : null; }
-async function setCfg(k, v) { return dbPut(ST_CFG, { k, v }); }
+let _cfgCache = {};
+
+async function loadCloudSettings() {
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*`, { headers: sbHeaders() });
+    if (resp.ok) { const rows = await resp.json(); rows.forEach(r => { _cfgCache[r.key] = r.value; }); }
+  } catch {}
+  // Merge any local-only values not yet in cloud
+  try {
+    const local = await dbGetAll(ST_CFG);
+    local.forEach(r => { if (!(r.k in _cfgCache) && r.v) _cfgCache[r.k] = r.v; });
+  } catch {}
+}
+
+async function getCfg(k)    { return _cfgCache[k] ?? null; }
+async function setCfg(k, v) {
+  _cfgCache[k] = v;
+  try { await dbPut(ST_CFG, { k, v }); } catch {}
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/settings`, {
+      method: 'POST',
+      headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify({ key: k, value: v })
+    });
+  } catch {}
+}
 
 /* ============================================================
    SUPABASE – CLOUD CARD SETS
@@ -1968,6 +1992,7 @@ document.addEventListener('keydown', e => {
    ============================================================ */
 (async function init() {
   await openDB();
+  await loadCloudSettings();
   showScreen('student-select', false);
   history = ['student-select'];
   loadStudentSets();
