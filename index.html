@@ -669,7 +669,10 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: EDIT CARD ── -->
 <div class="screen" id="screen-edit-card">
   <label for="cardTextInput">Tekst på kortet</label>
-  <input class="card-text-input" id="cardTextInput" type="text" placeholder="Hva viser kortet?" autocomplete="off" />
+  <div style="display:flex;gap:8px;align-items:center">
+    <input class="card-text-input" id="cardTextInput" type="text" placeholder="Hva viser kortet?" autocomplete="off" style="flex:1;margin:0" />
+    <button class="btn btn-secondary btn-sm" onclick="suggestNewWord()" title="La AI foreslå et nytt ord basert på de andre kortene i settet" style="white-space:nowrap;flex-shrink:0">🎲 Nytt forslag</button>
+  </div>
 
   <div class="card-editor-grid">
     <!-- IMAGE -->
@@ -677,6 +680,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <div class="editor-panel-title">🖼️ Bilde</div>
       <div class="img-preview" id="imgPreview"><span class="img-placeholder">🖼️</span></div>
       <div class="img-btn-group">
+        <button class="btn btn-secondary btn-full btn-sm" onclick="autoFindImage()">✨ Finn bilde automatisk</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="triggerImgUpload()">📁 Last opp fra enhet</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="openImageSearch()">🔍 Søk på nettet</button>
         <input class="img-url-input" type="url" id="imgUrlInput" placeholder="Lim inn bilde-URL…"
@@ -1709,6 +1713,54 @@ async function createAllCards() {
     <span style="opacity:.8;font-size:13px">Gå til kortene nedenfor for å legge til lyd 🎤</span>
   </div>`;
   toast(`${newCards.length} kort laget ✓`, 'success');
+}
+
+async function suggestNewWord() {
+  const existingWords = workingSet.cards
+    .filter((_, i) => i !== workingCardIndex)
+    .map(c => c.text).filter(t => t);
+  if (existingWords.length === 0) { toast('Legg til flere kort i settet først', 'error'); return; }
+  const apiKey = await getCfg('claude');
+  if (!apiKey) { toast('Legg til Gemini API-nøkkel i innstillinger', 'error'); return; }
+  toast('Henter forslag…');
+  try {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text:
+        `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`
+      }] }] }),
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
+    const data = await resp.json();
+    const newWord = data.candidates[0].content.parts[0].text.trim().split('\n')[0].trim();
+    if (!newWord) { toast('Ingen forslag funnet', 'error'); return; }
+    document.getElementById('cardTextInput').value = newWord;
+    workingCard.text = newWord;
+    const pixabayKey = await getCfg('pixabay');
+    if (pixabayKey) {
+      toast(`Forslag: «${newWord}» – henter bilde…`);
+      const imageData = await fetchPixabayImage(newWord, pixabayKey);
+      if (imageData) {
+        workingCard.imageData = imageData;
+        document.getElementById('imgPreview').innerHTML = `<img src="${imageData}" alt="${esc(newWord)}">`;
+      }
+    }
+    toast(`Nytt forslag: «${newWord}» ✓`, 'success');
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function autoFindImage() {
+  const word = document.getElementById('cardTextInput').value.trim();
+  if (!word) { toast('Skriv inn tekst på kortet først', 'error'); return; }
+  const key = await getCfg('pixabay');
+  if (!key) { toast('Legg til Pixabay-nøkkel i innstillinger først', 'error'); return; }
+  toast('Søker etter bilde…');
+  const imageData = await fetchPixabayImage(word, key);
+  if (!imageData) { toast('Ingen bilder funnet for «' + word + '»', 'error'); return; }
+  workingCard.imageData = imageData;
+  document.getElementById('imgPreview').innerHTML = `<img src="${imageData}" alt="${esc(word)}">`;
+  toast('Bilde funnet ✓', 'success');
 }
 
 async function fetchPixabayImage(word, key) {
