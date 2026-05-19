@@ -507,12 +507,23 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 /* ── GAME TYPE SELECTION ── */
 .gt-set-name  { font-size: 22px; font-weight: 700; text-align: center; margin: 8px 0 4px; }
 .gt-subtitle  { text-align: center; color: var(--text-light); font-size: 15px; margin-bottom: 28px; }
-.gt-grid      { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.gt-btn       { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all .15s; }
+.gt-grid      { display: flex; flex-direction: column; gap: 14px; }
+.gt-btn       { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: row; align-items: center; gap: 18px; cursor: pointer; transition: all .15s; text-align: left; width: 100%; }
 .gt-btn:hover, .gt-btn:active { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); }
-.gt-icon  { font-size: 52px; }
+.gt-icon  { font-size: 44px; flex-shrink: 0; width: 56px; text-align: center; }
+.gt-text  { display: flex; flex-direction: column; gap: 3px; }
 .gt-label { font-size: 17px; font-weight: 700; }
-.gt-desc  { font-size: 13px; color: var(--text-light); text-align: center; line-height: 1.4; }
+.gt-desc  { font-size: 13px; color: var(--text-light); line-height: 1.4; }
+
+/* ── FLASHCARD VIEWER ── */
+.fc-header    { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.fc-card      { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; margin-bottom: 20px; cursor: pointer; user-select: none; touch-action: pan-y; }
+.fc-img       { width: 100%; aspect-ratio: 4/3; background: var(--bg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fc-img img   { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fc-no-img    { font-size: 80px; }
+.fc-word      { font-size: 30px; font-weight: 700; text-align: center; padding: 22px 16px; }
+.fc-nav       { display: flex; gap: 10px; }
+.fc-nav .btn  { flex: 1; justify-content: center; }
 
 /* ── FIND PICTURE GAME ── */
 .fp-header        { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -597,18 +608,46 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: GAME TYPE ── -->
 <div class="screen" id="screen-game-type">
   <div class="gt-set-name" id="gtSetName"></div>
-  <div class="gt-subtitle">Velg spilltype</div>
+  <div class="gt-subtitle">Velg aktivitet</div>
   <div class="gt-grid">
+    <button class="gt-btn" onclick="pickGameType('flashcard')">
+      <span class="gt-icon">👀</span>
+      <div class="gt-text">
+        <span class="gt-label">Se og lær</span>
+        <span class="gt-desc">Bla gjennom kortene og lær ordene</span>
+      </div>
+    </button>
     <button class="gt-btn" onclick="pickGameType('pairs')">
-      <span class="gt-icon">🎴</span>
-      <span class="gt-label">Finn par</span>
-      <span class="gt-desc">Snu kortene og finn to som hører sammen</span>
+      <span class="gt-icon">🎴🎴</span>
+      <div class="gt-text">
+        <span class="gt-label">Finn par</span>
+        <span class="gt-desc">Snu kortene og finn to som hører sammen</span>
+      </div>
     </button>
     <button class="gt-btn" onclick="pickGameType('find')">
       <span class="gt-icon">🔍</span>
-      <span class="gt-label">Finn bildet</span>
-      <span class="gt-desc">Lytt til ordet og trykk på riktig bilde</span>
+      <div class="gt-text">
+        <span class="gt-label">Finn bildet</span>
+        <span class="gt-desc">Lytt til ordet og trykk på riktig bilde</span>
+      </div>
     </button>
+  </div>
+</div>
+
+<!-- ── SCREEN: FLASHCARD ── -->
+<div class="screen" id="screen-flashcard">
+  <div class="fc-header">
+    <div class="fp-progress-bar"><div class="fp-progress-fill" id="fcProgressFill"></div></div>
+    <div class="fp-count" id="fcCount">1 / 8</div>
+  </div>
+  <div class="fc-card" id="fcCard">
+    <div class="fc-img" id="fcImg"></div>
+    <div class="fc-word" id="fcWord"></div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn btn-secondary" id="fcPrevBtn" onclick="fcPrev()">← Forrige</button>
+    <button class="btn btn-primary" onclick="playFcAudio()">🔊 Hør</button>
+    <button class="btn btn-secondary" id="fcNextBtn" onclick="fcNext()">Neste →</button>
   </div>
 </div>
 
@@ -901,6 +940,7 @@ const NAV_TITLES = {
   'game-type':      '🎮 Velg spilltype',
   'difficulty':     '🎯 Vanskelighetsgrad',
   'game':           '🎴 Finn par',
+  'flashcard':      '👀 Se og lær',
   'find-picture':   '🔍 Finn bildet',
   'win':            '🎉 Ferdig!',
   'teacher-sets':   '👩‍🏫 Lærervisning',
@@ -1010,11 +1050,9 @@ async function selectSet(id) {
 }
 
 function pickGameType(type) {
-  if (type === 'pairs') {
-    buildDifficultyScreen(selectedSetForGame);
-  } else {
-    startFindPicture();
-  }
+  if (type === 'pairs')     buildDifficultyScreen(selectedSetForGame);
+  else if (type === 'find') startFindPicture();
+  else                      startFlashcards();
 }
 
 function buildDifficultyScreen(s) {
@@ -1135,6 +1173,63 @@ let currentGameType = 'pairs';
 function playAgain() {
   if (currentGameType === 'find') startFindPicture();
   else buildDifficultyScreen(selectedSetForGame);
+}
+
+/* ============================================================
+   FLASHCARD VIEWER
+   ============================================================ */
+let fcGame = null;
+
+function startFlashcards() {
+  const cards = selectedSetForGame.cards;
+  if (!cards.length) { toast('Kortsettet er tomt', 'error'); return; }
+  fcGame = { cards: [...cards], current: 0, total: cards.length };
+  renderFlashcard();
+  showScreen('flashcard');
+  setupFcSwipe();
+}
+
+function renderFlashcard() {
+  const c = fcGame.cards[fcGame.current];
+  document.getElementById('fcProgressFill').style.width = (fcGame.current / fcGame.total * 100) + '%';
+  document.getElementById('fcCount').textContent = `${fcGame.current + 1} / ${fcGame.total}`;
+  document.getElementById('fcImg').innerHTML = c.imageData
+    ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">`
+    : `<span class="fc-no-img">🖼️</span>`;
+  document.getElementById('fcWord').textContent = c.text;
+  document.getElementById('fcPrevBtn').disabled = fcGame.current === 0;
+  document.getElementById('fcNextBtn').textContent = fcGame.current === fcGame.total - 1 ? '✓ Ferdig' : 'Neste →';
+  setTimeout(() => playFcAudio(), 350);
+}
+
+function playFcAudio() {
+  const c = fcGame.cards[fcGame.current];
+  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} }
+  else { speakText(c.text); }
+}
+
+function fcPrev() {
+  if (fcGame.current > 0) { fcGame.current--; renderFlashcard(); }
+}
+
+function fcNext() {
+  if (fcGame.current < fcGame.total - 1) { fcGame.current++; renderFlashcard(); }
+  else { goBack(); toast('Bra jobba! Du har sett alle kortene 🌟', 'success'); }
+}
+
+function setupFcSwipe() {
+  const card = document.getElementById('fcCard');
+  let startX = 0, startY = 0;
+  card.ontouchstart = e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; };
+  card.ontouchend = e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      dx < 0 ? fcNext() : fcPrev();
+    } else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      playFcAudio();
+    }
+  };
 }
 
 /* ============================================================
