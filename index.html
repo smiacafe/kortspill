@@ -708,6 +708,11 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="settings-group">
     <div class="settings-group-title">📦 Data</div>
     <div class="settings-card">
+      <div class="settings-label">Flytt lokale kortsett til skyen</div>
+      <div class="settings-desc">Første gang du bruker skylagring: trykk her for å kopiere kortsett som er lagret lokalt på denne enheten opp til skyen.</div>
+      <button class="btn btn-primary btn-sm mt-3" onclick="migrateLocalToCloud()">☁️ Kopier lokale kortsett til sky</button>
+    </div>
+    <div class="settings-card mt-3">
       <div class="settings-label">Eksporter kortsett</div>
       <div class="settings-desc">Last ned alle kortsett som en fil for sikkerhetskopi eller deling.</div>
       <button class="btn btn-secondary btn-sm mt-3" onclick="exportData()">📤 Eksporter alle kortsett</button>
@@ -1602,6 +1607,15 @@ async function saveSettings() {
 /* ============================================================
    IMPORT / EXPORT
    ============================================================ */
+async function migrateLocalToCloud() {
+  const sets = await dbGetAll(ST_SETS);
+  if (!sets.length) { toast('Ingen lokale kortsett funnet', 'error'); return; }
+  try {
+    for (const s of sets) await sbUpsertSet(s);
+    toast(`${sets.length} kortsett kopiert til skyen ☁️`, 'success');
+  } catch(err) { toast('Feil ved opplasting: ' + err.message, 'error'); }
+}
+
 async function exportData() {
   const sets = await sbGetAllSets();
   const blob = new Blob([JSON.stringify({ ver:1, sets, ts: Date.now() })], { type: 'application/json' });
