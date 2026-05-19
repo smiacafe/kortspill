@@ -503,6 +503,37 @@ body {
 .mt-4 { margin-top: 16px; }
 label { font-weight: 600; font-size: 14px; display: block; margin-bottom: 5px; }
 hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ── GAME TYPE SELECTION ── */
+.gt-set-name  { font-size: 22px; font-weight: 700; text-align: center; margin: 8px 0 4px; }
+.gt-subtitle  { text-align: center; color: var(--text-light); font-size: 15px; margin-bottom: 28px; }
+.gt-grid      { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gt-btn       { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all .15s; }
+.gt-btn:hover, .gt-btn:active { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); }
+.gt-icon  { font-size: 52px; }
+.gt-label { font-size: 17px; font-weight: 700; }
+.gt-desc  { font-size: 13px; color: var(--text-light); text-align: center; line-height: 1.4; }
+
+/* ── FIND PICTURE GAME ── */
+.fp-header        { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.fp-progress-bar  { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.fp-progress-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .4s; }
+.fp-count         { font-size: 14px; font-weight: 600; color: var(--text-light); white-space: nowrap; }
+.fp-word-btn      { width: 100%; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); padding: 22px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 20px; transition: background .15s; }
+.fp-word-btn:active { background: var(--primary-dark); }
+.fp-word          { font-size: 34px; font-weight: 700; }
+.fp-audio-hint    { font-size: 13px; opacity: .75; }
+.fp-grid          { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 400px) { .fp-grid { grid-template-columns: repeat(2, 1fr); } }
+.fp-pic           { aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 3px solid transparent; cursor: pointer; transition: border-color .15s; position: relative; background: var(--bg); }
+.fp-pic img       { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fp-pic:hover     { border-color: var(--primary); }
+.fp-pic.fp-correct { border-color: var(--success); animation: fp-pop .35s ease; }
+.fp-pic.fp-wrong   { border-color: var(--danger);  animation: fp-shake .4s ease; }
+.fp-pic.fp-found   { opacity: .45; cursor: default; pointer-events: none; }
+.fp-found-check    { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(91,185,67,.35); font-size: 36px; }
+@keyframes fp-pop   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+@keyframes fp-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
 </style>
 </head>
 <body>
@@ -561,6 +592,37 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="btn btn-secondary btn-full" onclick="goToStudentSelect()">📚 Velg annet spill</button>
     </div>
   </div>
+</div>
+
+<!-- ── SCREEN: GAME TYPE ── -->
+<div class="screen" id="screen-game-type">
+  <div class="gt-set-name" id="gtSetName"></div>
+  <div class="gt-subtitle">Velg spilltype</div>
+  <div class="gt-grid">
+    <button class="gt-btn" onclick="pickGameType('pairs')">
+      <span class="gt-icon">🎴</span>
+      <span class="gt-label">Finn par</span>
+      <span class="gt-desc">Snu kortene og finn to som hører sammen</span>
+    </button>
+    <button class="gt-btn" onclick="pickGameType('find')">
+      <span class="gt-icon">🔍</span>
+      <span class="gt-label">Finn bildet</span>
+      <span class="gt-desc">Lytt til ordet og trykk på riktig bilde</span>
+    </button>
+  </div>
+</div>
+
+<!-- ── SCREEN: FIND PICTURE ── -->
+<div class="screen" id="screen-find-picture">
+  <div class="fp-header">
+    <div class="fp-progress-bar"><div class="fp-progress-fill" id="fpProgressFill"></div></div>
+    <div class="fp-count" id="fpCount">1 / 8</div>
+  </div>
+  <button class="fp-word-btn" onclick="playFpAudio()">
+    <span class="fp-word" id="fpWord"></span>
+    <span class="fp-audio-hint">🔊 Trykk for lyd</span>
+  </button>
+  <div class="fp-grid" id="fpGrid"></div>
 </div>
 
 <!-- ── SCREEN: TEACHER SETS ── -->
@@ -832,8 +894,10 @@ const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings
 
 const NAV_TITLES = {
   'student-select': '🎴 Finn par',
+  'game-type':      '🎮 Velg spilltype',
   'difficulty':     '🎯 Vanskelighetsgrad',
   'game':           '🎴 Finn par',
+  'find-picture':   '🔍 Finn bildet',
   'win':            '🎉 Ferdig!',
   'teacher-sets':   '👩‍🏫 Lærervisning',
   'edit-set':       '✏️ Rediger kortsett',
@@ -937,7 +1001,16 @@ async function selectSet(id) {
   const s = await sbGetSet(id);
   if (!s) return;
   selectedSetForGame = s;
-  buildDifficultyScreen(s);
+  document.getElementById('gtSetName').textContent = s.name;
+  showScreen('game-type');
+}
+
+function pickGameType(type) {
+  if (type === 'pairs') {
+    buildDifficultyScreen(selectedSetForGame);
+  } else {
+    startFindPicture();
+  }
 }
 
 function buildDifficultyScreen(s) {
@@ -973,6 +1046,7 @@ function pickDiff(btn, pairs) {
 let game = null, audioCtx = null;
 
 function startGame() {
+  currentGameType = 'pairs';
   const cards = shuffle([...selectedSetForGame.cards]).slice(0, selectedPairs);
   const instances = shuffle([
     ...cards.map(c => ({ ...c, iid: uid(), matched: false, flipped: false })),
@@ -1052,7 +1126,84 @@ function showWin() {
   showScreen('win');
 }
 
-function playAgain()       { buildDifficultyScreen(selectedSetForGame); }
+let currentGameType = 'pairs';
+
+function playAgain() {
+  if (currentGameType === 'find') startFindPicture();
+  else buildDifficultyScreen(selectedSetForGame);
+}
+
+/* ============================================================
+   FIND PICTURE GAME
+   ============================================================ */
+let fpGame = null;
+
+function startFindPicture() {
+  currentGameType = 'find';
+  const cards = selectedSetForGame.cards.filter(c => c.imageData);
+  if (cards.length < 2) { toast('Kortsett trenger bilder for å spille Finn bildet', 'error'); return; }
+  fpGame = {
+    cards: shuffle([...cards]),
+    questions: shuffle([...cards]),
+    currentQ: 0,
+    found: new Set(),
+    attempts: 0,
+    total: cards.length
+  };
+  renderFindPicture();
+  showScreen('find-picture');
+}
+
+function renderFindPicture() {
+  const q = fpGame.questions[fpGame.currentQ];
+  document.getElementById('fpWord').textContent = q.text;
+  document.getElementById('fpProgressFill').style.width = (fpGame.currentQ / fpGame.total * 100) + '%';
+  document.getElementById('fpCount').textContent = `${fpGame.currentQ + 1} / ${fpGame.total}`;
+  document.getElementById('fpGrid').innerHTML = fpGame.cards.map(c => {
+    const found = fpGame.found.has(c.id);
+    return `<div class="fp-pic${found ? ' fp-found' : ''}" id="fpp-${c.id}" onclick="guessFP('${c.id}')">
+      <img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">
+      ${found ? '<div class="fp-found-check">✓</div>' : ''}
+    </div>`;
+  }).join('');
+  setTimeout(() => playFpAudio(), 350);
+}
+
+function playFpAudio() {
+  const q = fpGame.questions[fpGame.currentQ];
+  if (q.audioData) { try { new Audio(q.audioData).play(); } catch {} }
+  else { speakText(q.text); }
+}
+
+function guessFP(id) {
+  if (fpGame.found.has(id)) return;
+  const target = fpGame.questions[fpGame.currentQ];
+  const el = document.getElementById('fpp-' + id);
+  if (!el) return;
+  fpGame.attempts++;
+  if (id === target.id) {
+    el.classList.add('fp-correct');
+    fpGame.found.add(id);
+    playTone([523, 659, 784], 'sine', 0.3);
+    setTimeout(() => {
+      fpGame.currentQ++;
+      if (fpGame.currentQ >= fpGame.total) {
+        document.getElementById('fpProgressFill').style.width = '100%';
+        const att = fpGame.attempts, total = fpGame.total;
+        document.getElementById('winSub').textContent =
+          `Du brukte ${att} forsøk og fant alle ${total} bilder. ${att <= total + 2 ? 'Fantastisk jobbet! 🌟' : att <= total * 2 ? 'Bra jobba! 👍' : 'Du klarte det! 🎊'}`;
+        playTone([523,587,659,698,784], 'sine', 0.35);
+        setTimeout(() => showScreen('win'), 400);
+      } else {
+        renderFindPicture();
+      }
+    }, 700);
+  } else {
+    el.classList.add('fp-wrong');
+    playTone([200], 'triangle', 0.2);
+    setTimeout(() => el.classList.remove('fp-wrong'), 500);
+  }
+}
 function goToStudentSelect() {
   history = ['student-select'];
   showScreen('student-select', false);
