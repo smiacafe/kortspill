@@ -436,8 +436,13 @@ body {
 .modal-overlay.sheet { align-items: flex-end; padding: 0; }
 .modal-sheet {
   background: var(--surface); border-radius: 22px 22px 0 0;
-  padding: 10px 20px 30px; width: 100%; max-width: 640px;
-  max-height: 82dvh; overflow-y: auto; animation: modalUp .3s ease;
+  padding: 10px 20px 0; width: 100%; max-width: 640px;
+  max-height: 82dvh; display: flex; flex-direction: column; animation: modalUp .3s ease;
+}
+.modal-sheet-body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  flex: 1;
 }
 @keyframes modalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
@@ -455,14 +460,21 @@ body {
 /* Password modal specifics */
 .pw-icon    { font-size: 48px; text-align: center; margin-bottom: 12px; }
 .pw-title   { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 6px; }
-.pw-desc    { font-size: 14px; color: var(--text-light); text-align: center; margin-bottom: 20px; }
-.pw-input {
-  width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 12px;
-  font-size: 18px; text-align: center; letter-spacing: 4px; outline: none;
-  font-family: inherit; color: var(--text); transition: border-color .2s; margin-bottom: 14px;
-}
-.pw-input:focus { border-color: var(--primary); }
-.pw-error { color: var(--danger); font-size: 13px; text-align: center; margin-bottom: 10px; display: none; }
+.pw-desc    { font-size: 14px; color: var(--text-light); text-align: center; margin-bottom: 16px; }
+.pw-error   { color: var(--danger); font-size: 13px; text-align: center; margin-bottom: 10px; display: none; }
+
+/* PIN pad */
+.pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; min-height: 32px; }
+.pin-dot  { width: 16px; height: 16px; border-radius: 50%; background: var(--border); transition: background .15s, transform .15s; }
+.pin-dot.filled { background: var(--primary); transform: scale(1.15); }
+@keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+.pin-dots.shake { animation: pin-shake .4s ease; }
+.pin-pad  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+.pin-pad button { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; font-size: 22px; font-weight: 700; padding: 16px 10px; cursor: pointer; transition: background .1s; font-family: inherit; color: var(--text); }
+.pin-pad button:active, .pin-pad button:hover { background: var(--primary-light); border-color: var(--primary); }
+.pin-pad .pin-del { font-size: 18px; }
+.pin-pad .pin-blank { background: transparent; border-color: transparent; cursor: default; }
+.pin-pad .pin-blank:hover { background: transparent; border-color: transparent; }
 
 /* Image search */
 .search-row   { display: flex; gap: 10px; margin-bottom: 16px; }
@@ -710,7 +722,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <label for="cardTextInput">Tekst på kortet</label>
   <div style="display:flex;gap:8px;align-items:center">
     <input class="card-text-input" id="cardTextInput" type="text" placeholder="Hva viser kortet?" autocomplete="off" style="flex:1;margin:0" />
-    <button class="btn btn-secondary btn-sm" onclick="suggestNewWord()" title="La AI foreslå et nytt ord basert på de andre kortene i settet" style="white-space:nowrap;flex-shrink:0">🎲 Nytt forslag</button>
+    <button class="btn btn-secondary btn-sm" id="suggestWordBtn" onclick="suggestNewWord()" title="La AI foreslå et nytt ord basert på de andre kortene i settet" style="white-space:nowrap;flex-shrink:0">🎲 Nytt forslag</button>
   </div>
 
   <div class="card-editor-grid">
@@ -785,7 +797,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <div class="settings-card">
       <div class="settings-label">Passord for lærervisning</div>
       <div class="settings-desc">Elever trykker på 🔑 øverst til høyre for å logge inn som lærer. Sett et passord her slik at bare du har tilgang. Standardpassord er <strong>lærer</strong>.</div>
-      <input class="settings-input" type="password" id="settingPassword" placeholder="Ditt valgte passord…" autocomplete="new-password" />
+      <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
   </div>
@@ -835,12 +847,24 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <div class="modal-overlay" id="pwModal" onclick="handlePwModalClick(event)">
   <div class="modal-centre" id="pwModalInner">
     <div class="pw-icon">🔑</div>
-    <div class="pw-title">Lærerinnlogging</div>
-    <div class="pw-desc">Skriv inn passordet for å gå til lærervisningen</div>
-    <input class="pw-input" type="password" id="pwInput" placeholder="••••••••"
-           onkeydown="if(event.key==='Enter')submitPassword()" autocomplete="off" />
-    <div class="pw-error" id="pwError">Feil passord – prøv igjen</div>
-    <button class="btn btn-primary btn-full" onclick="submitPassword()">Logg inn</button>
+    <div class="pw-title">Lærertilgang</div>
+    <div class="pw-desc">Tast inn PIN-koden</div>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pw-error" id="pwError">Feil PIN-kode – prøv igjen</div>
+    <div class="pin-pad">
+      <button onclick="pinPress('1')">1</button>
+      <button onclick="pinPress('2')">2</button>
+      <button onclick="pinPress('3')">3</button>
+      <button onclick="pinPress('4')">4</button>
+      <button onclick="pinPress('5')">5</button>
+      <button onclick="pinPress('6')">6</button>
+      <button onclick="pinPress('7')">7</button>
+      <button onclick="pinPress('8')">8</button>
+      <button onclick="pinPress('9')">9</button>
+      <button class="pin-blank" disabled></button>
+      <button onclick="pinPress('0')">0</button>
+      <button class="pin-del" onclick="pinDelete()">⌫</button>
+    </div>
     <button class="btn btn-ghost btn-full mt-3" onclick="closePwModal()">Avbryt</button>
   </div>
 </div>
@@ -855,8 +879,10 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
              onkeydown="if(event.key==='Enter')doImageSearch()" autocomplete="off" />
       <button class="btn btn-primary" onclick="doImageSearch()">Søk</button>
     </div>
-    <div id="imgSearchResults">
-      <div class="modal-info">Skriv inn et søkeord og trykk Søk</div>
+    <div class="modal-sheet-body">
+      <div id="imgSearchResults">
+        <div class="modal-info">Skriv inn et søkeord og trykk Søk</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1006,32 +1032,57 @@ function goSettings() { showScreen('settings'); loadSettingsUI(); }
 /* ============================================================
    TEACHER PASSWORD
    ============================================================ */
+let _pin = '';
+
 function promptTeacherPassword() {
-  document.getElementById('pwInput').value = '';
+  _pin = '';
   document.getElementById('pwError').style.display = 'none';
+  renderPinDots();
   document.getElementById('pwModal').classList.add('open');
-  setTimeout(() => document.getElementById('pwInput').focus(), 100);
 }
 
 function closePwModal() {
   document.getElementById('pwModal').classList.remove('open');
+  _pin = '';
 }
 
 function handlePwModalClick(e) {
   if (e.target === document.getElementById('pwModal')) closePwModal();
 }
 
-async function submitPassword() {
-  const entered  = document.getElementById('pwInput').value;
-  const saved    = await getCfg('teacherPassword') || 'lærer';
-  if (entered === saved) {
+function renderPinDots() {
+  const saved = _cfgCache['teacherPassword'] || '1234';
+  const len   = Math.max(saved.length, 4);
+  document.getElementById('pinDots').innerHTML =
+    Array.from({ length: len }, (_, i) =>
+      `<div class="pin-dot${i < _pin.length ? ' filled' : ''}"></div>`).join('');
+}
+
+function pinPress(digit) {
+  const saved = _cfgCache['teacherPassword'] || '1234';
+  if (_pin.length >= saved.length) return;
+  _pin += digit;
+  document.getElementById('pwError').style.display = 'none';
+  renderPinDots();
+  if (_pin.length === saved.length) checkPin();
+}
+
+function pinDelete() {
+  _pin = _pin.slice(0, -1);
+  renderPinDots();
+}
+
+async function checkPin() {
+  const saved = await getCfg('teacherPassword') || '1234';
+  if (_pin === saved) {
     closePwModal();
     showScreen('teacher-sets');
     loadTeacherSets();
   } else {
+    const dots = document.getElementById('pinDots');
+    dots.classList.add('shake');
     document.getElementById('pwError').style.display = '';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
+    setTimeout(() => { _pin = ''; renderPinDots(); dots.classList.remove('shake'); }, 500);
   }
 }
 
@@ -1841,7 +1892,8 @@ async function suggestNewWord() {
   if (existingWords.length === 0) { toast('Legg til flere kort i settet først', 'error'); return; }
   const apiKey = await getCfg('claude');
   if (!apiKey) { toast('Legg til Gemini API-nøkkel i innstillinger', 'error'); return; }
-  toast('Henter forslag…');
+  const btn = document.getElementById('suggestWordBtn');
+  btn.disabled = true; btn.textContent = '⏳ Henter forslag…';
   try {
     const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
@@ -1867,6 +1919,7 @@ async function suggestNewWord() {
     }
     toast(`Nytt forslag: «${newWord}» ✓`, 'success');
   } catch(err) { toast('Feil: ' + err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '🎲 Nytt forslag'; }
 }
 
 async function autoFindImage() {
@@ -1920,7 +1973,7 @@ async function loadSettingsUI() {
 
 async function saveSettings() {
   const pw = document.getElementById('settingPassword').value.trim();
-  await setCfg('teacherPassword', pw || 'lærer');
+  await setCfg('teacherPassword', pw || '1234');
   await setCfg('claude',   document.getElementById('settingClaude').value.trim());
   await setCfg('pixabay',  document.getElementById('settingPixabay').value.trim());
   toast('Innstillinger lagret ✓', 'success');
@@ -1984,7 +2037,10 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
     if (history.length > 1) goBack();
   }
-  if (e.key === 'Enter' && document.getElementById('pwModal').classList.contains('open')) submitPassword();
+  if (document.getElementById('pwModal').classList.contains('open')) {
+    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+    if (e.key === 'Backspace') pinDelete();
+  }
 });
 
 /* ============================================================
