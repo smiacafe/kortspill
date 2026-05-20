@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Finn par – Kortspill</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+<link rel="icon" id="faviconLink" type="image/png" href="">
 <style>
 :root {
   --primary: #4A90D9;
@@ -310,6 +310,20 @@ body {
 .action-bar-left { margin-right: auto; }
 
 /* ── STUDENT CARD SELECT ── */
+.student-carousel-wrap { position: relative; }
+.carousel-arrow {
+  display: flex;
+  position: absolute; top: calc(50% - 32px); z-index: 5;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface); border: none; box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  font-size: 18px; font-weight: 700; cursor: pointer; color: var(--text);
+  align-items: center; justify-content: center; transition: opacity .2s, transform .12s;
+}
+.carousel-arrow:hover { transform: scale(1.1); background: var(--primary-light); }
+.carousel-arrow:disabled { opacity: 0.15; pointer-events: none; }
+.carousel-left  { left: -6px; }
+.carousel-right { right: -6px; }
+
 .student-grid {
   display: flex;
   overflow-x: auto;
@@ -589,7 +603,11 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <h1>🎴 Finn par</h1>
     <p>Velg et kortspill for å starte</p>
   </div>
-  <div id="studentList" class="student-grid"></div>
+  <div class="student-carousel-wrap">
+    <button class="carousel-arrow carousel-left" id="carouselLeft" onclick="scrollCarousel(-1)" aria-label="Forrige">❮</button>
+    <div id="studentList" class="student-grid"></div>
+    <button class="carousel-arrow carousel-right" id="carouselRight" onclick="scrollCarousel(1)" aria-label="Neste">❯</button>
+  </div>
   <div id="studentEmpty" class="empty" style="display:none">
     <div class="empty-icon">😴</div>
     <div class="empty-text">Ingen kortspill er klare ennå</div>
@@ -1102,6 +1120,22 @@ async function checkPin() {
 /* ============================================================
    STUDENT – SELECT
    ============================================================ */
+function scrollCarousel(dir) {
+  const el = document.getElementById('studentList');
+  const cardWidth = el.querySelector('.student-set-card')?.offsetWidth || 280;
+  el.scrollBy({ left: dir * (cardWidth + 16), behavior: 'smooth' });
+  setTimeout(updateCarouselArrows, 350);
+}
+
+function updateCarouselArrows() {
+  const el = document.getElementById('studentList');
+  const left = document.getElementById('carouselLeft');
+  const right = document.getElementById('carouselRight');
+  if (!left || !right) return;
+  left.disabled  = el.scrollLeft <= 4;
+  right.disabled = el.scrollLeft >= el.scrollWidth - el.clientWidth - 4;
+}
+
 async function loadStudentSets() {
   let sets;
   try { sets = (await sbGetAllSets()).filter(s => s.cards?.length >= 2); }
@@ -1122,6 +1156,8 @@ async function loadStudentSets() {
         </div>
       </div>`;
   }).join('');
+  list.onscroll = updateCarouselArrows;
+  setTimeout(updateCarouselArrows, 50);
 }
 
 /* ============================================================
@@ -2082,6 +2118,24 @@ document.addEventListener('keydown', e => {
 /* ============================================================
    INIT
    ============================================================ */
+(function initFavicon() {
+  try {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+    const ctx = c.getContext('2d');
+    ctx.font = '52px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🃏', 32, 34);
+    document.getElementById('faviconLink').href = c.toDataURL('image/png');
+    const c2 = document.createElement('canvas'); c2.width = 180; c2.height = 180;
+    const ctx2 = c2.getContext('2d');
+    ctx2.fillStyle = '#4A90D9';
+    ctx2.beginPath(); ctx2.roundRect(0, 0, 180, 180, 36); ctx2.fill();
+    ctx2.font = '130px serif'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText('🃏', 90, 96);
+    const al = document.createElement('link'); al.rel = 'apple-touch-icon';
+    al.href = c2.toDataURL('image/png'); document.head.appendChild(al);
+  } catch {}
+})();
+
 (async function init() {
   await openDB();
   await loadCloudSettings();
