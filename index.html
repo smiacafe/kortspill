@@ -518,14 +518,17 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 /* ── GAME TYPE SELECTION ── */
 .gt-set-name  { font-size: 22px; font-weight: 700; text-align: center; margin: 8px 0 4px; }
-.gt-subtitle  { text-align: center; color: var(--text-light); font-size: 15px; margin-bottom: 28px; }
+.gt-subtitle  { text-align: center; color: var(--text-light); font-size: 15px; margin-bottom: 22px; }
 .gt-grid      { display: flex; flex-direction: column; gap: 14px; }
-.gt-btn       { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: row; align-items: center; gap: 18px; cursor: pointer; transition: all .15s; text-align: left; width: 100%; }
-.gt-btn:hover, .gt-btn:active { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); }
-.gt-icon  { font-size: 44px; flex-shrink: 0; width: 56px; text-align: center; }
-.gt-text  { display: flex; flex-direction: column; gap: 3px; }
-.gt-label { font-size: 17px; font-weight: 700; }
-.gt-desc  { font-size: 13px; color: var(--text-light); line-height: 1.4; }
+.gt-btn       { border: none; border-radius: 22px; padding: 20px 22px; display: flex; flex-direction: row; align-items: center; gap: 20px; cursor: pointer; transition: transform .12s, box-shadow .12s; box-shadow: 0 6px 20px rgba(0,0,0,.18); color: #fff; text-align: left; width: 100%; }
+.gt-btn:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.gt-icon-wrap { width: 76px; height: 76px; border-radius: 18px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; font-size: 46px; flex-shrink: 0; }
+.gt-text  { display: flex; flex-direction: column; gap: 5px; }
+.gt-label { font-size: 20px; font-weight: 800; line-height: 1.1; }
+.gt-desc  { font-size: 13px; opacity: .88; line-height: 1.4; }
+.gt-flashcard { background: linear-gradient(135deg, #FF9F3C 0%, #E8620A 100%); }
+.gt-pairs     { background: linear-gradient(135deg, #4A90D9 0%, #1D5FAD 100%); }
+.gt-find      { background: linear-gradient(135deg, #5BB943 0%, #2A8818 100%); }
 
 /* ── FLASHCARD VIEWER ── */
 .fc-header    { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -622,22 +625,22 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="gt-set-name" id="gtSetName"></div>
   <div class="gt-subtitle">Velg aktivitet</div>
   <div class="gt-grid">
-    <button class="gt-btn" onclick="pickGameType('flashcard')">
-      <span class="gt-icon">👀</span>
+    <button class="gt-btn gt-flashcard" onclick="pickGameType('flashcard')">
+      <div class="gt-icon-wrap">👀</div>
       <div class="gt-text">
         <span class="gt-label">Se og lær</span>
-        <span class="gt-desc">Bla gjennom kortene og lær ordene</span>
+        <span class="gt-desc">Bla gjennom kortene og lær hva de heter</span>
       </div>
     </button>
-    <button class="gt-btn" onclick="pickGameType('pairs')">
-      <span class="gt-icon">🎴🎴</span>
+    <button class="gt-btn gt-pairs" onclick="pickGameType('pairs')">
+      <div class="gt-icon-wrap">🎴🎴</div>
       <div class="gt-text">
         <span class="gt-label">Finn par</span>
         <span class="gt-desc">Snu kortene og finn to som hører sammen</span>
       </div>
     </button>
-    <button class="gt-btn" onclick="pickGameType('find')">
-      <span class="gt-icon">🔍</span>
+    <button class="gt-btn gt-find" onclick="pickGameType('find')">
+      <div class="gt-icon-wrap">🔍</div>
       <div class="gt-text">
         <span class="gt-label">Finn bildet</span>
         <span class="gt-desc">Lytt til ordet og trykk på riktig bilde</span>
