@@ -311,28 +311,38 @@ body {
 
 /* ── STUDENT CARD SELECT ── */
 .student-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 18px;
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  gap: 16px;
+  padding: 8px 4px 24px;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  scrollbar-width: none;
 }
+.student-grid::-webkit-scrollbar { display: none; }
 .student-set-card {
+  flex-shrink: 0;
+  width: min(72vw, 300px);
+  scroll-snap-align: start;
   background: var(--surface); border-radius: var(--radius); overflow: hidden;
-  box-shadow: var(--shadow); cursor: pointer; transition: transform .2s, box-shadow .2s;
+  box-shadow: var(--shadow-lg); cursor: pointer; transition: transform .2s, box-shadow .2s;
 }
-.student-set-card:hover  { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-.student-set-card:active { transform: translateY(-2px); }
+.student-set-card:active { transform: scale(.97); }
 .student-preview {
-  height: 150px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
-  padding: 8px; background: var(--bg);
+  height: 200px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  padding: 10px; background: var(--bg);
 }
 .student-preview-cell {
-  border-radius: 7px; overflow: hidden; background: #fff;
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  border-radius: 8px; overflow: hidden; background: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
 }
 .student-preview-cell img { width: 100%; height: 100%; object-fit: cover; }
-.student-set-info  { padding: 14px 16px; }
-.student-set-name  { font-size: 17px; font-weight: 700; }
-.student-set-count { font-size: 13px; color: var(--text-light); margin-top: 3px; }
+.student-set-info  { padding: 16px 18px; }
+.student-set-name  { font-size: 20px; font-weight: 800; }
+.student-set-count { font-size: 14px; color: var(--text-light); margin-top: 4px; }
 
 /* ── DIFFICULTY ── */
 .diff-header { text-align: center; padding: 28px 0 22px; }
@@ -1220,6 +1230,10 @@ function flipCard(i) {
         game.flipped = []; game.locked = false; game.matches++;
         document.getElementById('statMatches').textContent = game.matches;
         playTone([523, 659, 784], 'sine', 0.3);
+        setTimeout(() => {
+          if (c1.audioData) { try { new Audio(c1.audioData).play(); } catch {} }
+          else { speakText(c1.text); }
+        }, 350);
         if (game.matches === game.total) setTimeout(showWin, 700);
       }, 500);
     } else {
@@ -1362,6 +1376,10 @@ function guessFP(id) {
     el.classList.add('fp-correct');
     fpGame.found.add(id);
     playTone([523, 659, 784], 'sine', 0.3);
+    setTimeout(() => {
+      if (target.audioData) { try { new Audio(target.audioData).play(); } catch {} }
+      else { speakText(target.text); }
+    }, 350);
     setTimeout(() => {
       fpGame.currentQ++;
       if (fpGame.currentQ >= fpGame.total) {
@@ -1706,11 +1724,12 @@ async function startRecording() {
   pendingAudio = null;
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRec = new MediaRecorder(stream); recChunks = []; recSecs = 0;
+    const mimeType = ['audio/mp4', 'audio/webm', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+    mediaRec = new MediaRecorder(stream, mimeType ? { mimeType } : {}); recChunks = []; recSecs = 0;
     mediaRec.ondataavailable = e => { if (e.data.size) recChunks.push(e.data); };
     mediaRec.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      const blob = new Blob(recChunks, { type: 'audio/webm' });
+      const blob = new Blob(recChunks, { type: mediaRec.mimeType || mimeType || 'audio/mp4' });
       const reader = new FileReader();
       reader.onload = e => {
         pendingAudio = e.target.result;
