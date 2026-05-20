@@ -543,16 +543,20 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 /* ── GAME TYPE SELECTION ── */
 .gt-set-name  { font-size: 22px; font-weight: 700; text-align: center; margin: 8px 0 4px; }
 .gt-subtitle  { text-align: center; color: var(--text-light); font-size: 15px; margin-bottom: 22px; }
-.gt-grid      { display: flex; flex-direction: column; gap: 14px; }
-.gt-btn       { border: none; border-radius: 22px; padding: 20px 22px; display: flex; flex-direction: row; align-items: center; gap: 20px; cursor: pointer; transition: transform .12s, box-shadow .12s; box-shadow: 0 6px 20px rgba(0,0,0,.18); color: #fff; text-align: left; width: 100%; }
+.gt-grid      { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.gt-btn       { border: none; border-radius: 22px; padding: 16px 10px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: transform .12s, box-shadow .12s; box-shadow: 0 6px 20px rgba(0,0,0,.18); color: #fff; text-align: center; width: 100%; }
 .gt-btn:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
-.gt-icon-wrap { width: 76px; height: 76px; border-radius: 18px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; font-size: 46px; flex-shrink: 0; }
-.gt-text  { display: flex; flex-direction: column; gap: 5px; }
-.gt-label { font-size: 20px; font-weight: 800; line-height: 1.1; }
-.gt-desc  { font-size: 13px; opacity: .88; line-height: 1.4; }
+.gt-icon-wrap { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; font-size: 38px; }
+.gt-text  { display: flex; flex-direction: column; gap: 3px; }
+.gt-label { font-size: 16px; font-weight: 800; line-height: 1.2; }
+.gt-desc  { font-size: 11px; opacity: .85; line-height: 1.3; }
 .gt-flashcard { background: linear-gradient(135deg, #FF9F3C 0%, #E8620A 100%); }
 .gt-pairs     { background: linear-gradient(135deg, #4A90D9 0%, #1D5FAD 100%); }
 .gt-find      { background: linear-gradient(135deg, #5BB943 0%, #2A8818 100%); }
+.gt-multiple { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
+.gt-sort     { background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); }
+.gt-speed    { background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%); }
+.gt-speak    { background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%); }
 
 /* ── FLASHCARD VIEWER ── */
 .fc-header    { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -584,6 +588,48 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .fp-found-check    { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(91,185,67,.35); font-size: 36px; }
 @keyframes fp-pop   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
 @keyframes fp-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+
+/* ── MULTIPLE CHOICE ── */
+.mc-image { width:100%; aspect-ratio:3/2; border-radius:var(--radius); overflow:hidden; background:var(--bg); margin-bottom:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.mc-image img { width:100%; height:100%; object-fit:cover; display:block; }
+.mc-image .mc-no-img { font-size:80px; }
+.mc-options { display:flex; flex-direction:column; gap:12px; }
+.mc-btn { width:100%; padding:18px 20px; border:2.5px solid var(--border); border-radius:14px; background:var(--surface); font-size:18px; font-weight:700; cursor:pointer; transition:all .15s; font-family:inherit; text-align:left; color:var(--text); }
+.mc-btn:hover { border-color:var(--primary); background:var(--primary-light); }
+.mc-btn.mc-correct { border-color:var(--success); background:#edfaeb; color:var(--success); pointer-events:none; }
+.mc-btn.mc-wrong { border-color:var(--danger); background:#fef2f2; color:var(--danger); animation:fp-shake .4s; }
+.mc-audio-hint { text-align:center; font-size:13px; color:var(--text-light); margin-bottom:14px; }
+
+/* ── SORT GAME ── */
+.sort-select-list { display:flex; flex-direction:column; gap:12px; }
+.sort-select-item { background:var(--surface); border-radius:var(--radius); padding:16px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; box-shadow:var(--shadow); transition:all .15s; }
+.sort-select-item:hover { box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+.sort-card { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-lg); overflow:hidden; margin-bottom:20px; }
+.sort-btns { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.sort-btn { padding:22px 12px; border:none; border-radius:var(--radius); font-size:16px; font-weight:800; cursor:pointer; transition:transform .15s; font-family:inherit; color:#fff; line-height:1.3; text-align:center; }
+.sort-btn-a { background:linear-gradient(135deg, #8B5CF6, #6D28D9); }
+.sort-btn-b { background:linear-gradient(135deg, #EC4899, #BE185D); }
+.sort-btn.sort-correct { transform:scale(1.06); }
+.sort-btn.sort-wrong { animation:fp-shake .4s; }
+
+/* ── SPEED ROUND ── */
+.speed-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.speed-timer-wrap { width:52px; height:52px; border-radius:50%; border:4px solid var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:border-color .3s; }
+.speed-timer-wrap.urgent { border-color:var(--danger); }
+.speed-timer { font-size:22px; font-weight:900; color:var(--text); }
+.speed-timer.urgent { color:var(--danger); }
+.speed-score-box { margin-left:auto; text-align:right; }
+.speed-score-label { font-size:12px; color:var(--text-light); }
+.speed-score-val { font-size:22px; font-weight:900; color:var(--secondary); }
+
+/* ── SPEAK GAME ── */
+.speak-card { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-lg); overflow:hidden; margin-bottom:20px; }
+.speak-controls { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.speak-rec-btn { width:86px; height:86px; border-radius:50%; border:none; font-size:34px; cursor:pointer; background:var(--danger); color:#fff; transition:all .15s; box-shadow:0 4px 16px rgba(224,32,32,.35); }
+.speak-rec-btn.recording { animation:speak-pulse 1s infinite; }
+@keyframes speak-pulse { 0%,100%{box-shadow:0 4px 16px rgba(224,32,32,.35)} 50%{box-shadow:0 4px 30px rgba(224,32,32,.7),0 0 0 8px rgba(224,32,32,.15)} }
+.speak-status { font-size:14px; color:var(--text-light); }
+.speak-player { width:100%; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -674,6 +720,34 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         <span class="gt-desc">Lytt til ordet og trykk på riktig bilde</span>
       </div>
     </button>
+    <button class="gt-btn gt-multiple" onclick="pickGameType('multiple')">
+      <div class="gt-icon-wrap">🃏</div>
+      <div class="gt-text">
+        <span class="gt-label">Hva er dette?</span>
+        <span class="gt-desc">Velg riktig navn på bildet</span>
+      </div>
+    </button>
+    <button class="gt-btn gt-sort" onclick="pickGameType('sort')">
+      <div class="gt-icon-wrap">🔀</div>
+      <div class="gt-text">
+        <span class="gt-label">Sorter kortene</span>
+        <span class="gt-desc">Sorter kortene i riktig gruppe</span>
+      </div>
+    </button>
+    <button class="gt-btn gt-speed" onclick="pickGameType('speed')">
+      <div class="gt-icon-wrap">⚡</div>
+      <div class="gt-text">
+        <span class="gt-label">Rask svar</span>
+        <span class="gt-desc">Svar så raskt du kan!</span>
+      </div>
+    </button>
+    <button class="gt-btn gt-speak" onclick="pickGameType('speak')">
+      <div class="gt-icon-wrap">🎤</div>
+      <div class="gt-text">
+        <span class="gt-label">Si ordet</span>
+        <span class="gt-desc">Ta opp stemmen din og hør deg selv</span>
+      </div>
+    </button>
   </div>
 </div>
 
@@ -691,6 +765,77 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <button class="btn btn-secondary" id="fcPrevBtn" onclick="fcPrev()">← Forrige</button>
     <button class="btn btn-primary" onclick="playFcAudio()">🔊 Hør</button>
     <button class="btn btn-secondary" id="fcNextBtn" onclick="fcNext()">Neste →</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: MULTIPLE CHOICE ── -->
+<div class="screen" id="screen-multiple-choice">
+  <div class="fp-header">
+    <div class="fp-progress-bar"><div class="fp-progress-fill" id="mcProgressFill"></div></div>
+    <div class="fp-count" id="mcCount">1 / 8</div>
+  </div>
+  <div class="mc-image" id="mcImage" onclick="playMcAudio()"></div>
+  <div class="mc-audio-hint">🔊 Trykk på bildet for å høre</div>
+  <div class="mc-options" id="mcOptions"></div>
+</div>
+
+<!-- ── SCREEN: SORT SELECT ── -->
+<div class="screen" id="screen-sort-select">
+  <div style="text-align:center;margin-bottom:6px;font-size:18px;font-weight:700">Bland med hvilket kortsett?</div>
+  <div id="sortSelectSubtitle" style="text-align:center;color:var(--text-light);font-size:14px;margin-bottom:24px"></div>
+  <div class="sort-select-list" id="sortSetList"></div>
+</div>
+
+<!-- ── SCREEN: SORT GAME ── -->
+<div class="screen" id="screen-sort">
+  <div class="fp-header">
+    <div class="fp-progress-bar"><div class="fp-progress-fill" id="sortProgressFill"></div></div>
+    <div class="fp-count" id="sortCount">1 / 12</div>
+  </div>
+  <div class="sort-card">
+    <div class="fc-img" id="sortImg"></div>
+    <div class="fc-word" id="sortWord"></div>
+  </div>
+  <div class="sort-btns">
+    <button class="sort-btn sort-btn-a" id="sortBtnA" onclick="sortGuess('a')"></button>
+    <button class="sort-btn sort-btn-b" id="sortBtnB" onclick="sortGuess('b')"></button>
+  </div>
+</div>
+
+<!-- ── SCREEN: SPEED ROUND ── -->
+<div class="screen" id="screen-speed">
+  <div class="speed-header">
+    <div class="speed-timer-wrap" id="speedTimerWrap">
+      <span class="speed-timer" id="speedTimer">5</span>
+    </div>
+    <div class="fp-progress-bar" style="flex:1"><div class="fp-progress-fill" id="speedProgressFill"></div></div>
+    <div class="speed-score-box">
+      <div class="speed-score-label">Poeng</div>
+      <div class="speed-score-val" id="speedScore">0</div>
+    </div>
+  </div>
+  <div class="mc-image" id="speedImg" onclick="playSpeedAudio()"></div>
+  <div class="mc-audio-hint">🔊 Trykk på bildet for å høre</div>
+  <div class="mc-options" id="speedOptions"></div>
+</div>
+
+<!-- ── SCREEN: SPEAK GAME ── -->
+<div class="screen" id="screen-speak">
+  <div class="fp-header">
+    <div class="fp-progress-bar"><div class="fp-progress-fill" id="speakProgressFill"></div></div>
+    <div class="fp-count" id="speakCount">1 / 8</div>
+  </div>
+  <div class="speak-card">
+    <div class="fc-img" id="speakImg"></div>
+    <div class="fc-word" id="speakWord"></div>
+  </div>
+  <div class="speak-controls">
+    <button class="speak-rec-btn" id="speakRecBtn" onclick="toggleSpeakRec()">🎤</button>
+    <div class="speak-status" id="speakStatus">Trykk for å ta opp stemmen din</div>
+    <audio class="speak-player" id="speakPlayer" controls style="display:none"></audio>
+    <div style="display:flex;gap:10px;width:100%">
+      <button class="btn btn-secondary" style="flex:1" onclick="speakNext()" id="speakNextBtn">Neste →</button>
+    </div>
   </div>
 </div>
 
@@ -1017,17 +1162,22 @@ async function sbDeleteSet(id) {
 const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings']);
 
 const NAV_TITLES = {
-  'student-select': '🎴 Finn par',
-  'game-type':      '🎮 Velg spilltype',
-  'difficulty':     '🎯 Vanskelighetsgrad',
-  'game':           '🎴 Finn par',
-  'flashcard':      '👀 Se og lær',
-  'find-picture':   '🔍 Finn bildet',
-  'win':            '🎉 Ferdig!',
-  'teacher-sets':   '👩‍🏫 Lærervisning',
-  'edit-set':       '✏️ Rediger kortsett',
-  'edit-card':      '🃏 Rediger kort',
-  'settings':       '⚙️ Innstillinger',
+  'student-select':   '🎴 Finn par',
+  'game-type':        '🎮 Velg spilltype',
+  'difficulty':       '🎯 Vanskelighetsgrad',
+  'game':             '🎴 Finn par',
+  'flashcard':        '👀 Se og lær',
+  'find-picture':     '🔍 Finn bildet',
+  'win':              '🎉 Ferdig!',
+  'teacher-sets':     '👩‍🏫 Lærervisning',
+  'edit-set':         '✏️ Rediger kortsett',
+  'edit-card':        '🃏 Rediger kort',
+  'settings':         '⚙️ Innstillinger',
+  'multiple-choice':  '🃏 Hva er dette?',
+  'sort-select':      '🔀 Velg kortsett',
+  'sort':             '🔀 Sorter kortene',
+  'speed':            '⚡ Rask svar',
+  'speak':            '🎤 Si ordet',
 };
 
 let history = ['student-select'];
@@ -1048,6 +1198,8 @@ function showScreen(name, push = true) {
 }
 
 function goBack() {
+  if (speedInterval) { clearInterval(speedInterval); speedInterval = null; }
+  stopSpeakRec();
   if (history.length <= 1) return;
   const leaving = history.pop();
   const dest    = currentScreen();
@@ -1174,9 +1326,13 @@ async function selectSet(id) {
 }
 
 function pickGameType(type) {
-  if (type === 'pairs')     buildDifficultyScreen(selectedSetForGame);
-  else if (type === 'find') startFindPicture();
-  else                      startFlashcards();
+  if (type === 'pairs')    buildDifficultyScreen(selectedSetForGame);
+  else if (type === 'find')     startFindPicture();
+  else if (type === 'flashcard') startFlashcards();
+  else if (type === 'multiple') startMultipleChoice();
+  else if (type === 'sort')     showSortSelect();
+  else if (type === 'speed')    startSpeedRound();
+  else if (type === 'speak')    startSpeakGame();
 }
 
 function buildDifficultyScreen(s) {
@@ -1299,7 +1455,11 @@ function showWin() {
 let currentGameType = 'pairs';
 
 function playAgain() {
-  if (currentGameType === 'find') startFindPicture();
+  if (currentGameType === 'find')     startFindPicture();
+  else if (currentGameType === 'flashcard') startFlashcards();
+  else if (currentGameType === 'multiple') startMultipleChoice();
+  else if (currentGameType === 'speed')    startSpeedRound();
+  else if (currentGameType === 'speak')    startSpeakGame();
   else buildDifficultyScreen(selectedSetForGame);
 }
 
@@ -2101,6 +2261,320 @@ function toast(msg, type = '') {
   const el = document.getElementById('toast');
   el.textContent = msg; el.className = 'toast show' + (type ? ' '+type : '');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   MULTIPLE CHOICE – HVA ER DETTE?
+   ============================================================ */
+let mcGame = null;
+
+function startMultipleChoice() {
+  const cards = selectedSetForGame.cards.filter(c => c.text);
+  if (cards.length < 2) { toast('Trenger minst 2 kort', 'error'); return; }
+  currentGameType = 'multiple';
+  mcGame = { cards: shuffle([...cards]), current: 0, total: cards.length, score: 0, attempts: 0 };
+  renderMcCard();
+  showScreen('multiple-choice');
+}
+
+function renderMcCard() {
+  const c = mcGame.cards[mcGame.current];
+  document.getElementById('mcProgressFill').style.width = (mcGame.current / mcGame.total * 100) + '%';
+  document.getElementById('mcCount').textContent = `${mcGame.current + 1} / ${mcGame.total}`;
+  const imgEl = document.getElementById('mcImage');
+  imgEl.innerHTML = c.imageData ? `<img src="${c.imageData}" alt="">` : `<span class="mc-no-img">🖼️</span>`;
+  const others = mcGame.cards.filter(x => x.id !== c.id);
+  const wrong = shuffle(others).slice(0, 3);
+  const options = shuffle([c, ...wrong]);
+  document.getElementById('mcOptions').innerHTML = options.map(o =>
+    `<button class="mc-btn" onclick="guessMc('${o.id}')">${esc(o.text)}</button>`).join('');
+  setTimeout(() => playMcAudio(), 350);
+}
+
+function playMcAudio() {
+  const c = mcGame.cards[mcGame.current];
+  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} } else { speakText(c.text); }
+}
+
+function guessMc(id) {
+  const target = mcGame.cards[mcGame.current];
+  mcGame.attempts++;
+  const btns = document.querySelectorAll('.mc-btn');
+  if (id === target.id) {
+    btns.forEach(b => { if (b.textContent === target.text) b.classList.add('mc-correct'); else b.disabled = true; });
+    playTone([523,659,784],'sine',0.3);
+    setTimeout(() => { if (target.audioData) { try{new Audio(target.audioData).play();}catch{} } else speakText(target.text); }, 350);
+    setTimeout(() => {
+      mcGame.current++;
+      if (mcGame.current >= mcGame.total) {
+        document.getElementById('winSub').textContent = `Du svarte riktig på ${mcGame.total} spørsmål med ${mcGame.attempts} forsøk. ${mcGame.attempts <= mcGame.total + 2 ? 'Fantastisk! 🌟' : 'Bra jobba! 👍'}`;
+        playTone([523,587,659,698,784],'sine',0.35);
+        showScreen('win');
+      } else renderMcCard();
+    }, 900);
+  } else {
+    document.querySelectorAll('.mc-btn').forEach(b => { if (b.textContent === (mcGame.cards.find(c=>c.id===id)?.text||'')) b.classList.add('mc-wrong'); });
+    playTone([200],'triangle',0.2);
+    setTimeout(() => document.querySelectorAll('.mc-btn').forEach(b => b.classList.remove('mc-wrong')), 500);
+  }
+}
+
+/* ============================================================
+   SORT GAME – SORTER KORTENE
+   ============================================================ */
+let sortGame = null;
+
+async function showSortSelect() {
+  let allSets;
+  try { allSets = await sbGetAllSets(); } catch { toast('Kunne ikke laste kortsett', 'error'); return; }
+  const others = allSets.filter(s => s.id !== selectedSetForGame.id && s.cards.length >= 2);
+  if (!others.length) { toast('Du trenger minst to kortsett for å sortere', 'error'); return; }
+  document.getElementById('sortSelectSubtitle').textContent = `Bland kortene fra «${selectedSetForGame.name}» med:`;
+  document.getElementById('sortSetList').innerHTML = others.map(s => {
+    const cardWithImg = s.cards.find(c => c.imageData);
+    const thumb = cardWithImg
+      ? `<div style="width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0"><img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover"></div>`
+      : `<div style="width:48px;height:48px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🃏</div>`;
+    return `<div class="sort-select-item" onclick="startSortGame('${s.id}')">
+      ${thumb}
+      <div>
+        <div style="font-weight:700;font-size:16px">${esc(s.name)}</div>
+        <div style="font-size:13px;color:var(--text-light)">${s.cards.length} kort</div>
+      </div>
+    </div>`;
+  }).join('');
+  showScreen('sort-select');
+}
+
+async function startSortGame(secondId) {
+  const setB = await sbGetSet(secondId);
+  if (!setB) return;
+  const setA = selectedSetForGame;
+  const cardsA = setA.cards.map(c => ({ ...c, _set: 'a' }));
+  const cardsB = setB.cards.map(c => ({ ...c, _set: 'b' }));
+  sortGame = {
+    cards: shuffle([...cardsA, ...cardsB]),
+    current: 0,
+    total: cardsA.length + cardsB.length,
+    correct: 0,
+    attempts: 0,
+    nameA: setA.name,
+    nameB: setB.name
+  };
+  document.getElementById('sortBtnA').textContent = setA.name;
+  document.getElementById('sortBtnB').textContent = setB.name;
+  renderSortCard();
+  showScreen('sort');
+}
+
+function renderSortCard() {
+  const c = sortGame.cards[sortGame.current];
+  document.getElementById('sortProgressFill').style.width = (sortGame.current / sortGame.total * 100) + '%';
+  document.getElementById('sortCount').textContent = `${sortGame.current + 1} / ${sortGame.total}`;
+  document.getElementById('sortImg').innerHTML = c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span class="fc-no-img">🖼️</span>`;
+  document.getElementById('sortWord').textContent = c.text;
+  document.getElementById('sortBtnA').disabled = false;
+  document.getElementById('sortBtnB').disabled = false;
+  document.getElementById('sortBtnA').classList.remove('sort-correct','sort-wrong');
+  document.getElementById('sortBtnB').classList.remove('sort-correct','sort-wrong');
+  setTimeout(() => {
+    if (c.audioData) { try{new Audio(c.audioData).play();}catch{} } else speakText(c.text);
+  }, 300);
+}
+
+function sortGuess(side) {
+  const c = sortGame.cards[sortGame.current];
+  sortGame.attempts++;
+  const correct = c._set === side;
+  const btnCorrect = document.getElementById(side === 'a' ? 'sortBtnA' : 'sortBtnB');
+  if (correct) {
+    btnCorrect.classList.add('sort-correct');
+    sortGame.correct++;
+    playTone([523,659,784],'sine',0.3);
+    setTimeout(() => {
+      sortGame.current++;
+      if (sortGame.current >= sortGame.total) {
+        document.getElementById('winSub').textContent = `Du sorterte ${sortGame.correct} av ${sortGame.total} kort riktig med ${sortGame.attempts} forsøk. ${sortGame.correct === sortGame.total ? 'Perfekt! 🌟' : 'Bra jobba! 👍'}`;
+        playTone([523,587,659,698,784],'sine',0.35);
+        showScreen('win');
+      } else renderSortCard();
+    }, 700);
+  } else {
+    btnCorrect.classList.add('sort-wrong');
+    playTone([200],'triangle',0.2);
+    setTimeout(() => btnCorrect.classList.remove('sort-wrong'), 500);
+  }
+}
+
+/* ============================================================
+   SPEED ROUND – RASK SVAR
+   ============================================================ */
+let speedGame = null, speedInterval = null;
+
+function startSpeedRound() {
+  const cards = selectedSetForGame.cards.filter(c => c.text);
+  if (cards.length < 2) { toast('Trenger minst 2 kort', 'error'); return; }
+  currentGameType = 'speed';
+  speedGame = { cards: shuffle([...cards]), current: 0, total: cards.length, score: 0, timeLeft: 5, answered: false };
+  renderSpeedCard();
+  showScreen('speed');
+}
+
+function renderSpeedCard() {
+  if (speedInterval) clearInterval(speedInterval);
+  const c = speedGame.cards[speedGame.current];
+  speedGame.timeLeft = 5; speedGame.answered = false;
+  document.getElementById('speedProgressFill').style.width = (speedGame.current / speedGame.total * 100) + '%';
+  document.getElementById('speedScore').textContent = speedGame.score;
+  const imgEl = document.getElementById('speedImg');
+  imgEl.innerHTML = c.imageData ? `<img src="${c.imageData}" alt="">` : `<span class="mc-no-img">🖼️</span>`;
+  const others = speedGame.cards.filter(x => x.id !== c.id);
+  const options = shuffle([c, ...shuffle(others).slice(0, 3)]);
+  document.getElementById('speedOptions').innerHTML = options.map(o =>
+    `<button class="mc-btn" onclick="guessSpeed('${o.id}')">${esc(o.text)}</button>`).join('');
+  updateSpeedTimer();
+  speedInterval = setInterval(() => {
+    speedGame.timeLeft--;
+    updateSpeedTimer();
+    if (speedGame.timeLeft <= 0) { clearInterval(speedInterval); speedTimeout(); }
+  }, 1000);
+  setTimeout(() => playSpeedAudio(), 300);
+}
+
+function updateSpeedTimer() {
+  const t = speedGame.timeLeft;
+  document.getElementById('speedTimer').textContent = t;
+  document.getElementById('speedTimer').className = 'speed-timer' + (t <= 2 ? ' urgent' : '');
+  document.getElementById('speedTimerWrap').className = 'speed-timer-wrap' + (t <= 2 ? ' urgent' : '');
+}
+
+function playSpeedAudio() {
+  if (!speedGame || speedGame.answered) return;
+  const c = speedGame.cards[speedGame.current];
+  if (c.audioData) { try{new Audio(c.audioData).play();}catch{} } else speakText(c.text);
+}
+
+function guessSpeed(id) {
+  if (speedGame.answered) return;
+  clearInterval(speedInterval);
+  speedGame.answered = true;
+  const target = speedGame.cards[speedGame.current];
+  const correct = id === target.id;
+  if (correct) {
+    const pts = speedGame.timeLeft * 10;
+    speedGame.score += pts;
+    document.getElementById('speedScore').textContent = speedGame.score;
+    document.querySelectorAll('.mc-btn').forEach(b => { if (b.textContent === target.text) b.classList.add('mc-correct'); else b.disabled = true; });
+    playTone([523,659,784],'sine',0.3);
+  } else {
+    document.querySelectorAll('.mc-btn').forEach(b => { if (b.textContent === (speedGame.cards.find(c=>c.id===id)?.text||'')) b.classList.add('mc-wrong'); });
+    document.querySelectorAll('.mc-btn').forEach(b => { if (b.textContent === target.text) b.style.borderColor = 'var(--success)'; });
+    playTone([200],'triangle',0.2);
+  }
+  setTimeout(() => {
+    speedGame.current++;
+    if (speedGame.current >= speedGame.total) {
+      document.getElementById('winSub').textContent = `Du fikk ${speedGame.score} poeng på ${speedGame.total} spørsmål. ${speedGame.score >= speedGame.total * 30 ? 'Lynrask! ⚡🌟' : speedGame.score >= speedGame.total * 15 ? 'Bra tempo! 👍' : 'Fortsett å øve! 💪'}`;
+      playTone([523,587,659,698,784],'sine',0.35);
+      showScreen('win');
+    } else renderSpeedCard();
+  }, 900);
+}
+
+function speedTimeout() {
+  if (speedGame.answered) return;
+  speedGame.answered = true;
+  const target = speedGame.cards[speedGame.current];
+  document.querySelectorAll('.mc-btn').forEach(b => { if (b.textContent === target.text) b.style.borderColor='var(--success)'; else b.disabled=true; });
+  playTone([200],'triangle',0.2);
+  setTimeout(() => {
+    speedGame.current++;
+    if (speedGame.current >= speedGame.total) {
+      document.getElementById('winSub').textContent = `Du fikk ${speedGame.score} poeng på ${speedGame.total} spørsmål. ${speedGame.score >= speedGame.total * 30 ? 'Lynrask! ⚡🌟' : speedGame.score >= speedGame.total * 15 ? 'Bra tempo! 👍' : 'Fortsett å øve! 💪'}`;
+      playTone([523,587,659,698,784],'sine',0.35);
+      showScreen('win');
+    } else renderSpeedCard();
+  }, 900);
+}
+
+/* ============================================================
+   SPEAK GAME – SI ORDET
+   ============================================================ */
+let speakGame = null, speakRec = null, speakChunks = [], speakIsRec = false;
+
+function startSpeakGame() {
+  const cards = selectedSetForGame.cards;
+  if (!cards.length) { toast('Kortsettet er tomt', 'error'); return; }
+  currentGameType = 'speak';
+  speakGame = { cards: shuffle([...cards]), current: 0, total: cards.length };
+  renderSpeakCard();
+  showScreen('speak');
+}
+
+function renderSpeakCard() {
+  stopSpeakRec();
+  const c = speakGame.cards[speakGame.current];
+  document.getElementById('speakProgressFill').style.width = (speakGame.current / speakGame.total * 100) + '%';
+  document.getElementById('speakCount').textContent = `${speakGame.current + 1} / ${speakGame.total}`;
+  document.getElementById('speakImg').innerHTML = c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span class="fc-no-img">🖼️</span>`;
+  document.getElementById('speakWord').textContent = c.text;
+  document.getElementById('speakPlayer').style.display = 'none';
+  document.getElementById('speakPlayer').src = '';
+  document.getElementById('speakRecBtn').className = 'speak-rec-btn';
+  document.getElementById('speakRecBtn').textContent = '🎤';
+  document.getElementById('speakStatus').textContent = 'Trykk for å ta opp stemmen din';
+  const nextBtn = document.getElementById('speakNextBtn');
+  nextBtn.textContent = speakGame.current === speakGame.total - 1 ? '✓ Ferdig' : 'Neste →';
+  setTimeout(() => { if (c.audioData){try{new Audio(c.audioData).play();}catch{}}else speakText(c.text); }, 350);
+}
+
+async function toggleSpeakRec() {
+  if (speakIsRec) { stopSpeakRec(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = ['audio/mp4','audio/webm','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+    speakRec = new MediaRecorder(stream, mimeType ? {mimeType} : {});
+    speakChunks = [];
+    speakRec.ondataavailable = e => { if (e.data.size) speakChunks.push(e.data); };
+    speakRec.onstop = () => {
+      stream.getTracks().forEach(t=>t.stop());
+      const blob = new Blob(speakChunks, { type: speakRec.mimeType || 'audio/mp4' });
+      const reader = new FileReader();
+      reader.onload = e => {
+        const player = document.getElementById('speakPlayer');
+        player.src = e.target.result;
+        player.style.display = '';
+        player.play().catch(()=>{});
+      };
+      reader.readAsDataURL(blob);
+      document.getElementById('speakRecBtn').className = 'speak-rec-btn';
+      document.getElementById('speakRecBtn').textContent = '🎤';
+      document.getElementById('speakStatus').textContent = 'Hør deg selv, eller ta opp på nytt';
+      speakIsRec = false;
+    };
+    speakRec.start();
+    speakIsRec = true;
+    document.getElementById('speakRecBtn').className = 'speak-rec-btn recording';
+    document.getElementById('speakRecBtn').textContent = '⏹';
+    document.getElementById('speakStatus').textContent = 'Tar opp… trykk for å stoppe';
+  } catch { toast('Mikrofontilgang nektet – sjekk nettleserinnstillingene', 'error'); }
+}
+
+function stopSpeakRec() {
+  if (speakRec && speakIsRec && speakRec.state !== 'inactive') speakRec.stop();
+  speakIsRec = false;
+}
+
+function speakNext() {
+  stopSpeakRec();
+  speakGame.current++;
+  if (speakGame.current >= speakGame.total) {
+    document.getElementById('winSub').textContent = `Du har øvd på alle ${speakGame.total} ord. Bra jobba! 🎤🌟`;
+    playTone([523,587,659,698,784],'sine',0.35);
+    showScreen('win');
+  } else {
+    renderSpeakCard();
+  }
 }
 
 document.addEventListener('keydown', e => {
