@@ -109,6 +109,8 @@ body {
 .btn-danger:hover  { background: #b01818; }
 .btn-success { background: var(--success); color: #fff; }
 .btn-success:hover { background: #4a9e37; }
+.btn-camera  { background: #0055CC; color: #fff; font-weight: 700; }
+.btn-camera:hover { background: #003FA3; }
 .btn-ghost { background: none; border: none; color: var(--text-light); font-size: 14px; cursor: pointer; padding: 6px 10px; border-radius: 8px; font-family: inherit; }
 .btn-ghost:hover { background: var(--bg); color: var(--text); }
 .btn-icon { background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background .15s; line-height: 1; }
@@ -550,13 +552,13 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .gt-text  { display: flex; flex-direction: column; gap: 3px; }
 .gt-label { font-size: 16px; font-weight: 800; line-height: 1.2; }
 .gt-desc  { font-size: 11px; opacity: .85; line-height: 1.3; }
-.gt-flashcard { background: linear-gradient(135deg, #FF9F3C 0%, #E8620A 100%); }
-.gt-pairs     { background: linear-gradient(135deg, #4A90D9 0%, #1D5FAD 100%); }
-.gt-find      { background: linear-gradient(135deg, #5BB943 0%, #2A8818 100%); }
-.gt-multiple { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
-.gt-sort     { background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); }
-.gt-speed    { background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%); }
-.gt-speak    { background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%); }
+.gt-flashcard { background: linear-gradient(135deg, #FF4400 0%, #CC2200 100%); } /* vivid red */
+.gt-pairs     { background: linear-gradient(135deg, #0066DD 0%, #004499 100%); } /* strong blue */
+.gt-find      { background: linear-gradient(135deg, #00AA00 0%, #007700 100%); } /* vivid green */
+.gt-multiple  { background: linear-gradient(135deg, #8800CC 0%, #5500AA 100%); } /* vivid purple */
+.gt-sort      { background: linear-gradient(135deg, #FF6600 0%, #CC4400 100%); } /* deep orange */
+.gt-speed     { background: linear-gradient(135deg, #009999 0%, #006677 100%); } /* vivid teal */
+.gt-speak     { background: linear-gradient(135deg, #CC0077 0%, #990055 100%); } /* vivid magenta */
 
 /* ── FLASHCARD VIEWER ── */
 .fc-header    { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -907,6 +909,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <div class="editor-panel-title">🖼️ Bilde</div>
       <div class="img-preview" id="imgPreview"><span class="img-placeholder">🖼️</span></div>
       <div class="img-btn-group">
+        <button class="btn btn-camera btn-full btn-sm" onclick="triggerCameraCapture()">📷 Ta bilde med kamera</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="autoFindImage()">✨ Finn bilde automatisk</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="triggerImgUpload()">📁 Last opp fra enhet</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="openImageSearch()">🔍 Søk på nettet</button>
@@ -914,6 +917,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
                oninput="loadImageUrl(this.value)" autocomplete="off" />
       </div>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImgFile(this)" />
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleCameraCapture(this)" />
     </div>
 
     <!-- AUDIO -->
@@ -2139,6 +2143,53 @@ async function autoFindImage() {
   workingCard.imageData = imageData;
   document.getElementById('imgPreview').innerHTML = `<img src="${imageData}" alt="${esc(word)}">`;
   toast('Bilde funnet ✓', 'success');
+}
+
+function triggerCameraCapture() { document.getElementById('cameraInput').click(); }
+
+async function handleCameraCapture(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const compressed = await compressImg(e.target.result, 700, 700);
+    setCardImage(compressed);
+    const apiKey = await getCfg('claude');
+    if (!apiKey) { toast('Bilde lagret – legg til Gemini API-nøkkel for automatisk navnforslag', 'error'); input.value = ''; return; }
+    toast('🔍 AI identifiserer bildet…');
+    try {
+      const word = await identifyImageWithGemini(compressed, apiKey);
+      if (word) {
+        document.getElementById('cardTextInput').value = word;
+        workingCard.text = word;
+        toast(`AI foreslår: «${word}» – endre om nødvendig`, 'success');
+      } else {
+        toast('Bilde lagret – skriv inn navn manuelt', 'success');
+      }
+    } catch { toast('Bilde lagret – AI klarte ikke å identifisere det', 'error'); }
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function identifyImageWithGemini(dataUrl, apiKey) {
+  const base64 = dataUrl.split(',')[1];
+  const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const body = JSON.stringify({ contents: [{ parts: [
+    { text: 'Hva er det viktigste objektet i dette bildet? Svar med ett norsk bokmål-ord eller en kort frase (maks 3 ord). Kun ordet/frasen, ingenting annet.' },
+    { inline_data: { mime_type: mimeType, data: base64 } }
+  ]}]});
+  for (let attempt = 0; attempt <= 2; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 1500 * attempt));
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+    if (resp.ok) {
+      const data = await resp.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()?.split('\n')[0]?.trim() || null;
+    }
+    if (attempt < 2 && (resp.status === 503 || resp.status === 429)) continue;
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error?.message || `HTTP ${resp.status}`);
+  }
 }
 
 async function geminiRequest(apiKey, promptText, retries = 2) {
