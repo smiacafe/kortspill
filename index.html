@@ -1812,14 +1812,8 @@ async function fetchAiSuggestions() {
   const chipsEl = document.getElementById('aiChips');
   chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner white"></div><span style="color:rgba(255,255,255,.8)">Henter forslag…</span></div>`;
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{
-        text: `Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`
-      }] }] }),
-    });
-    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
+    const resp = await geminiRequest(apiKey,
+      `Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`);
     const data  = await resp.json();
     const words = data.candidates[0].content.parts[0].text.split('\n').map(w => w.trim()).filter(w => w && w.length < 60);
 
@@ -1867,12 +1861,12 @@ async function createAllCards() {
 
   showProgress();
 
-  const newCards = await Promise.all(words.map(async word => {
+  const newCards = await fetchInBatches(words, 3, async word => {
     const imageData = pixabayKey ? await fetchPixabayImage(word, pixabayKey) : null;
     done++;
     showProgress();
     return { id: uid(), text: word, imageData, audioData: null, ttsEnabled: true };
-  }));
+  });
 
   workingSet.cards.push(...newCards);
   workingSet.name = document.getElementById('setNameInput').value.trim() || 'Uten navn';
@@ -1898,14 +1892,8 @@ async function suggestNewWord() {
   const btn = document.getElementById('suggestWordBtn');
   btn.disabled = true; btn.textContent = '⏳ Henter forslag…';
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text:
-        `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`
-      }] }] }),
-    });
-    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
+    const resp = await geminiRequest(apiKey,
+      `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`);
     const data = await resp.json();
     const newWord = data.candidates[0].content.parts[0].text.trim().split('\n')[0].trim();
     if (!newWord) { toast('Ingen forslag funnet', 'error'); return; }
@@ -1938,12 +1926,38 @@ async function autoFindImage() {
   toast('Bilde funnet ✓', 'success');
 }
 
+async function geminiRequest(apiKey, promptText, retries = 2) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const body = JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 1500 * attempt));
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+    if (resp.ok) return resp;
+    if (attempt < retries && (resp.status === 503 || resp.status === 429)) continue;
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error?.message || `HTTP ${resp.status}`);
+  }
+}
+
+async function fetchInBatches(items, batchSize, fn) {
+  const results = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = await Promise.all(items.slice(i, i + batchSize).map(fn));
+    results.push(...batch);
+  }
+  return results;
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+}
+
 async function fetchPixabayImage(word, key) {
   try {
     const url  = `https://pixabay.com/api/?key=${encodeURIComponent(key)}&q=${encodeURIComponent(word)}&image_type=photo&safesearch=true&per_page=3&lang=no`;
-    const data = await fetch(url).then(r => r.json());
+    const data = await withTimeout(fetch(url).then(r => r.json()), 8000);
     if (!data.hits?.length) return null;
-    const blob   = await fetch(data.hits[0].webformatURL).then(r => r.blob());
+    const blob   = await withTimeout(fetch(data.hits[0].webformatURL).then(r => r.blob()), 8000);
     const dataUrl = await new Promise(res => {
       const reader = new FileReader();
       reader.onload = e => res(e.target.result);
