@@ -977,7 +977,10 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
   <div class="section-header">
     <span class="section-title">Kort (<span id="cardCountLabel">0</span>)</span>
-    <button class="btn btn-secondary" style="padding:7px 14px;font-size:13px" onclick="addTtsToAll()" title="Slå på automatisk lyd for alle kort som mangler lyd">🗣️ Lyd for alle</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder(workingSet)">📷 Fra kamera</button>
+      <button class="btn btn-secondary" style="padding:7px 14px;font-size:13px" onclick="addTtsToAll()" title="Slå på automatisk lyd for alle kort som mangler lyd">🗣️ Lyd for alle</button>
+    </div>
   </div>
   <div class="cards-grid" id="cardsGrid"></div>
 
@@ -1067,7 +1070,10 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
   <!-- Top bar: set name + card count -->
   <div class="cam-top-bar">
-    <input class="cam-set-name-input" id="camSetName" type="text" placeholder="Navn på kortsett…" autocomplete="off" />
+    <div id="camSetNameWrap" style="flex:1;min-width:0">
+      <input class="cam-set-name-input" id="camSetName" type="text" placeholder="Navn på kortsett…" autocomplete="off" />
+      <div class="cam-set-name-label" id="camSetNameLabel" style="display:none;font-size:17px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+    </div>
     <div class="cam-card-badge" id="camCardBadge">0 kort</div>
   </div>
 
@@ -1087,7 +1093,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     </div>
     <!-- Save bar -->
     <div class="cam-save-bar" id="camSaveBarShoot" style="display:none">
-      <button class="btn btn-success btn-full" style="font-size:17px;padding:14px" onclick="saveCameraSet()">💾 Lagre kortsett</button>
+      <button class="btn btn-success btn-full" id="camSaveBtn" style="font-size:17px;padding:14px" onclick="saveCameraSet()">💾 Lagre kortsett</button>
     </div>
   </div>
 
@@ -2296,18 +2302,36 @@ function triggerCameraCapture() { document.getElementById('cameraInput').click()
    ============================================================ */
 let _camCards = [];
 let _camCurrentImg = null;
+let _camTargetSet = null; // if set, we're adding to an existing set
 
-function openCameraSetBuilder() {
+function openCameraSetBuilder(targetSet = null) {
   _camCards = [];
   _camCurrentImg = null;
-  document.getElementById('camSetName').value = '';
+  _camTargetSet = targetSet || null;
+
+  // Reset UI
   document.getElementById('camThumbStrip').innerHTML = '';
   document.getElementById('camReviewImg').src = '';
   document.getElementById('camCardNameInput').value = '';
+
+  // Show set name input vs read-only label depending on mode
+  const nameInput = document.getElementById('camSetName');
+  const nameLabel = document.getElementById('camSetNameLabel');
+  if (_camTargetSet) {
+    nameInput.style.display = 'none';
+    nameLabel.style.display = '';
+    nameLabel.textContent = _camTargetSet.name || 'Kortsett';
+    document.getElementById('camSaveBtn').textContent = '✅ Legg til kort i settet';
+  } else {
+    nameInput.style.display = '';
+    nameInput.value = '';
+    nameLabel.style.display = 'none';
+    document.getElementById('camSaveBtn').textContent = '💾 Lagre kortsett';
+  }
+
   _updateCamBadge();
   _showCamShoot();
   showScreen('camera-set');
-  // Open camera immediately — user tapped the button so gesture is active
   setTimeout(() => document.getElementById('cameraSetInput').click(), 250);
 }
 
@@ -2408,13 +2432,24 @@ function deleteCamCard(i) {
 
 async function saveCameraSet() {
   if (_camCards.length === 0) { toast('Legg til minst ett kort', 'error'); return; }
-  const name = document.getElementById('camSetName').value.trim() || 'Nytt kortsett';
-  const set = { id: uid(), name, createdAt: Date.now(), cards: _camCards };
   try {
-    await sbUpsertSet(set);
-    toast(`«${name}» lagret med ${_camCards.length} kort ✓`, 'success');
-    showScreen('teacher-sets');
-    loadTeacherSets();
+    if (_camTargetSet) {
+      // Adding to an existing set
+      _camTargetSet.cards.push(..._camCards);
+      await sbUpsertSet(_camTargetSet);
+      workingSet = _camTargetSet;
+      toast(`${_camCards.length} kort lagt til i «${_camTargetSet.name}» ✓`, 'success');
+      showScreen('edit-set');
+      refreshCardsGrid();
+    } else {
+      // Creating a new set
+      const name = document.getElementById('camSetName').value.trim() || 'Nytt kortsett';
+      const set = { id: uid(), name, createdAt: Date.now(), cards: _camCards };
+      await sbUpsertSet(set);
+      toast(`«${name}» lagret med ${_camCards.length} kort ✓`, 'success');
+      showScreen('teacher-sets');
+      loadTeacherSets();
+    }
   } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); }
 }
 
