@@ -2417,7 +2417,9 @@ async function addCameraCard() {
     workingSet = _camTargetSet;
     toast(`«${name}» lagt til ✓`, 'success');
     document.getElementById('camReviewActions').style.display = 'none';
-    showScreen('edit-set');
+    // Remove camera-set from history so saving the set goes back to teacher-sets, not here
+    while (history[history.length - 1] === 'camera-set') history.pop();
+    showScreen('edit-set', false);
     refreshCardsGrid();
   } else {
     // New set mode — add to local list and return to shoot phase
