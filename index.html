@@ -2322,11 +2322,14 @@ function openCameraSetBuilder(targetSet = null) {
     nameLabel.style.display = '';
     nameLabel.textContent = _camTargetSet.name || 'Kortsett';
     document.getElementById('camSaveBtn').textContent = '✅ Legg til kort i settet';
+    // In edit mode: hide the big shutter button area — camera opens automatically
+    document.getElementById('camShootPhase').style.display = 'none';
   } else {
     nameInput.style.display = '';
     nameInput.value = '';
     nameLabel.style.display = 'none';
     document.getElementById('camSaveBtn').textContent = '💾 Lagre kortsett';
+    document.getElementById('camShootPhase').style.display = 'flex';
   }
 
   _updateCamBadge();
@@ -2398,14 +2401,28 @@ function retakeCameraCard() {
   setTimeout(() => document.getElementById('cameraSetInput').click(), 200);
 }
 
-function addCameraCard() {
+async function addCameraCard() {
   const name = document.getElementById('camCardNameInput').value.trim();
   if (!name) { toast('Skriv inn et navn på kortet', 'error'); document.getElementById('camCardNameInput').focus(); return; }
-  _camCards.push({ id: uid(), text: name, imageData: _camCurrentImg, ttsEnabled: true });
-  _camCurrentImg = null;
-  _updateCamBadge();
-  _renderCamThumbs();
-  _showCamShoot();
+  const card = { id: uid(), text: name, imageData: _camCurrentImg, ttsEnabled: true };
+
+  if (_camTargetSet) {
+    // Add directly to existing set and go back to edit-set
+    _camTargetSet.cards.push(card);
+    try { await sbUpsertSet(_camTargetSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); return; }
+    workingSet = _camTargetSet;
+    toast(`«${name}» lagt til ✓`, 'success');
+    document.getElementById('camReviewActions').style.display = 'none';
+    showScreen('edit-set');
+    refreshCardsGrid();
+  } else {
+    // New set mode — add to local list and return to shoot phase
+    _camCards.push(card);
+    _camCurrentImg = null;
+    _updateCamBadge();
+    _renderCamThumbs();
+    _showCamShoot();
+  }
 }
 
 function _updateCamBadge() {
