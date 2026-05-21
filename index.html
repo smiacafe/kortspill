@@ -86,6 +86,8 @@ body {
   transition: background .15s;
 }
 .nav-btn:hover { background: var(--border); }
+.nav-teacher-btn { width:auto; padding:0 14px; border-radius:20px; font-size:14px; font-weight:700; color:var(--primary); border:2px solid var(--primary); background:var(--primary-light); }
+.nav-teacher-btn:hover { background:var(--primary); color:#fff; }
 
 /* ── SCREENS ── */
 .screen { display: none; padding: 20px; max-width: 860px; margin: 0 auto; padding-bottom: 40px; }
@@ -582,7 +584,7 @@ body {
 @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
 .pin-dots.shake { animation: pin-shake .4s ease; }
 .pin-pad  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
-.pin-pad button { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; font-size: 22px; font-weight: 700; padding: 16px 10px; cursor: pointer; transition: background .1s; font-family: inherit; color: var(--text); }
+.pin-pad button { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; font-size: 22px; font-weight: 700; padding: 16px 10px; cursor: pointer; transition: background .1s; font-family: inherit; color: var(--text); touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
 .pin-pad button:active, .pin-pad button:hover { background: var(--primary-light); border-color: var(--primary); }
 .pin-pad .pin-del { font-size: 18px; }
 .pin-pad .pin-blank { background: transparent; border-color: transparent; cursor: default; }
@@ -638,13 +640,16 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .gt-text  { display: flex; flex-direction: column; gap: 3px; }
 .gt-label { font-size: 16px; font-weight: 800; line-height: 1.2; }
 .gt-desc  { font-size: 11px; opacity: .85; line-height: 1.3; }
-.gt-flashcard { background: linear-gradient(135deg, #FF4400 0%, #CC2200 100%); } /* vivid red */
-.gt-pairs     { background: linear-gradient(135deg, #0066DD 0%, #004499 100%); } /* strong blue */
-.gt-find      { background: linear-gradient(135deg, #00AA00 0%, #007700 100%); } /* vivid green */
-.gt-multiple  { background: linear-gradient(135deg, #8800CC 0%, #5500AA 100%); } /* vivid purple */
-.gt-sort      { background: linear-gradient(135deg, #FF6600 0%, #CC4400 100%); } /* deep orange */
-.gt-speed     { background: linear-gradient(135deg, #009999 0%, #006677 100%); } /* vivid teal */
-.gt-speak     { background: linear-gradient(135deg, #CC0077 0%, #990055 100%); } /* vivid magenta */
+.gt-flashcard { background: #E2E8F0; color: #1E293B; border: 3px solid #94A3B8; box-shadow: 0 4px 12px rgba(0,0,0,.10); } /* neutral grey — study mode */
+.gt-flashcard .gt-icon-wrap { background: rgba(0,0,0,.08); }
+.gt-flashcard .gt-desc { opacity: .65; }
+.gt-pairs     { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); } /* royal blue */
+.gt-find      { background: linear-gradient(135deg, #16A34A 0%, #15803D 100%); } /* vivid green */
+.gt-multiple  { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #1E293B; } /* golden yellow — dark text */
+.gt-multiple  .gt-icon-wrap { background: rgba(0,0,0,.10); }
+.gt-sort      { background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); } /* vivid red */
+.gt-speed     { background: linear-gradient(135deg, #9333EA 0%, #7E22CE 100%); } /* rich purple */
+.gt-speak     { background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); } /* warm orange */
 
 /* ── FLASHCARD VIEWER ── */
 .fc-header    { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -726,7 +731,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <button class="nav-back" id="navBack" onclick="goBack()" aria-label="Tilbake">←</button>
   <span class="nav-title" id="navTitle">🎴 Finn par</span>
   <!-- Teacher lock button — visible on student-facing screens -->
-  <button class="nav-btn" id="navTeacherBtn" onclick="promptTeacherPassword()" title="Lærerinnlogging" aria-label="Lærer">🔑</button>
+  <button class="nav-btn nav-teacher-btn" id="navTeacherBtn" onclick="promptTeacherPassword()" title="Lærerinnlogging" aria-label="Lærer">Lærer</button>
   <!-- Settings button — visible only inside teacher screens -->
   <button class="nav-btn" id="navSettingsBtn" onclick="goSettings()" title="Innstillinger" aria-label="Innstillinger" style="display:none">⚙️</button>
 </nav>
@@ -734,8 +739,8 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: STUDENT SELECT ── -->
 <div class="screen active" id="screen-student-select">
   <div class="student-home-hero">
-    <h1>🎴 Finn par</h1>
-    <p>Velg et kortspill for å starte</p>
+    <h1>VVO språkkort</h1>
+    <p>Velg et kortsett for å starte</p>
   </div>
   <div class="student-carousel-wrap">
     <button class="carousel-arrow carousel-left" id="carouselLeft" onclick="scrollCarousel(-1)" aria-label="Forrige">❮</button>
@@ -1004,7 +1009,6 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <div class="editor-panel-title">🖼️ Bilde</div>
       <div class="img-preview" id="imgPreview"><span class="img-placeholder">🖼️</span></div>
       <div class="img-btn-group">
-        <button class="btn btn-camera btn-full btn-sm" onclick="triggerCameraCapture()">📷 Ta bilde med kamera</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="autoFindImage()">✨ Finn bilde automatisk</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="triggerImgUpload()">📁 Last opp fra enhet</button>
         <button class="btn btn-secondary btn-full btn-sm" onclick="openImageSearch()">🔍 Søk på nettet</button>
@@ -1012,7 +1016,6 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
                oninput="loadImageUrl(this.value)" autocomplete="off" />
       </div>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImgFile(this)" />
-      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleCameraCapture(this)" />
     </div>
 
     <!-- AUDIO -->
@@ -1125,7 +1128,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <div class="settings-group-title">🔒 Lærerpassord</div>
     <div class="settings-card">
       <div class="settings-label">Passord for lærervisning</div>
-      <div class="settings-desc">Elever trykker på 🔑 øverst til høyre for å logge inn som lærer. Sett et passord her slik at bare du har tilgang. Standardpassord er <strong>lærer</strong>.</div>
+      <div class="settings-desc">Elever trykker på <strong>Lærer</strong>-knappen øverst til høyre for å logge inn som lærer. Sett et passord her slik at bare du har tilgang. Standardpassord er <strong>1234</strong>.</div>
       <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
@@ -1315,7 +1318,7 @@ async function sbDeleteSet(id) {
 const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set']);
 
 const NAV_TITLES = {
-  'student-select':   '🎴 Finn par',
+  'student-select':   'VVO språkkort',
   'game-type':        '🎮 Velg spilltype',
   'difficulty':       '🎯 Vanskelighetsgrad',
   'game':             '🎴 Finn par',
