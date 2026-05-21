@@ -840,13 +840,6 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         <span class="gt-desc">Sorter kortene i riktig gruppe</span>
       </div>
     </button>
-    <button class="gt-btn gt-speed" onclick="pickGameType('speed')">
-      <div class="gt-icon-wrap">⚡</div>
-      <div class="gt-text">
-        <span class="gt-label">Rask svar</span>
-        <span class="gt-desc">Svar så raskt du kan!</span>
-      </div>
-    </button>
     <button class="gt-btn gt-speak" onclick="pickGameType('speak')">
       <div class="gt-icon-wrap">🎤</div>
       <div class="gt-text">
@@ -963,6 +956,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="section-header">
     <span class="section-title">Mine kortsett</span>
     <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="loadTeacherSets()" title="Oppdater fra sky">🔄</button>
       <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder()">📷 Fra kamera</button>
       <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
     </div>
@@ -2690,7 +2684,6 @@ function renderMcCard() {
   const options = shuffle([c, ...wrong]);
   document.getElementById('mcOptions').innerHTML = options.map(o =>
     `<button class="mc-btn" onclick="guessMc('${o.id}')">${esc(o.text)}</button>`).join('');
-  setTimeout(() => playMcAudio(), 350);
 }
 
 function playMcAudio() {
@@ -3019,6 +3012,14 @@ document.addEventListener('keydown', e => {
   history = ['student-select'];
   loadStudentSets();
 })();
+
+// Auto-refresh when switching back to this tab/app
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const cur = history[history.length - 1];
+  if (cur === 'teacher-sets') loadTeacherSets();
+  else if (cur === 'student-select') loadStudentSets();
+});
 </script>
 </body>
 </html>
