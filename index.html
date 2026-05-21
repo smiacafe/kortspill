@@ -440,7 +440,8 @@ body {
 .win-actions { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
 
 /* ── CAMERA SET BUILDER ── */
-.cam-screen { display:flex; flex-direction:column; gap:0; padding:0; overflow:hidden; }
+.cam-screen { flex-direction:column; gap:0; padding:0; overflow:hidden; }
+.cam-screen.active { display:flex; }
 .cam-top-bar {
   display:flex; align-items:center; gap:12px;
   padding:16px 20px 12px; background:#fff;
@@ -1184,18 +1185,18 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <div class="pin-dots" id="pinDots"></div>
     <div class="pw-error" id="pwError">Feil PIN-kode – prøv igjen</div>
     <div class="pin-pad">
-      <button onclick="pinPress('1')">1</button>
-      <button onclick="pinPress('2')">2</button>
-      <button onclick="pinPress('3')">3</button>
-      <button onclick="pinPress('4')">4</button>
-      <button onclick="pinPress('5')">5</button>
-      <button onclick="pinPress('6')">6</button>
-      <button onclick="pinPress('7')">7</button>
-      <button onclick="pinPress('8')">8</button>
-      <button onclick="pinPress('9')">9</button>
+      <button ontouchstart="event.preventDefault();pinPress('1')" onclick="pinPress('1')">1</button>
+      <button ontouchstart="event.preventDefault();pinPress('2')" onclick="pinPress('2')">2</button>
+      <button ontouchstart="event.preventDefault();pinPress('3')" onclick="pinPress('3')">3</button>
+      <button ontouchstart="event.preventDefault();pinPress('4')" onclick="pinPress('4')">4</button>
+      <button ontouchstart="event.preventDefault();pinPress('5')" onclick="pinPress('5')">5</button>
+      <button ontouchstart="event.preventDefault();pinPress('6')" onclick="pinPress('6')">6</button>
+      <button ontouchstart="event.preventDefault();pinPress('7')" onclick="pinPress('7')">7</button>
+      <button ontouchstart="event.preventDefault();pinPress('8')" onclick="pinPress('8')">8</button>
+      <button ontouchstart="event.preventDefault();pinPress('9')" onclick="pinPress('9')">9</button>
       <button class="pin-blank" disabled></button>
-      <button onclick="pinPress('0')">0</button>
-      <button class="pin-del" onclick="pinDelete()">⌫</button>
+      <button ontouchstart="event.preventDefault();pinPress('0')" onclick="pinPress('0')">0</button>
+      <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
     </div>
     <button class="btn btn-ghost btn-full mt-3" onclick="closePwModal()">Avbryt</button>
   </div>
