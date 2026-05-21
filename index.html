@@ -437,6 +437,91 @@ body {
 .win-sub    { font-size: 17px; color: var(--text-light); margin-bottom: 30px; line-height: 1.5; }
 .win-actions { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
 
+/* ── CAMERA SET BUILDER ── */
+.cam-screen { display:flex; flex-direction:column; gap:0; padding:0; overflow:hidden; }
+.cam-top-bar {
+  display:flex; align-items:center; gap:12px;
+  padding:16px 20px 12px; background:#fff;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.cam-set-name-input {
+  flex:1; font-size:17px; font-weight:700; border:none; outline:none;
+  color:var(--text); background:transparent; font-family:inherit;
+}
+.cam-set-name-input::placeholder { color:var(--text-light); font-weight:400; }
+.cam-card-badge {
+  background:var(--primary); color:#fff;
+  border-radius:20px; padding:4px 12px;
+  font-size:13px; font-weight:700; white-space:nowrap; flex-shrink:0;
+}
+
+/* Shoot phase */
+.cam-shoot-phase {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:linear-gradient(160deg,#0d1b2a 0%,#1a3a5c 100%);
+  gap:24px; padding:32px;
+}
+.cam-shutter-btn {
+  width:140px; height:140px; border-radius:50%;
+  background:linear-gradient(135deg,#0066DD,#004499);
+  border:6px solid rgba(255,255,255,.25);
+  box-shadow:0 0 0 3px rgba(0,102,221,.4), 0 8px 32px rgba(0,0,0,.4);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; cursor:pointer; transition:transform .12s, box-shadow .12s;
+  color:#fff; font-family:inherit;
+}
+.cam-shutter-btn:active { transform:scale(.93); box-shadow:0 0 0 3px rgba(0,102,221,.2), 0 4px 16px rgba(0,0,0,.4); }
+.cam-shutter-icon { font-size:44px; line-height:1; }
+.cam-shutter-label { font-size:15px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
+.cam-shoot-hint { color:rgba(255,255,255,.5); font-size:14px; text-align:center; margin:0; }
+.cam-added-strip-wrap {
+  padding:12px 16px 16px; background:linear-gradient(160deg,#0d1b2a 0%,#1a3a5c 100%);
+  flex-shrink:0;
+}
+.cam-added-label-small { color:rgba(255,255,255,.5); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.cam-thumb-strip { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+.cam-thumb { position:relative; flex-shrink:0; width:64px; }
+.cam-thumb img { width:64px; height:64px; object-fit:cover; border-radius:10px; border:2px solid rgba(255,255,255,.2); display:block; }
+.cam-thumb-name { font-size:10px; color:rgba(255,255,255,.7); text-align:center; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cam-thumb-del { position:absolute; top:-5px; right:-5px; width:18px; height:18px; border-radius:50%; background:#e53935; color:#fff; border:none; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; font-family:inherit; }
+
+/* Review phase */
+.cam-review-phase {
+  flex:1; display:flex; flex-direction:column; overflow:hidden;
+}
+.cam-review-img-wrap {
+  flex:1; overflow:hidden; background:#000; min-height:0;
+}
+.cam-review-img-wrap img {
+  width:100%; height:100%; object-fit:contain; display:block;
+}
+.cam-review-panel {
+  background:#fff; padding:20px;
+  border-top:1px solid var(--border); flex-shrink:0;
+}
+.cam-ai-badge {
+  font-size:13px; color:var(--primary); font-weight:600; margin-bottom:10px;
+  min-height:20px;
+}
+.cam-card-name-input {
+  width:100%; font-size:22px; font-weight:800; text-align:center;
+  border:none; border-bottom:3px solid var(--primary);
+  outline:none; padding:8px 0; font-family:inherit; color:var(--text);
+  background:transparent; box-sizing:border-box;
+}
+.cam-card-name-input::placeholder { color:var(--text-light); font-weight:400; font-size:18px; }
+.cam-review-actions {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;
+}
+
+/* Save bar */
+.cam-save-bar {
+  padding:12px 20px 16px; background:#fff;
+  border-top:2px solid var(--border); flex-shrink:0;
+}
+
 /* ── SETTINGS ── */
 .settings-group       { margin-bottom: 28px; }
 .settings-group-title { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
@@ -858,13 +943,19 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <div class="screen" id="screen-teacher-sets">
   <div class="section-header">
     <span class="section-title">Mine kortsett</span>
-    <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder()">📷 Fra kamera</button>
+      <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
+    </div>
   </div>
   <div id="teacherList" class="set-list"></div>
   <div id="teacherEmpty" class="empty" style="display:none">
     <div class="empty-icon">🃏</div>
     <div class="empty-text">Ingen kortsett ennå</div>
-    <button class="btn btn-primary btn-lg" onclick="newSet()">+ Lag ditt første kortsett</button>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <button class="btn btn-camera btn-lg" onclick="openCameraSetBuilder()">📷 Lag kortsett fra kamera</button>
+      <button class="btn btn-primary btn-lg" onclick="newSet()">+ Lag kortsett manuelt</button>
+    </div>
   </div>
 </div>
 
@@ -968,6 +1059,53 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <button class="btn btn-secondary" onclick="cancelCardEdit()">Avbryt</button>
     <button class="btn btn-primary" onclick="saveCard()">Lagre kort</button>
   </div>
+</div>
+
+<!-- ── SCREEN: CAMERA SET BUILDER ── -->
+<div class="screen cam-screen" id="screen-camera-set">
+
+  <!-- Top bar: set name + card count -->
+  <div class="cam-top-bar">
+    <input class="cam-set-name-input" id="camSetName" type="text" placeholder="Navn på kortsett…" autocomplete="off" />
+    <div class="cam-card-badge" id="camCardBadge">0 kort</div>
+  </div>
+
+  <!-- Phase 1: Shoot -->
+  <div id="camShootPhase" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="cam-shoot-phase" style="flex:1">
+      <button class="cam-shutter-btn" onclick="triggerCameraSetCapture()" id="camShutterBtn">
+        <span class="cam-shutter-icon">📷</span>
+        <span class="cam-shutter-label">Ta bilde</span>
+      </button>
+      <p class="cam-shoot-hint">Pek kameraet mot gjenstanden og trykk</p>
+    </div>
+    <!-- Thumbnail strip of cards added so far -->
+    <div class="cam-added-strip-wrap" id="camThumbWrap" style="display:none">
+      <div class="cam-added-label-small">Lagt til</div>
+      <div class="cam-thumb-strip" id="camThumbStrip"></div>
+    </div>
+    <!-- Save bar -->
+    <div class="cam-save-bar" id="camSaveBarShoot" style="display:none">
+      <button class="btn btn-success btn-full" style="font-size:17px;padding:14px" onclick="saveCameraSet()">💾 Lagre kortsett</button>
+    </div>
+  </div>
+
+  <!-- Phase 2: Review photo + AI name -->
+  <div id="camReviewPhase" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="cam-review-img-wrap">
+      <img id="camReviewImg" src="" alt="" />
+    </div>
+    <div class="cam-review-panel">
+      <div class="cam-ai-badge" id="camAiBadge">🔍 Identifiserer bilde…</div>
+      <input class="cam-card-name-input" id="camCardNameInput" type="text" placeholder="Skriv inn navn…" autocomplete="off" />
+      <div class="cam-review-actions">
+        <button class="btn btn-secondary" onclick="retakeCameraCard()">🔄 Ta på nytt</button>
+        <button class="btn btn-success" id="camAddBtn" onclick="addCameraCard()">✅ Legg til kort</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="cameraSetInput" accept="image/*" capture="environment" style="display:none" onchange="handleCameraSetCapture(this)" />
 </div>
 
 <!-- ── SCREEN: SETTINGS ── -->
@@ -1163,7 +1301,7 @@ async function sbDeleteSet(id) {
 /* ============================================================
    NAVIGATION
    ============================================================ */
-const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings']);
+const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set']);
 
 const NAV_TITLES = {
   'student-select':   '🎴 Finn par',
@@ -1176,6 +1314,7 @@ const NAV_TITLES = {
   'teacher-sets':     '👩‍🏫 Lærervisning',
   'edit-set':         '✏️ Rediger kortsett',
   'edit-card':        '🃏 Rediger kort',
+  'camera-set':       '📷 Nytt kortsett fra kamera',
   'settings':         '⚙️ Innstillinger',
   'multiple-choice':  '🃏 Hva er dette?',
   'sort-select':      '🔀 Velg kortsett',
@@ -2146,6 +2285,129 @@ async function autoFindImage() {
 }
 
 function triggerCameraCapture() { document.getElementById('cameraInput').click(); }
+
+/* ============================================================
+   CAMERA SET BUILDER
+   ============================================================ */
+let _camCards = [];
+let _camCurrentImg = null;
+
+function openCameraSetBuilder() {
+  _camCards = [];
+  _camCurrentImg = null;
+  document.getElementById('camSetName').value = '';
+  _updateCamBadge();
+  _showCamShoot();
+  showScreen('camera-set');
+  // Open camera immediately — user tapped the button so gesture is active
+  setTimeout(() => document.getElementById('cameraSetInput').click(), 250);
+}
+
+function triggerCameraSetCapture() { document.getElementById('cameraSetInput').click(); }
+
+async function handleCameraSetCapture(input) {
+  const file = input.files[0]; if (!file) return;
+  input.value = '';
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const compressed = await compressImg(e.target.result, 800, 800);
+    _camCurrentImg = compressed;
+
+    // Switch to review phase immediately
+    document.getElementById('camReviewImg').src = compressed;
+    document.getElementById('camCardNameInput').value = '';
+    document.getElementById('camAiBadge').textContent = '🔍 Identifiserer bilde…';
+    document.getElementById('camAddBtn').disabled = true;
+    _showCamReview();
+
+    // Run AI identification in background
+    const apiKey = await getCfg('claude');
+    if (apiKey) {
+      try {
+        const word = await identifyImageWithGemini(compressed, apiKey);
+        if (word) {
+          document.getElementById('camCardNameInput').value = word;
+          document.getElementById('camAiBadge').textContent = `✨ AI foreslår: «${word}»`;
+          document.getElementById('camCardNameInput').select();
+        } else {
+          document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
+        }
+      } catch {
+        document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
+      }
+    } else {
+      document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
+    }
+    document.getElementById('camAddBtn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _showCamShoot() {
+  document.getElementById('camShootPhase').style.display = 'flex';
+  document.getElementById('camReviewPhase').style.display = 'none';
+}
+
+function _showCamReview() {
+  document.getElementById('camShootPhase').style.display = 'none';
+  const rp = document.getElementById('camReviewPhase');
+  rp.style.display = 'flex';
+  rp.style.flexDirection = 'column';
+  rp.style.flex = '1';
+  rp.style.overflow = 'hidden';
+}
+
+function retakeCameraCard() {
+  _camCurrentImg = null;
+  _showCamShoot();
+  setTimeout(() => document.getElementById('cameraSetInput').click(), 200);
+}
+
+function addCameraCard() {
+  const name = document.getElementById('camCardNameInput').value.trim();
+  if (!name) { toast('Skriv inn et navn på kortet', 'error'); document.getElementById('camCardNameInput').focus(); return; }
+  _camCards.push({ id: uid(), text: name, imageData: _camCurrentImg, ttsEnabled: true });
+  _camCurrentImg = null;
+  _updateCamBadge();
+  _renderCamThumbs();
+  _showCamShoot();
+  // Auto-open camera for the next shot
+  setTimeout(() => document.getElementById('cameraSetInput').click(), 250);
+}
+
+function _updateCamBadge() {
+  const n = _camCards.length;
+  document.getElementById('camCardBadge').textContent = n === 1 ? '1 kort' : `${n} kort`;
+  document.getElementById('camSaveBarShoot').style.display = n > 0 ? '' : 'none';
+  document.getElementById('camThumbWrap').style.display = n > 0 ? '' : 'none';
+}
+
+function _renderCamThumbs() {
+  document.getElementById('camThumbStrip').innerHTML = _camCards.map((c, i) => `
+    <div class="cam-thumb">
+      ${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}">` : '<div style="width:64px;height:64px;background:rgba(255,255,255,.1);border-radius:10px"></div>'}
+      <div class="cam-thumb-name">${esc(c.text)}</div>
+      <button class="cam-thumb-del" onclick="deleteCamCard(${i})">×</button>
+    </div>`).join('');
+}
+
+function deleteCamCard(i) {
+  _camCards.splice(i, 1);
+  _updateCamBadge();
+  _renderCamThumbs();
+}
+
+async function saveCameraSet() {
+  if (_camCards.length === 0) { toast('Legg til minst ett kort', 'error'); return; }
+  const name = document.getElementById('camSetName').value.trim() || 'Nytt kortsett';
+  const set = { id: uid(), name, createdAt: Date.now(), cards: _camCards };
+  try {
+    await sbUpsertSet(set);
+    toast(`«${name}» lagret med ${_camCards.length} kort ✓`, 'success');
+    showScreen('teacher-sets');
+    loadTeacherSets();
+  } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); }
+}
 
 async function handleCameraCapture(input) {
   const file = input.files[0]; if (!file) return;
