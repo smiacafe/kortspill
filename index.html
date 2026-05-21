@@ -2296,6 +2296,9 @@ function openCameraSetBuilder() {
   _camCards = [];
   _camCurrentImg = null;
   document.getElementById('camSetName').value = '';
+  document.getElementById('camThumbStrip').innerHTML = '';
+  document.getElementById('camReviewImg').src = '';
+  document.getElementById('camCardNameInput').value = '';
   _updateCamBadge();
   _showCamShoot();
   showScreen('camera-set');
