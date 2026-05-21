@@ -492,7 +492,8 @@ body {
   flex:1; display:flex; flex-direction:column; overflow:hidden;
 }
 .cam-review-img-wrap {
-  flex:1; overflow:hidden; background:#000; min-height:0;
+  height: 42vh; max-height: 42vh; flex-shrink:0;
+  overflow:hidden; background:#000;
 }
 .cam-review-img-wrap img {
   width:100%; height:100%; object-fit:contain; display:block;
@@ -500,6 +501,7 @@ body {
 .cam-review-panel {
   background:#fff; padding:20px;
   border-top:1px solid var(--border); flex-shrink:0;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
 .cam-ai-badge {
   font-size:13px; color:var(--primary); font-weight:600; margin-bottom:10px;
