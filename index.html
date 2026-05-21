@@ -2332,11 +2332,12 @@ async function handleCameraSetCapture(input) {
         } else {
           document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
         }
-      } catch {
+      } catch(err) {
         document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
+        toast('AI-feil: ' + err.message, 'error');
       }
     } else {
-      document.getElementById('camAiBadge').textContent = 'Skriv inn navn på gjenstanden';
+      document.getElementById('camAiBadge').textContent = 'Ingen Gemini API-nøkkel – skriv inn navn manuelt';
     }
     document.getElementById('camAddBtn').disabled = false;
   };
@@ -2427,7 +2428,7 @@ async function handleCameraCapture(input) {
       } else {
         toast('Bilde lagret – skriv inn navn manuelt', 'success');
       }
-    } catch { toast('Bilde lagret – AI klarte ikke å identifisere det', 'error'); }
+    } catch(err) { toast('AI-feil: ' + err.message, 'error'); }
     input.value = '';
   };
   reader.readAsDataURL(file);
@@ -2436,7 +2437,8 @@ async function handleCameraCapture(input) {
 async function identifyImageWithGemini(dataUrl, apiKey) {
   const base64 = dataUrl.split(',')[1];
   const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  // gemini-1.5-flash is the stable vision-capable model
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
   const body = JSON.stringify({ contents: [{ parts: [
     { text: 'Hva er det viktigste objektet i dette bildet? Svar med ett norsk bokmål-ord eller en kort frase (maks 3 ord). Kun ordet/frasen, ingenting annet.' },
     { inline_data: { mime_type: mimeType, data: base64 } }
