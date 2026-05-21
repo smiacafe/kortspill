@@ -228,6 +228,18 @@ body {
   box-shadow: var(--shadow); cursor: pointer; transition: transform .2s;
   aspect-ratio: 1; display: flex; flex-direction: column; position: relative;
 }
+.card-thumb-del {
+  position: absolute; top: 5px; right: 5px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(220,38,38,.85); color: #fff;
+  border: none; font-size: 14px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: inherit; font-weight: 700;
+  opacity: 0; transition: opacity .15s;
+  touch-action: manipulation; z-index: 2;
+}
+.card-thumb:hover .card-thumb-del { opacity: 1; }
+@media (hover: none) { .card-thumb-del { opacity: 1; } }
 .card-thumb:hover { transform: scale(1.04); }
 .card-thumb-img {
   flex: 1; overflow: hidden;
@@ -1836,6 +1848,7 @@ function refreshCardsGrid() {
   document.getElementById('cardsGrid').innerHTML =
     cards.map((c, i) => `
       <div class="card-thumb" onclick="editCard(${i})">
+        <button class="card-thumb-del" ontouchstart="event.stopPropagation();deleteCardFromGrid(${i})" onclick="event.stopPropagation();deleteCardFromGrid(${i})" title="Slett kort">×</button>
         <div class="card-thumb-img">
           ${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : `<span style="font-size:36px">🖼️</span>`}
         </div>
@@ -1917,6 +1930,15 @@ function deleteCard() {
   if (!confirm('Vil du slette dette kortet?')) return;
   workingSet.cards.splice(workingCardIndex, 1);
   goBack();
+}
+
+async function deleteCardFromGrid(i) {
+  const card = workingSet.cards[i];
+  if (!confirm(`Slett «${card.text || 'dette kortet'}»?`)) return;
+  workingSet.cards.splice(i, 1);
+  try { await sbUpsertSet(workingSet); } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); return; }
+  refreshCardsGrid();
+  toast('Kort slettet', 'success');
 }
 
 function cancelCardEdit() { stopRecording(); goBack(); }
