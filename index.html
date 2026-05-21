@@ -2437,8 +2437,7 @@ async function handleCameraCapture(input) {
 async function identifyImageWithGemini(dataUrl, apiKey) {
   const base64 = dataUrl.split(',')[1];
   const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
-  // gemini-1.5-flash is the stable vision-capable model
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
   const body = JSON.stringify({ contents: [{ parts: [
     { text: 'Hva er det viktigste objektet i dette bildet? Svar med ett norsk bokmål-ord eller en kort frase (maks 3 ord). Kun ordet/frasen, ingenting annet.' },
     { inline_data: { mime_type: mimeType, data: base64 } }
