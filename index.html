@@ -2158,42 +2158,43 @@ function rerecordAudio() {
 }
 
 /* ── TTS helpers ── */
-// Pre-decode audio for a card set so playCardAudio can run synchronously
+// Cache of card.id → Audio element pre-wired into AudioContext
+const _cardAudioCache = new Map();
+
+// Called at game start (user-gesture context) — connects Audio elements into AudioContext
+// so .play() later routes through the same output as tone sounds
 async function preWarmAudio(cards) {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     await audioCtx.resume();
     for (const c of cards) {
-      if (c.audioData && !c._audioBuf) {
+      if (c.audioData && !_cardAudioCache.has(c.id)) {
         try {
-          const base64 = c.audioData.split(',')[1];
-          const binary = atob(base64);
-          const bytes  = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          c._audioBuf = await audioCtx.decodeAudioData(bytes.buffer.slice(0));
+          const audio = new Audio(c.audioData);
+          const mediaSrc = audioCtx.createMediaElementSource(audio);
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.35;
+          mediaSrc.connect(gain);
+          gain.connect(audioCtx.destination);
+          _cardAudioCache.set(c.id, audio);
         } catch {}
       }
     }
   } catch {}
 }
 
-// Synchronous — no await — stays inside user-gesture context on iOS
 function playCardAudio(card) {
   if (!card) return;
-  if (card._audioBuf) {
+  const audio = _cardAudioCache.get(card.id);
+  if (audio) {
     try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state !== 'running') audioCtx.resume();
-      const src  = audioCtx.createBufferSource();
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.35; // match tone volume
-      src.buffer = card._audioBuf;
-      src.connect(gain); gain.connect(audioCtx.destination);
-      src.start(0);
+      if (audioCtx && audioCtx.state !== 'running') audioCtx.resume();
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
       return;
     } catch {}
   }
-  // Fallback if pre-decode failed
+  // Fallback if cache miss
   if (card.audioData) { try { new Audio(card.audioData).play(); } catch {} }
   else if (card.text)  { speakText(card.text); }
 }
