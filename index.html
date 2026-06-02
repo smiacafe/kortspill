@@ -88,6 +88,7 @@ body {
 .nav-btn:hover { background: var(--border); }
 .nav-teacher-btn { width:auto; padding:0 14px; border-radius:20px; font-size:14px; font-weight:700; color:var(--primary); border:2px solid var(--primary); background:var(--primary-light); }
 .nav-teacher-btn:hover { background:var(--primary); color:#fff; }
+.nav-home-btn { font-size:20px; }
 
 /* ── SCREENS ── */
 .screen { display: none; padding: 20px; max-width: 860px; margin: 0 auto; padding-bottom: 40px; }
@@ -742,7 +743,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <nav class="nav">
   <button class="nav-back" id="navBack" onclick="goBack()" aria-label="Tilbake">←</button>
-  <span class="nav-title" id="navTitle">🎴 Finn par</span>
+  <span class="nav-title" id="navTitle">VVO språkkort</span>
+  <!-- Home button — visible on student screens when not on home page -->
+  <button class="nav-btn nav-home-btn" id="navHomeBtn" onclick="goHome()" title="Hjem" aria-label="Hjem" style="display:none">🏠</button>
   <!-- Teacher lock button — visible on student-facing screens -->
   <button class="nav-btn nav-teacher-btn" id="navTeacherBtn" onclick="promptTeacherPassword()" title="Lærerinnlogging" aria-label="Lærer">Lærer</button>
   <!-- Settings button — visible only inside teacher screens -->
@@ -990,6 +993,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="section-header">
     <span class="section-title">Kort (<span id="cardCountLabel">0</span>)</span>
     <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" id="aiSingleCardBtn" onclick="aiAddSingleCard()">✨ AI-kort</button>
       <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder(workingSet)">📷 Fra kamera</button>
       <button class="btn btn-secondary" style="padding:7px 14px;font-size:13px" onclick="addTtsToAll()" title="Slå på automatisk lyd for alle kort som mangler lyd">🗣️ Lyd for alle</button>
     </div>
@@ -1359,6 +1363,13 @@ function showScreen(name, push = true) {
   const isTeacher = TEACHER_SCREENS.has(name);
   document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
   document.getElementById('navSettingsBtn').style.display = (isTeacher && name !== 'settings') ? '' : 'none';
+  document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
+}
+
+function goHome() {
+  history = ['student-select'];
+  showScreen('student-select', false);
+  loadStudentSets();
 }
 
 function goBack() {
@@ -1569,8 +1580,7 @@ function flipCard(i) {
   if (c.flipped || c.matched || game.flipped.length >= 2) return;
   c.flipped = true;
   document.getElementById('gc-' + c.iid).classList.add('flipped');
-  if (c.audioData)    { try { new Audio(c.audioData).play(); } catch {} }
-  else if (c.ttsEnabled) { speakText(c.text); }
+  playCardAudio(c);
   game.flipped.push(i);
   if (game.flipped.length === 2) {
     game.locked = true;
@@ -1586,10 +1596,7 @@ function flipCard(i) {
         game.flipped = []; game.locked = false; game.matches++;
         document.getElementById('statMatches').textContent = game.matches;
         playTone([523, 659, 784], 'sine', 0.3);
-        setTimeout(() => {
-          if (c1.audioData) { try { new Audio(c1.audioData).play(); } catch {} }
-          else { speakText(c1.text); }
-        }, 350);
+        setTimeout(() => playCardAudio(c1), 350);
         if (game.matches === game.total) setTimeout(showWin, 700);
       }, 500);
     } else {
@@ -1655,9 +1662,7 @@ function renderFlashcard() {
 }
 
 function playFcAudio() {
-  const c = fcGame.cards[fcGame.current];
-  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} }
-  else { speakText(c.text); }
+  playCardAudio(fcGame.cards[fcGame.current]);
 }
 
 function fcPrev() {
@@ -1721,9 +1726,7 @@ function renderFindPicture() {
 }
 
 function playFpAudio() {
-  const q = fpGame.questions[fpGame.currentQ];
-  if (q.audioData) { try { new Audio(q.audioData).play(); } catch {} }
-  else { speakText(q.text); }
+  playCardAudio(fpGame.questions[fpGame.currentQ]);
 }
 
 function guessFP(id) {
@@ -1736,10 +1739,7 @@ function guessFP(id) {
     el.classList.add('fp-correct');
     fpGame.found.add(id);
     playTone([523, 659, 784], 'sine', 0.3);
-    setTimeout(() => {
-      if (target.audioData) { try { new Audio(target.audioData).play(); } catch {} }
-      else { speakText(target.text); }
-    }, 350);
+    setTimeout(() => playCardAudio(target), 350);
     setTimeout(() => {
       fpGame.currentQ++;
       if (fpGame.currentQ >= fpGame.total) {
@@ -2145,8 +2145,35 @@ function rerecordAudio() {
 }
 
 /* ── TTS helpers ── */
+async function playCardAudio(card) {
+  if (!card) return;
+  if (card.audioData) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      const resp = await fetch(card.audioData);
+      const arrayBuf = await resp.arrayBuffer();
+      const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+      const src = audioCtx.createBufferSource();
+      src.buffer = audioBuf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    } catch { try { new Audio(card.audioData).play(); } catch {} }
+  } else if (card.text) {
+    speakText(card.text);
+  }
+}
+
 function speakText(text) {
   if (!text) return;
+  // Play a silent buffer through AudioContext first — helps iOS route speech to the active audio output
+  try {
+    if (audioCtx) {
+      const buf = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
+    }
+  } catch {}
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'nb-NO';
@@ -2270,6 +2297,35 @@ async function createAllCards() {
     <span style="opacity:.8;font-size:13px">Gå til kortene nedenfor for å legge til lyd 🎤</span>
   </div>`;
   toast(`${newCards.length} kort laget ✓`, 'success');
+}
+
+async function aiAddSingleCard() {
+  const existingWords = workingSet.cards.map(c => c.text).filter(t => t);
+  if (existingWords.length === 0) { toast('Legg til noen kort først så AI forstår temaet', 'error'); return; }
+  const apiKey = await getCfg('claude');
+  if (!apiKey) { toast('Legg til Gemini API-nøkkel i innstillinger', 'error'); return; }
+  const btn = document.getElementById('aiSingleCardBtn');
+  btn.disabled = true; btn.textContent = '⏳ Henter…';
+  try {
+    const resp = await geminiRequest(apiKey,
+      `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`);
+    const data = await resp.json();
+    const word = data.candidates[0].content.parts[0].text.trim().split('\n')[0].trim();
+    if (!word) { toast('Ingen forslag funnet', 'error'); return; }
+    let imageData = null;
+    const pixabayKey = await getCfg('pixabay');
+    if (pixabayKey) {
+      toast(`AI foreslår: «${word}» – henter bilde…`);
+      imageData = await withTimeout(fetchPixabayImage(word, pixabayKey), 8000).catch(() => null);
+    }
+    const card = { id: uid(), text: word, imageData, audioData: null, ttsEnabled: true };
+    workingSet.cards.push(card);
+    workingSet.name = document.getElementById('setNameInput').value.trim() || workingSet.name;
+    await sbUpsertSet(workingSet);
+    refreshCardsGrid();
+    toast(`«${word}» lagt til ✓`, 'success');
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '✨ AI-kort'; }
 }
 
 async function suggestNewWord() {
@@ -2688,8 +2744,7 @@ function renderMcCard() {
 }
 
 function playMcAudio() {
-  const c = mcGame.cards[mcGame.current];
-  if (c.audioData) { try { new Audio(c.audioData).play(); } catch {} } else { speakText(c.text); }
+  playCardAudio(mcGame.cards[mcGame.current]);
 }
 
 function guessMc(id) {
@@ -2699,7 +2754,7 @@ function guessMc(id) {
   if (id === target.id) {
     btns.forEach(b => { if (b.textContent === target.text) b.classList.add('mc-correct'); else b.disabled = true; });
     playTone([523,659,784],'sine',0.3);
-    setTimeout(() => { if (target.audioData) { try{new Audio(target.audioData).play();}catch{} } else speakText(target.text); }, 350);
+    setTimeout(() => playCardAudio(target), 350);
     setTimeout(() => {
       mcGame.current++;
       if (mcGame.current >= mcGame.total) {
@@ -2773,9 +2828,7 @@ function renderSortCard() {
   document.getElementById('sortBtnB').disabled = false;
   document.getElementById('sortBtnA').classList.remove('sort-correct','sort-wrong');
   document.getElementById('sortBtnB').classList.remove('sort-correct','sort-wrong');
-  setTimeout(() => {
-    if (c.audioData) { try{new Audio(c.audioData).play();}catch{} } else speakText(c.text);
-  }, 300);
+  setTimeout(() => playCardAudio(c), 300);
 }
 
 function sortGuess(side) {
@@ -2846,8 +2899,7 @@ function updateSpeedTimer() {
 
 function playSpeedAudio() {
   if (!speedGame || speedGame.answered) return;
-  const c = speedGame.cards[speedGame.current];
-  if (c.audioData) { try{new Audio(c.audioData).play();}catch{} } else speakText(c.text);
+  playCardAudio(speedGame.cards[speedGame.current]);
 }
 
 function guessSpeed(id) {
@@ -2921,7 +2973,7 @@ function renderSpeakCard() {
   document.getElementById('speakStatus').textContent = 'Trykk for å ta opp stemmen din';
   const nextBtn = document.getElementById('speakNextBtn');
   nextBtn.textContent = speakGame.current === speakGame.total - 1 ? '✓ Ferdig' : 'Neste →';
-  setTimeout(() => { if (c.audioData){try{new Audio(c.audioData).play();}catch{}}else speakText(c.text); }, 350);
+  setTimeout(() => playCardAudio(c), 350);
 }
 
 async function toggleSpeakRec() {
