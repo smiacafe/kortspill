@@ -400,9 +400,15 @@ body {
 .game-stat       { text-align: center; }
 .game-stat-val   { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1; }
 .game-stat-label { font-size: 12px; color: var(--text-light); margin-top: 3px; }
-.game-grid { display: grid; gap: 10px; }
+.game-grid { display: grid; gap: 8px; }
 
-.gc { aspect-ratio: 1; perspective: 900px; cursor: pointer; -webkit-user-select: none; user-select: none; }
+/* Game screen fills the full viewport so cards never scroll */
+#screen-game { padding: 8px 12px 8px; box-sizing: border-box; }
+#screen-game.active { display: flex; flex-direction: column; height: 100dvh; max-width: none; overflow: hidden; }
+#screen-game .game-bar { flex-shrink: 0; margin-bottom: 4px; }
+#screen-game .game-grid { flex: 1; min-height: 0; }
+
+.gc { perspective: 900px; cursor: pointer; -webkit-user-select: none; user-select: none; }
 .gc-inner {
   width: 100%; height: 100%; transform-style: preserve-3d;
   transition: transform .45s cubic-bezier(.4,0,.2,1);
@@ -1559,11 +1565,15 @@ function startGame() {
 
 function renderGameGrid() {
   const count = game.cards.length;
-  const cols  = count <= 6 ? 3 : 4;
+  const cols  = count <= 6 ? 3 : count <= 16 ? 4 : count <= 24 ? 5 : 6;
+  const rows  = Math.ceil(count / cols);
+  const gap   = count > 16 ? 5 : 8;
   const grid  = document.getElementById('gameGrid');
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
+  grid.style.gap = `${gap}px`;
   grid.innerHTML = game.cards.map((c, i) => `
-    <div class="gc" id="gc-${c.iid}" onclick="flipCard(${i})">
+    <div class="gc" id="gc-${c.iid}" style="aspect-ratio:unset" onclick="flipCard(${i})">
       <div class="gc-inner">
         <div class="gc-front"><div class="gc-front-pattern"></div>🎴</div>
         <div class="gc-back">
@@ -2145,20 +2155,20 @@ function rerecordAudio() {
 }
 
 /* ── TTS helpers ── */
-async function playCardAudio(card) {
+function playCardAudio(card) {
   if (!card) return;
   if (card.audioData) {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
-      const resp = await fetch(card.audioData);
-      const arrayBuf = await resp.arrayBuffer();
-      const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
-      const src = audioCtx.createBufferSource();
-      src.buffer = audioBuf;
-      src.connect(audioCtx.destination);
-      src.start(0);
-    } catch { try { new Audio(card.audioData).play(); } catch {} }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const audio = new Audio(card.audioData);
+      const mediaSrc = audioCtx.createMediaElementSource(audio);
+      mediaSrc.connect(audioCtx.destination);
+      audio.play().catch(() => {});
+    } catch {
+      // Fallback: plain Audio element if AudioContext routing fails
+      try { new Audio(card.audioData).play(); } catch {}
+    }
   } else if (card.text) {
     speakText(card.text);
   }
