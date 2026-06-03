@@ -160,41 +160,38 @@ body {
 .empty-icon { font-size: 60px; margin-bottom: 14px; }
 .empty-text { font-size: 17px; margin-bottom: 22px; }
 
-/* ── SET NAME INPUT ── */
-.set-name-input {
-  width: 100%;
-  font-size: 26px; font-weight: 700;
-  border: none; border-bottom: 3px solid var(--border);
-  padding: 8px 2px; margin-bottom: 22px;
-  background: none; outline: none; color: var(--text);
-  transition: border-color .2s; font-family: inherit;
+/* ── EDIT SET REDESIGN ── */
+.eset-name-card {
+  background: #fff; border: 2px solid var(--primary);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
 }
-.set-name-input:focus { border-color: var(--primary); }
-.set-name-input::placeholder { color: var(--border); }
+.eset-name-label {
+  font-size: 11px; font-weight: 700; color: var(--primary);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px;
+}
+.eset-name-input {
+  width: 100%; font-size: 24px; font-weight: 800;
+  border: none; border-bottom: 2px solid var(--border);
+  outline: none; padding: 4px 0 10px; font-family: inherit;
+  color: var(--text); background: transparent; box-sizing: border-box;
+  transition: border-color .2s;
+}
+.eset-name-input:focus { border-bottom-color: var(--primary); }
+.eset-name-input::placeholder { color: var(--text-light); font-weight: 400; font-size: 18px; }
+.eset-name-hint { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+.eset-section {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px;
+}
+.eset-section-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 14px;
+}
+.eset-section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.eset-section-sub   { font-size: 13px; color: var(--text-light); margin-top: 2px; }
 
-/* ── AI SECTION ── */
-.ai-section {
-  background: linear-gradient(135deg, #5563de 0%, #7c3aed 100%);
-  border-radius: var(--radius); padding: 20px; color: #fff; margin-bottom: 22px;
-}
-.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.ai-title  { font-size: 17px; font-weight: 700; }
-.ai-desc   { font-size: 13px; opacity: .85; margin-bottom: 14px; line-height: 1.4; }
-.ai-row    { display: flex; gap: 10px; }
-.ai-input  {
-  flex: 1; padding: 11px 14px; border-radius: 10px; border: none;
-  font-size: 15px; background: rgba(255,255,255,.92);
-  color: var(--text); outline: none; font-family: inherit;
-}
-.ai-input:focus { background: #fff; }
-.ai-btn {
-  padding: 11px 18px; border-radius: 10px; border: none;
-  background: rgba(255,255,255,.2); color: #fff;
-  font-weight: 700; font-size: 14px; cursor: pointer;
-  transition: background .15s; white-space: nowrap; font-family: inherit;
-}
-.ai-btn:hover { background: rgba(255,255,255,.3); }
-.ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+/* AI chips (kept for fetchAiSuggestions output) */
+.ai-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .ai-chip {
   background: rgba(255,255,255,.9); color: #4a0090;
   border: none; padding: 7px 15px; border-radius: 20px;
@@ -443,6 +440,7 @@ body {
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 .gc.matched .gc-back { border: 4px solid var(--success); box-shadow: 0 0 18px rgba(91,185,67,.5); }
+.gc.wrong .gc-back   { border: 4px solid var(--danger);  box-shadow: 0 0 18px rgba(220,38,38,.6); }
 .gc.wrong .gc-inner  { animation: wrongShake .4s; }
 @keyframes wrongShake {
   0%,100% { transform: rotateY(180deg) translateX(0); }
@@ -983,28 +981,42 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- ── SCREEN: EDIT SET ── -->
 <div class="screen" id="screen-edit-set">
-  <input class="set-name-input" id="setNameInput" type="text" placeholder="Navn på kortsettet..." autocomplete="off" />
 
-  <div class="ai-section">
-    <div class="ai-header"><span style="font-size:20px">✨</span><span class="ai-title">AI-forslag til kortinnhold</span></div>
-    <div class="ai-desc">Skriv inn et tema, så foreslår AI hva kortene kan inneholde. Krever Claude API-nøkkel i innstillinger.</div>
-    <div class="ai-row">
-      <input class="ai-input" type="text" id="aiTopicInput" placeholder="F.eks. frukter, dyr, norske byer…" autocomplete="off"
-             onkeydown="if(event.key==='Enter')fetchAiSuggestions()" />
-      <button class="ai-btn" onclick="fetchAiSuggestions()">Foreslå</button>
+  <!-- 1. Set name — large and unmissable -->
+  <div class="eset-name-card">
+    <div class="eset-name-label">🏷️ Tema og navn på kortsett</div>
+    <input class="eset-name-input" id="setNameInput" type="text"
+           placeholder="F.eks. Kjøkken, Dyr, Transport…" autocomplete="off" />
+    <div class="eset-name-hint">Skriv inn temaet — dette brukes også som grunnlag for AI-forslag</div>
+  </div>
+
+  <!-- 2. AI-generated cards -->
+  <div class="eset-section">
+    <div class="eset-section-hd">
+      <div>
+        <div class="eset-section-title">✨ Generer kort med AI</div>
+        <div class="eset-section-sub">AI lager et sett med forslag basert på temaet du har valgt</div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="aiSuggestBtn" onclick="fetchAiSuggestions()" style="flex-shrink:0">Hent forslag</button>
     </div>
     <div class="ai-chips" id="aiChips"></div>
   </div>
 
-  <div class="section-header">
-    <span class="section-title">Kort (<span id="cardCountLabel">0</span>)</span>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-secondary btn-sm" id="aiSingleCardBtn" onclick="aiAddSingleCard()">✨ AI-kort</button>
-      <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder(workingSet)">📷 Fra kamera</button>
-      <button class="btn btn-secondary" style="padding:7px 14px;font-size:13px" onclick="addTtsToAll()" title="Slå på automatisk lyd for alle kort som mangler lyd">🗣️ Lyd for alle</button>
+  <!-- 3. Manual cards -->
+  <div class="eset-section">
+    <div class="eset-section-hd">
+      <div>
+        <div class="eset-section-title">🃏 Kort manuelt</div>
+        <div class="eset-section-sub">Kort: <span id="cardCountLabel">0</span></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-secondary btn-sm" id="aiSingleCardBtn" onclick="aiAddSingleCard()">✨ AI-kort</button>
+        <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder(workingSet)">📷 Kamera</button>
+        <button class="btn btn-secondary btn-sm" onclick="addTtsToAll()" title="Automatisk lyd for alle kort">🗣️</button>
+      </div>
     </div>
+    <div class="cards-grid" id="cardsGrid"></div>
   </div>
-  <div class="cards-grid" id="cardsGrid"></div>
 
   <div class="action-bar">
     <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
@@ -1614,14 +1626,14 @@ function flipCard(i) {
       setTimeout(() => {
         document.getElementById('gc-' + c1.iid).classList.add('wrong');
         document.getElementById('gc-' + c2.iid).classList.add('wrong');
-        playTone([200], 'triangle', 0.2);
+        playTone([330, 220], 'square', 0.3);
       }, 300);
       setTimeout(() => {
         c1.flipped = false; c2.flipped = false;
         document.getElementById('gc-' + c1.iid).classList.remove('flipped','wrong');
         document.getElementById('gc-' + c2.iid).classList.remove('flipped','wrong');
         game.flipped = []; game.locked = false;
-      }, 1300);
+      }, 1800);
     }
   }
 }
@@ -1843,7 +1855,6 @@ async function editSet(id) {
 
 function openEditSet() {
   document.getElementById('setNameInput').value = workingSet.name;
-  document.getElementById('aiTopicInput').value = '';
   document.getElementById('aiChips').innerHTML  = '';
   refreshCardsGrid();
   showScreen('edit-set');
@@ -2257,8 +2268,8 @@ function handleAudioFile(input) {
 let pendingChipWords = [];
 
 async function fetchAiSuggestions() {
-  const topic  = document.getElementById('aiTopicInput').value.trim();
-  if (!topic) { toast('Skriv inn et tema først', 'error'); return; }
+  const topic = document.getElementById('setNameInput').value.trim();
+  if (!topic) { toast('Skriv inn et tema/navn på kortsett først', 'error'); document.getElementById('setNameInput').focus(); return; }
   const apiKey = await getCfg('claude');
   if (!apiKey) { toast('Legg til Claude API-nøkkel i innstillinger', 'error'); goSettings(); return; }
   const chipsEl = document.getElementById('aiChips');
@@ -2336,14 +2347,17 @@ async function createAllCards() {
 
 async function aiAddSingleCard() {
   const existingWords = workingSet.cards.map(c => c.text).filter(t => t);
-  if (existingWords.length === 0) { toast('Legg til noen kort først så AI forstår temaet', 'error'); return; }
+  const setName = document.getElementById('setNameInput').value.trim();
+  if (existingWords.length === 0 && !setName) { toast('Skriv inn et navn på kortsettets tema først', 'error'); document.getElementById('setNameInput').focus(); return; }
   const apiKey = await getCfg('claude');
   if (!apiKey) { toast('Legg til Gemini API-nøkkel i innstillinger', 'error'); return; }
   const btn = document.getElementById('aiSingleCardBtn');
   btn.disabled = true; btn.textContent = '⏳ Henter…';
+  const prompt = existingWords.length > 0
+    ? `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`
+    : `Foreslå ÉTT norsk ord som passer til temaet «${setName}» for et kortspill for barn. Svar kun med det ene ordet, ingenting annet.`;
   try {
-    const resp = await geminiRequest(apiKey,
-      `Her er ord fra et norsk kortspill for barn: ${existingWords.join(', ')}. Foreslå ÉTT nytt norsk ord som passer til samme tema, men som IKKE allerede er i listen. Svar kun med det ene ordet, ingenting annet.`);
+    const resp = await geminiRequest(apiKey, prompt);
     const data = await resp.json();
     const word = data.candidates[0].content.parts[0].text.trim().split('\n')[0].trim();
     if (!word) { toast('Ingen forslag funnet', 'error'); return; }
