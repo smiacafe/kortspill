@@ -193,26 +193,27 @@ body {
 /* AI chips (kept for fetchAiSuggestions output) */
 .ai-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .ai-chip {
-  background: rgba(255,255,255,.9); color: #4a0090;
-  border: none; padding: 7px 15px; border-radius: 20px;
+  background: var(--primary-light); color: var(--primary);
+  border: 2px solid var(--primary); padding: 7px 15px; border-radius: 20px;
   font-size: 13px; font-weight: 600; cursor: pointer;
   transition: all .15s; font-family: inherit;
 }
-.ai-chip:hover { background: #fff; transform: translateY(-1px); }
-.ai-chip.used  { background: rgba(255,255,255,.3); color: rgba(255,255,255,.8); cursor: default; }
+.ai-chip:hover { background: var(--primary); color: #fff; transform: translateY(-1px); }
+.ai-chip.used  { background: #e8f5e9; color: var(--success); border-color: var(--success); cursor: default; }
 .ai-create-all-btn {
-  width: 100%; padding: 11px 18px; margin-top: 4px;
-  border-radius: 12px; border: 2px solid rgba(255,255,255,.6);
-  background: rgba(255,255,255,.15); color: #fff;
-  font-weight: 700; font-size: 14px; cursor: pointer;
+  width: 100%; padding: 13px 18px; margin-top: 10px;
+  border-radius: 12px; border: none;
+  background: var(--success); color: #fff;
+  font-weight: 700; font-size: 15px; cursor: pointer;
   transition: all .15s; font-family: inherit; text-align: center;
+  box-shadow: 0 3px 10px rgba(91,185,67,.35);
 }
-.ai-create-all-btn:hover { background: rgba(255,255,255,.28); border-color: #fff; }
+.ai-create-all-btn:hover { background: #4a9e37; }
 .ai-progress-bar-wrap {
-  background: rgba(255,255,255,.2); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px;
+  background: var(--border); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px;
 }
 .ai-progress-bar {
-  background: #fff; height: 100%; border-radius: 10px; width: 0%; transition: width .3s;
+  background: var(--primary); height: 100%; border-radius: 10px; width: 0%; transition: width .3s;
 }
 
 /* ── CARDS GRID (EDITOR) ── */
@@ -2273,7 +2274,7 @@ async function fetchAiSuggestions() {
   const apiKey = await getCfg('claude');
   if (!apiKey) { toast('Legg til Claude API-nøkkel i innstillinger', 'error'); goSettings(); return; }
   const chipsEl = document.getElementById('aiChips');
-  chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner white"></div><span style="color:rgba(255,255,255,.8)">Henter forslag…</span></div>`;
+  chipsEl.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div><span style="color:var(--text-light);font-size:14px">Henter forslag…</span></div>`;
   try {
     const resp = await geminiRequest(apiKey,
       `Lag en liste med 8–10 begreper for et kortspill (memory) med temaet «${topic}». Hvert begrep skal passe for barn i skolen. Svar kun med begrepene, ett per linje, uten numre eller punkttegn. Bruk norsk bokmål.`);
@@ -2296,7 +2297,7 @@ async function fetchAiSuggestions() {
 
     chipsEl.innerHTML = html;
   } catch(e) {
-    chipsEl.innerHTML = `<span style="color:rgba(255,255,255,.8);font-size:13px">Feil: ${esc(e.message)}</span>`;
+    chipsEl.innerHTML = `<span style="color:var(--danger);font-size:13px">Feil: ${esc(e.message)}</span>`;
   }
 }
 
@@ -2311,10 +2312,10 @@ async function createAllCards() {
   const showProgress = () => {
     const pct = Math.round(done / words.length * 100);
     chipsEl.innerHTML = `
-      <div style="width:100%;color:rgba(255,255,255,.95)">
+      <div style="width:100%">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div class="spinner white" style="flex-shrink:0"></div>
-          <span style="font-size:14px">Lager kort${pixabayKey ? ' og finner bilder' : ''}… (${done}/${words.length})</span>
+          <div class="spinner" style="flex-shrink:0"></div>
+          <span style="font-size:14px;color:var(--text)">Lager kort${pixabayKey ? ' og finner bilder' : ''}… (${done}/${words.length})</span>
         </div>
         <div class="ai-progress-bar-wrap">
           <div class="ai-progress-bar" style="width:${pct}%"></div>
