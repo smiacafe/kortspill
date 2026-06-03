@@ -1155,13 +1155,28 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: SETTINGS ── -->
 <div class="screen" id="screen-settings">
   <div class="settings-group">
-    <div class="settings-group-title">🔒 Lærerpassord</div>
+    <div class="settings-group-title">👤 Identitet</div>
     <div class="settings-card">
-      <div class="settings-label">Passord for lærervisning</div>
-      <div class="settings-desc">Elever trykker på <strong>Lærer</strong>-knappen øverst til høyre for å logge inn som lærer. Sett et passord her slik at bare du har tilgang. Standardpassord er <strong>1234</strong>.</div>
-      <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
+      <div class="settings-label">Ditt navn</div>
+      <div class="settings-desc">Vises som «laget av» på kortsett du oppretter.</div>
+      <input class="settings-input" type="text" id="settingDisplayName" placeholder="F.eks. Anne Olsen" autocomplete="off" />
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">🔒 Tilgangskontroll</div>
+    <div class="settings-card">
+      <div class="settings-label">Lærer-PIN</div>
+      <div class="settings-desc">Gir tilgang til å redigere kortsett. Deles med lærere. Standard: <strong>1234</strong>.</div>
+      <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
+    </div>
+    <div class="settings-card" style="margin-top:12px">
+      <div class="settings-label">Admin-PIN</div>
+      <div class="settings-desc">Gir tilgang til innstillinger i tillegg til kortsett. Hold denne hemmelig. Standard: <strong>1234</strong>.</div>
+      <input class="settings-input" type="tel" id="settingAdminPassword" placeholder="F.eks. 5678" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="saveSettings()">Lagre</button>
   </div>
 
   <div class="settings-group">
@@ -1314,7 +1329,7 @@ function sbHeaders(extra = {}) {
   return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
 }
 function sbRowToSet(r) {
-  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime() };
+  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '' };
 }
 async function sbGetAllSets() {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`, { headers: sbHeaders() });
@@ -1331,7 +1346,7 @@ async function sbUpsertSet(set) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets`, {
     method: 'POST',
     headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards })
+    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '' })
   });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
 }
@@ -1346,6 +1361,7 @@ async function sbDeleteSet(id) {
    NAVIGATION
    ============================================================ */
 const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set']);
+let adminMode = false; // true when logged in with admin PIN
 
 const NAV_TITLES = {
   'student-select':   'VVO språkkort',
@@ -1381,11 +1397,12 @@ function showScreen(name, push = true) {
 
   const isTeacher = TEACHER_SCREENS.has(name);
   document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
-  document.getElementById('navSettingsBtn').style.display = (isTeacher && name !== 'settings') ? '' : 'none';
+  document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
 }
 
 function goHome() {
+  adminMode = false;
   history = ['student-select'];
   showScreen('student-select', false);
   loadStudentSets();
@@ -1427,21 +1444,25 @@ function handlePwModalClick(e) {
   if (e.target === document.getElementById('pwModal')) closePwModal();
 }
 
+function _maxPinLen() {
+  const t = (_cfgCache['teacherPassword'] || '1234').length;
+  const a = (_cfgCache['adminPassword']   || '1234').length;
+  return Math.max(t, a, 4);
+}
+
 function renderPinDots() {
-  const saved = _cfgCache['teacherPassword'] || '1234';
-  const len   = Math.max(saved.length, 4);
+  const len = _maxPinLen();
   document.getElementById('pinDots').innerHTML =
     Array.from({ length: len }, (_, i) =>
       `<div class="pin-dot${i < _pin.length ? ' filled' : ''}"></div>`).join('');
 }
 
 function pinPress(digit) {
-  const saved = _cfgCache['teacherPassword'] || '1234';
-  if (_pin.length >= saved.length) return;
+  if (_pin.length >= _maxPinLen()) return;
   _pin += digit;
   document.getElementById('pwError').style.display = 'none';
   renderPinDots();
-  if (_pin.length === saved.length) checkPin();
+  if (_pin.length === _maxPinLen()) checkPin();
 }
 
 function pinDelete() {
@@ -1450,8 +1471,15 @@ function pinDelete() {
 }
 
 async function checkPin() {
-  const saved = await getCfg('teacherPassword') || '1234';
-  if (_pin === saved) {
+  const teacherPw = await getCfg('teacherPassword') || '1234';
+  const adminPw   = await getCfg('adminPassword')   || '1234';
+  if (_pin === adminPw) {
+    adminMode = true;
+    closePwModal();
+    showScreen('teacher-sets');
+    loadTeacherSets();
+  } else if (_pin === teacherPw) {
+    adminMode = false;
     closePwModal();
     showScreen('teacher-sets');
     loadTeacherSets();
@@ -1827,7 +1855,7 @@ async function loadTeacherSets() {
       ${thumb}
       <div class="set-info">
         <div class="set-name">${esc(s.name || 'Uten navn')}</div>
-        <div class="set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}</div>
+        <div class="set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}${s.createdBy ? ' · ' + esc(s.createdBy) : ''}</div>
       </div>
       <div class="set-actions" onclick="event.stopPropagation()">
         <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser">📋</button>
@@ -1843,7 +1871,8 @@ async function loadTeacherSets() {
 let workingSet = null;
 
 function newSet() {
-  workingSet = { id: uid(), name: '', createdAt: Date.now(), cards: [] };
+  const displayName = _cfgCache['displayName'] || '';
+  workingSet = { id: uid(), name: '', createdAt: Date.now(), createdBy: displayName, cards: [] };
   openEditSet();
 }
 
@@ -2701,14 +2730,19 @@ function addChip(text) {
    SETTINGS
    ============================================================ */
 async function loadSettingsUI() {
-  document.getElementById('settingPassword').value = await getCfg('teacherPassword') || '';
-  document.getElementById('settingClaude').value   = await getCfg('claude')           || '';
-  document.getElementById('settingPixabay').value  = await getCfg('pixabay')          || '';
+  document.getElementById('settingDisplayName').value   = await getCfg('displayName')      || '';
+  document.getElementById('settingPassword').value      = await getCfg('teacherPassword')  || '';
+  document.getElementById('settingAdminPassword').value = await getCfg('adminPassword')    || '';
+  document.getElementById('settingClaude').value        = await getCfg('claude')            || '';
+  document.getElementById('settingPixabay').value       = await getCfg('pixabay')           || '';
 }
 
 async function saveSettings() {
+  await setCfg('displayName',    document.getElementById('settingDisplayName').value.trim());
   const pw = document.getElementById('settingPassword').value.trim();
   await setCfg('teacherPassword', pw || '1234');
+  const apw = document.getElementById('settingAdminPassword').value.trim();
+  await setCfg('adminPassword',   apw || '1234');
   await setCfg('claude',   document.getElementById('settingClaude').value.trim());
   await setCfg('pixabay',  document.getElementById('settingPixabay').value.trim());
   toast('Innstillinger lagret ✓', 'success');
