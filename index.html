@@ -638,8 +638,8 @@ body {
 .pin-pad button { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; font-size: 22px; font-weight: 700; padding: 16px 10px; cursor: pointer; transition: background .1s; font-family: inherit; color: var(--text); touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
 .pin-pad button:active, .pin-pad button:hover { background: var(--primary-light); border-color: var(--primary); }
 .pin-pad .pin-del { font-size: 18px; }
-.pin-pad .pin-blank { background: transparent; border-color: transparent; cursor: default; }
-.pin-pad .pin-blank:hover { background: transparent; border-color: transparent; }
+.pin-pad .pin-ok { background: var(--success); color: #fff; border-color: var(--success); font-size: 16px; }
+.pin-pad .pin-ok:hover { background: #4a9e37; border-color: #4a9e37; }
 
 /* Image search */
 .search-row   { display: flex; gap: 10px; margin-bottom: 16px; }
@@ -1411,7 +1411,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button ontouchstart="event.preventDefault();pinPress('7')" onclick="pinPress('7')">7</button>
       <button ontouchstart="event.preventDefault();pinPress('8')" onclick="pinPress('8')">8</button>
       <button ontouchstart="event.preventDefault();pinPress('9')" onclick="pinPress('9')">9</button>
-      <button class="pin-blank" disabled></button>
+      <button class="pin-ok" ontouchstart="event.preventDefault();checkPin()" onclick="checkPin()">OK</button>
       <button ontouchstart="event.preventDefault();pinPress('0')" onclick="pinPress('0')">0</button>
       <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
     </div>
@@ -1738,10 +1738,6 @@ function pinPress(digit) {
   _pin += digit;
   document.getElementById('pwError').style.display = 'none';
   renderPinDots();
-  if (_pin.length >= 4) {
-    clearTimeout(window._pinCheckTimeout);
-    window._pinCheckTimeout = setTimeout(() => checkPin(), 300);
-  }
 }
 
 function pinDelete() {
@@ -3486,6 +3482,7 @@ document.addEventListener('keydown', e => {
   if (document.getElementById('pwModal').classList.contains('open')) {
     if (e.key >= '0' && e.key <= '9') pinPress(e.key);
     if (e.key === 'Backspace') pinDelete();
+    if (e.key === 'Enter' && _pin.length >= 4) checkPin();
   }
 });
 
