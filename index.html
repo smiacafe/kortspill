@@ -557,6 +557,38 @@ body {
 }
 .settings-input:focus { border-color: var(--primary); }
 
+/* ── SUPER ADMIN ── */
+.sa-header { text-align:center; padding:16px 0 8px; }
+.sa-title   { font-size:26px; font-weight:800; }
+.sa-subtitle { font-size:14px; color:var(--text-light); margin-top:4px; }
+.sa-teacher-list { display:flex; flex-direction:column; gap:10px; }
+.sa-teacher-item {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+}
+.sa-teacher-avatar { font-size:28px; flex-shrink:0; }
+.sa-teacher-info { flex:1; min-width:0; }
+.sa-teacher-name { font-size:15px; font-weight:700; }
+.sa-teacher-meta { font-size:12px; color:var(--text-light); margin-top:2px; }
+.sa-teacher-inactive { opacity:.5; }
+.sa-badge-active   { background:#e8f5e9; color:var(--success); border:1px solid var(--success); border-radius:12px; padding:2px 8px; font-size:11px; font-weight:700; }
+.sa-badge-inactive { background:#fce4ec; color:var(--danger);  border:1px solid var(--danger);  border-radius:12px; padding:2px 8px; font-size:11px; font-weight:700; }
+
+/* ── STUDENT AVATARS ── */
+.student-avatar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:12px; padding:0 4px; }
+.student-avatar-card { display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 8px; border-radius:var(--radius); background:var(--surface); box-shadow:var(--shadow); cursor:pointer; transition:transform .15s; }
+.student-avatar-card:active { transform:scale(.96); }
+.avatar-bubble { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; }
+.avatar-name   { font-size:12px; font-weight:600; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80px; }
+.avatar-emoji-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.avatar-emoji-btn  { font-size:28px; padding:8px; border-radius:10px; border:2px solid transparent; background:var(--bg); cursor:pointer; transition:all .15s; line-height:1; }
+.avatar-emoji-btn.selected { border-color:var(--primary); background:var(--primary-light); }
+.avatar-color-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.avatar-color-btn  { width:36px; height:36px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:transform .15s; }
+.avatar-color-btn.selected { border-color:var(--text); transform:scale(1.2); }
+.avatar-preview-big { width:80px; height:80px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:44px; }
+
 /* ── MODALS ── */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5);
@@ -762,6 +794,23 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="student-home-hero">
     <h1>VVO språkkort</h1>
     <p>Velg et kortsett for å starte</p>
+  </div>
+  <!-- Student info bar (shown in Klassemodus when logged in) -->
+  <div id="studentInfoBar" style="display:none;background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;align-items:center;gap:12px;box-shadow:var(--shadow)">
+    <div id="studentInfoAvatar" class="avatar-bubble" style="width:40px;height:40px;font-size:22px;flex-shrink:0"></div>
+    <div style="flex:1">
+      <div style="font-weight:700" id="studentInfoName"></div>
+      <div style="font-size:12px;color:var(--text-light)">Logget inn</div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="studentLogout()">Bytt elev</button>
+  </div>
+  <!-- Login button (shown in Klassemodus when not logged in) -->
+  <div id="studentLoginBtn" style="display:none;margin-bottom:16px">
+    <button class="btn btn-primary btn-full" onclick="showStudentLogin()" style="font-size:15px;padding:14px">🎒 Logg inn som elev</button>
+  </div>
+  <!-- Create own card set button (Klassemodus only) -->
+  <div id="studentCreateBar" style="display:none;margin-bottom:16px">
+    <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="font-size:15px;padding:14px">📸 Lag mine egne ord</button>
   </div>
   <div class="student-carousel-wrap">
     <button class="carousel-arrow carousel-left" id="carouselLeft" onclick="scrollCarousel(-1)" aria-label="Forrige">❮</button>
@@ -1152,6 +1201,106 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <input type="file" id="cameraSetInput" accept="image/*" capture="environment" style="display:none" onchange="handleCameraSetCapture(this)" />
 </div>
 
+<!-- ── SCREEN: SUPER ADMIN ── -->
+<div class="screen" id="screen-super-admin">
+  <div class="sa-header">
+    <div class="sa-title">👑 Super Admin</div>
+    <div class="sa-subtitle">Administrer lærere og tilgang</div>
+  </div>
+
+  <div class="section-header" style="margin-top:20px">
+    <span class="section-title">Lærere</span>
+    <button class="btn btn-primary btn-sm" onclick="showAddTeacherModal()">+ Ny lærer</button>
+  </div>
+  <div id="saTeacherList" class="sa-teacher-list"></div>
+
+  <div class="settings-group" style="margin-top:24px">
+    <div class="settings-group-title">🔒 Super Admin PIN</div>
+    <div class="settings-card">
+      <div class="settings-label">Din master PIN-kode</div>
+      <div class="settings-desc">Gir tilgang til denne super-admin visningen. Hold den hemmelig.</div>
+      <input class="settings-input" type="tel" id="saSuperPin" placeholder="Min. 6 siffer anbefalt" inputmode="numeric" autocomplete="off" />
+      <button class="btn btn-primary btn-sm" onclick="saveSuperAdminPin()">Lagre</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Teacher Modal -->
+<div class="modal-overlay" id="teacherModal" onclick="handleTeacherModalClick(event)">
+  <div class="modal-centre" id="teacherModalInner" style="max-width:400px;width:90%">
+    <div style="font-size:18px;font-weight:800;margin-bottom:20px" id="teacherModalTitle">Ny lærer</div>
+    <input type="hidden" id="tmTeacherId" />
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:13px;font-weight:600;color:var(--text-light)">Fullt navn</label>
+        <input class="settings-input" type="text" id="tmName" placeholder="F.eks. Anne Olsen" autocomplete="off" style="margin-top:4px" />
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:var(--text-light)">Visningsnavn (på kort)</label>
+        <input class="settings-input" type="text" id="tmDisplayName" placeholder="F.eks. Anne" autocomplete="off" style="margin-top:4px" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:13px;font-weight:600;color:var(--text-light)">Lærer-PIN</label>
+          <input class="settings-input" type="tel" id="tmTeacherPin" placeholder="1234" inputmode="numeric" maxlength="8" style="margin-top:4px" />
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:var(--text-light)">Admin-PIN</label>
+          <input class="settings-input" type="tel" id="tmAdminPin" placeholder="5678" inputmode="numeric" maxlength="8" style="margin-top:4px" />
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px">
+      <button class="btn btn-secondary" onclick="closeTeacherModal()">Avbryt</button>
+      <button class="btn btn-primary" onclick="saveTeacher()">Lagre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: STUDENT LOGIN ── -->
+<div class="screen" id="screen-student-login">
+  <div style="text-align:center;padding:20px 0 16px">
+    <div style="font-size:28px;font-weight:800">Hvem er du?</div>
+    <div style="font-size:15px;color:var(--text-light);margin-top:6px">Velg din avatar eller opprett ny</div>
+  </div>
+  <div id="studentAvatarList" class="student-avatar-grid"></div>
+  <div style="text-align:center;margin-top:20px">
+    <button class="btn btn-primary btn-lg" onclick="showNewStudentFlow()">+ Jeg er ny</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: NEW STUDENT SETUP ── -->
+<div class="screen" id="screen-new-student">
+  <div style="text-align:center;padding:20px 0 8px">
+    <div style="font-size:22px;font-weight:800">Lag din profil</div>
+  </div>
+
+  <div class="eset-name-card" style="margin-bottom:16px">
+    <div class="eset-name-label">📝 Klasskode</div>
+    <input class="eset-name-input" id="nsClassCode" type="text" placeholder="F.eks. KAFÉ3" autocomplete="off" style="text-transform:uppercase" />
+    <div class="eset-name-hint">Få koden av læreren din</div>
+  </div>
+
+  <div class="eset-name-card" style="margin-bottom:16px">
+    <div class="eset-name-label">👤 Kallenavn</div>
+    <input class="eset-name-input" id="nsUsername" type="text" placeholder="F.eks. Bjørn" autocomplete="off" />
+  </div>
+
+  <div class="eset-section" style="margin-bottom:16px">
+    <div class="eset-section-title" style="margin-bottom:12px">🐾 Velg din avatar</div>
+    <div id="nsEmojiPicker" class="avatar-emoji-grid"></div>
+    <div id="nsColorPicker" class="avatar-color-grid" style="margin-top:12px"></div>
+    <div style="text-align:center;margin-top:16px">
+      <div id="nsAvatarPreview" class="avatar-preview-big"></div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="goBack()">Tilbake</button>
+    <button class="btn btn-primary" onclick="createNewStudent()">✅ Start</button>
+  </div>
+</div>
+
 <!-- ── SCREEN: SETTINGS ── -->
 <div class="screen" id="screen-settings">
   <div class="settings-group">
@@ -1197,6 +1346,24 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <input class="settings-input" type="password" id="settingPixabay" placeholder="Din Pixabay API-nøkkel…" autocomplete="off" />
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">⚙️ App-modus</div>
+    <div class="settings-card">
+      <div class="settings-label">Modus</div>
+      <div class="settings-desc"><strong>Standard:</strong> Lærer lager kortsett, elever spiller. <strong>Klassemodus:</strong> Elever logger inn og kan lage egne kortsett.</div>
+      <select class="settings-input" id="settingAppMode" onchange="saveAppModeSetting()">
+        <option value="standard">Standard (lærer lager, elever spiller)</option>
+        <option value="klassemodus">Klassemodus (elever logger inn og lager)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-group" id="classManagementSection" style="display:none">
+    <div class="settings-group-title">🏫 Klasser</div>
+    <div id="classListSettings"></div>
+    <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="addNewClass()">+ Ny klasse</button>
   </div>
 
   <div class="settings-group">
@@ -1295,8 +1462,11 @@ function dbDel(store, key)  { return new Promise((res,rej) => { const r=tx(store
 let _cfgCache = {};
 
 async function loadCloudSettings() {
+  _cfgCache = {};
   try {
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*`, { headers: sbHeaders() });
+    const tid = currentTeacherId || '';
+    // Load teacher-specific settings
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*&teacher_id=eq.${encodeURIComponent(tid)}`, { headers: sbHeaders() });
     if (resp.ok) { const rows = await resp.json(); rows.forEach(r => { _cfgCache[r.key] = r.value; }); }
   } catch {}
   // Merge any local-only values not yet in cloud
@@ -1314,7 +1484,7 @@ async function setCfg(k, v) {
     await fetch(`${SUPABASE_URL}/rest/v1/settings`, {
       method: 'POST',
       headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-      body: JSON.stringify({ key: k, value: v })
+      body: JSON.stringify({ key: k, value: v, teacher_id: currentTeacherId || '' })
     });
   } catch {}
 }
@@ -1329,10 +1499,12 @@ function sbHeaders(extra = {}) {
   return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
 }
 function sbRowToSet(r) {
-  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '' };
+  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '' };
 }
 async function sbGetAllSets() {
-  const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`, { headers: sbHeaders() });
+  let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
+  if (currentTeacherId) url += `&teacher_id=eq.${encodeURIComponent(currentTeacherId)}`;
+  const resp = await fetch(url, { headers: sbHeaders() });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
   return (await resp.json()).map(sbRowToSet);
 }
@@ -1346,7 +1518,92 @@ async function sbUpsertSet(set) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets`, {
     method: 'POST',
     headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '' })
+    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '', teacher_id: set.teacherId || currentTeacherId || '', student_id: set.studentId || '', class_id: set.classId || '' })
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+
+// Teachers
+async function sbGetTeachers() {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/teachers?select=*&order=created_at.asc`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  return await resp.json();
+}
+async function sbUpsertTeacher(t) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/teachers`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify(t)
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+async function sbSetTeacherActive(id, active) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/teachers?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ active })
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+
+// Global settings (teacher_id = '_super', used for superAdminPassword)
+async function getGlobalSetting(key) {
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?key=eq.${encodeURIComponent(key)}&teacher_id=eq._super&select=value`, { headers: sbHeaders() });
+    if (!resp.ok) return null;
+    const rows = await resp.json();
+    return rows[0]?.value ?? null;
+  } catch { return null; }
+}
+async function saveGlobalSetting(key, value) {
+  await fetch(`${SUPABASE_URL}/rest/v1/settings`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ key, value, teacher_id: '_super' })
+  });
+}
+
+// Classes
+async function sbGetClasses() {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&order=created_at.asc`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  return await resp.json();
+}
+async function sbUpsertClass(cls) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify(cls)
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+async function sbDeleteClass(id) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE', headers: sbHeaders()
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+
+// Students
+async function sbGetStudentsByTeacher() {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=*`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  return await resp.json();
+}
+async function sbGetStudentsByClass(classId) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?class_id=eq.${encodeURIComponent(classId)}&select=*`, { headers: sbHeaders() });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  return await resp.json();
+}
+async function sbUpsertStudent(student) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/students`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify(student)
+  });
+  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+}
+async function sbDeleteStudent(id) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE', headers: sbHeaders()
   });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
 }
@@ -1360,8 +1617,10 @@ async function sbDeleteSet(id) {
 /* ============================================================
    NAVIGATION
    ============================================================ */
-const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set']);
+const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set','super-admin']);
 let adminMode = false; // true when logged in with admin PIN
+let currentTeacherId = null;
+let currentRole = 'guest'; // 'guest', 'student', 'teacher', 'admin', 'superadmin'
 
 const NAV_TITLES = {
   'student-select':   'VVO språkkort',
@@ -1381,6 +1640,9 @@ const NAV_TITLES = {
   'sort':             '🔀 Sorter kortene',
   'speed':            '⚡ Rask svar',
   'speak':            '🎤 Si ordet',
+  'super-admin':      '👑 Super Admin',
+  'student-login':    '🎒 Logg inn',
+  'new-student':      '🎒 Ny elev',
 };
 
 let history = ['student-select'];
@@ -1397,12 +1659,14 @@ function showScreen(name, push = true) {
 
   const isTeacher = TEACHER_SCREENS.has(name);
   document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
-  document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && name !== 'settings') ? '' : 'none';
+  document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && currentRole !== 'superadmin' && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
 }
 
 function goHome() {
   adminMode = false;
+  currentTeacherId = null;
+  currentRole = 'guest';
   history = ['student-select'];
   showScreen('student-select', false);
   loadStudentSets();
@@ -1444,25 +1708,24 @@ function handlePwModalClick(e) {
   if (e.target === document.getElementById('pwModal')) closePwModal();
 }
 
-function _maxPinLen() {
-  const t = (_cfgCache['teacherPassword'] || '1234').length;
-  const a = (_cfgCache['adminPassword']   || '1234').length;
-  return Math.max(t, a, 4);
-}
+function _maxPinLen() { return 12; }
 
 function renderPinDots() {
-  const len = _maxPinLen();
+  const len = Math.max(_pin.length + 1, 4);
   document.getElementById('pinDots').innerHTML =
     Array.from({ length: len }, (_, i) =>
       `<div class="pin-dot${i < _pin.length ? ' filled' : ''}"></div>`).join('');
 }
 
 function pinPress(digit) {
-  if (_pin.length >= _maxPinLen()) return;
+  if (_pin.length >= 12) return;
   _pin += digit;
   document.getElementById('pwError').style.display = 'none';
   renderPinDots();
-  if (_pin.length === _maxPinLen()) checkPin();
+  if (_pin.length >= 4) {
+    clearTimeout(window._pinCheckTimeout);
+    window._pinCheckTimeout = setTimeout(() => checkPin(), 300);
+  }
 }
 
 function pinDelete() {
@@ -1471,23 +1734,46 @@ function pinDelete() {
 }
 
 async function checkPin() {
-  const teacherPw = await getCfg('teacherPassword') || '1234';
-  const adminPw   = await getCfg('adminPassword')   || '1234';
-  if (_pin === adminPw) {
+  // Level 1: Super-admin
+  const superPw = await getGlobalSetting('superAdminPassword') || 'superadmin1234';
+  if (_pin === superPw) {
+    currentRole = 'superadmin';
+    currentTeacherId = null;
     adminMode = true;
     closePwModal();
-    showScreen('teacher-sets');
-    loadTeacherSets();
-  } else if (_pin === teacherPw) {
-    adminMode = false;
+    showScreen('super-admin');
+    loadSuperAdminScreen();
+    return;
+  }
+
+  // Level 2: Teacher or Admin by looking up teachers table
+  let teachers = [];
+  try { teachers = await sbGetTeachers(); } catch {}
+
+  const adminMatch   = teachers.find(t => t.active && t.admin_pin   === _pin);
+  const teacherMatch = teachers.find(t => t.active && t.teacher_pin === _pin);
+
+  const matched = adminMatch || teacherMatch;
+  if (matched) {
+    currentTeacherId = matched.id;
+    currentRole = adminMatch ? 'admin' : 'teacher';
+    adminMode = !!adminMatch;
+    await loadCloudSettings();
     closePwModal();
     showScreen('teacher-sets');
     loadTeacherSets();
-  } else {
+    return;
+  }
+
+  // Wrong PIN — only shake/reset if user hasn't pressed a digit recently (debounce already fired)
+  // and the pin is long enough to not be a prefix of a longer correct PIN (max known PIN = 12)
+  if (_pin.length >= 4) {
     const dots = document.getElementById('pinDots');
     dots.classList.add('shake');
     document.getElementById('pwError').style.display = '';
-    setTimeout(() => { _pin = ''; renderPinDots(); dots.classList.remove('shake'); }, 500);
+    setTimeout(() => dots.classList.remove('shake'), 500);
+    _pin = '';
+    renderPinDots();
   }
 }
 
@@ -1511,9 +1797,45 @@ function updateCarouselArrows() {
 }
 
 async function loadStudentSets() {
+  const appMode = await getCfg('appMode') || 'standard';
+
+  // Auto-resume student session in Klassemodus
+  if (appMode === 'klassemodus') {
+    if (!currentStudentData) {
+      const savedStudent = await checkStudentSession();
+      if (savedStudent) {
+        currentStudentData = savedStudent;
+        currentRole = 'student';
+        currentTeacherId = savedStudent.teacher_id;
+        await loadCloudSettings();
+      }
+    }
+    // Show/hide login button
+    const loginBtn = document.getElementById('studentLoginBtn');
+    if (loginBtn) loginBtn.style.display = currentStudentData ? 'none' : '';
+    updateStudentInfoBar();
+  } else {
+    // Standard mode: hide Klassemodus UI
+    const loginBtn = document.getElementById('studentLoginBtn');
+    if (loginBtn) loginBtn.style.display = 'none';
+    updateStudentInfoBar();
+  }
+
   let sets;
-  try { sets = (await sbGetAllSets()).filter(s => s.cards?.length >= 2); }
-  catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
+  try {
+    const deploymentTeacherId = await getGlobalSetting('deploymentTeacherId');
+    let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
+    if (currentRole === 'student' && currentStudentData) {
+      url += `&class_id=eq.${encodeURIComponent(currentStudentData.class_id)}`;
+    } else if (currentTeacherId) {
+      url += `&teacher_id=eq.${encodeURIComponent(currentTeacherId)}`;
+    } else if (deploymentTeacherId) {
+      url += `&teacher_id=eq.${encodeURIComponent(deploymentTeacherId)}`;
+    }
+    const resp = await fetch(url, { headers: sbHeaders() });
+    sets = resp.ok ? (await resp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2) : [];
+  } catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
+
   const list  = document.getElementById('studentList');
   const empty = document.getElementById('studentEmpty');
   if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
@@ -1872,7 +2194,7 @@ let workingSet = null;
 
 function newSet() {
   const displayName = _cfgCache['displayName'] || '';
-  workingSet = { id: uid(), name: '', createdAt: Date.now(), createdBy: displayName, cards: [] };
+  workingSet = { id: uid(), name: '', createdAt: Date.now(), createdBy: displayName, teacherId: currentTeacherId || '', studentId: '', classId: '', cards: [] };
   openEditSet();
 }
 
@@ -2619,7 +2941,7 @@ async function saveCameraSet() {
     } else {
       // Creating a new set
       const name = document.getElementById('camSetName').value.trim() || 'Nytt kortsett';
-      const set = { id: uid(), name, createdAt: Date.now(), cards: _camCards };
+      const set = { id: uid(), name, createdAt: Date.now(), teacherId: currentTeacherId || '', studentId: '', classId: '', cards: _camCards };
       await sbUpsertSet(set);
       toast(`«${name}» lagret med ${_camCards.length} kort ✓`, 'success');
       showScreen('teacher-sets');
@@ -2735,17 +3057,44 @@ async function loadSettingsUI() {
   document.getElementById('settingAdminPassword').value = await getCfg('adminPassword')    || '';
   document.getElementById('settingClaude').value        = await getCfg('claude')            || '';
   document.getElementById('settingPixabay').value       = await getCfg('pixabay')           || '';
+  document.getElementById('settingAppMode').value       = await getCfg('appMode')           || 'standard';
+  const appMode = await getCfg('appMode') || 'standard';
+  const cmSection = document.getElementById('classManagementSection');
+  if (appMode === 'klassemodus' && currentTeacherId) {
+    cmSection.style.display = '';
+    loadClassList();
+  } else {
+    cmSection.style.display = 'none';
+  }
 }
 
 async function saveSettings() {
-  await setCfg('displayName',    document.getElementById('settingDisplayName').value.trim());
-  const pw = document.getElementById('settingPassword').value.trim();
-  await setCfg('teacherPassword', pw || '1234');
-  const apw = document.getElementById('settingAdminPassword').value.trim();
-  await setCfg('adminPassword',   apw || '1234');
+  await setCfg('displayName', document.getElementById('settingDisplayName').value.trim());
+  // Update teacher PINs in teachers table if logged in as admin
+  if (currentTeacherId && adminMode) {
+    const pw  = document.getElementById('settingPassword').value.trim();
+    const apw = document.getElementById('settingAdminPassword').value.trim();
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/teachers?id=eq.${encodeURIComponent(currentTeacherId)}`, {
+        method: 'PATCH', headers: sbHeaders(),
+        body: JSON.stringify({
+          teacher_pin:  pw  || '1234',
+          admin_pin:    apw || '1234',
+          display_name: document.getElementById('settingDisplayName').value.trim()
+        })
+      });
+    } catch {}
+  }
   await setCfg('claude',   document.getElementById('settingClaude').value.trim());
   await setCfg('pixabay',  document.getElementById('settingPixabay').value.trim());
   toast('Innstillinger lagret ✓', 'success');
+}
+
+async function saveAppModeSetting() {
+  const mode = document.getElementById('settingAppMode').value;
+  await setCfg('appMode', mode);
+  toast('App-modus lagret ✓', 'success');
+  loadSettingsUI(); // refresh to show/hide class management
 }
 
 /* ============================================================
@@ -3115,6 +3464,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.getElementById('pwModal').classList.contains('open'))        { closePwModal(); return; }
     if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
+    if (document.getElementById('teacherModal').classList.contains('open'))   { closeTeacherModal(); return; }
     if (history.length > 1) goBack();
   }
   if (document.getElementById('pwModal').classList.contains('open')) {
@@ -3122,6 +3472,299 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Backspace') pinDelete();
   }
 });
+
+/* ============================================================
+   CLASS MANAGEMENT
+   ============================================================ */
+async function loadClassList() {
+  const el = document.getElementById('classListSettings');
+  if (!el) return;
+  try {
+    const classes = await sbGetClasses();
+    el.innerHTML = classes.length ? classes.map(c => `
+      <div class="settings-card" style="margin-bottom:8px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:700">${esc(c.name)}</div>
+          <div style="font-size:13px;color:var(--text-light)">Kode: <strong>${esc(c.code)}</strong></div>
+        </div>
+        <button class="btn-icon" onclick="deleteClass('${c.id}')" title="Slett">🗑️</button>
+      </div>`).join('') : '<div style="color:var(--text-light);font-size:14px">Ingen klasser ennå</div>';
+  } catch {}
+}
+
+async function addNewClass() {
+  const name = prompt('Navn på klassen (f.eks. Norskkurs A):');
+  if (!name) return;
+  const code = name.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0,4) + Math.floor(Math.random()*90+10);
+  try {
+    await sbUpsertClass({ id: uid(), teacher_id: currentTeacherId, name, code });
+    toast(`Klasse «${name}» opprettet · Kode: ${code}`, 'success');
+    loadClassList();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function deleteClass(id) {
+  if (!confirm('Slett denne klassen? Elever vil miste tilgang.')) return;
+  try { await sbDeleteClass(id); toast('Klasse slettet'); loadClassList(); } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ============================================================
+   SUPER ADMIN
+   ============================================================ */
+async function loadSuperAdminScreen() {
+  const list = document.getElementById('saTeacherList');
+  list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  const superPin = await getGlobalSetting('superAdminPassword') || '';
+  document.getElementById('saSuperPin').value = superPin;
+  try {
+    const teachers = await sbGetTeachers();
+    if (!teachers.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Ingen lærere ennå</div></div>';
+      return;
+    }
+    list.innerHTML = teachers.map(t => `
+      <div class="sa-teacher-item${t.active ? '' : ' sa-teacher-inactive'}">
+        <div class="sa-teacher-avatar">👤</div>
+        <div class="sa-teacher-info">
+          <div class="sa-teacher-name">${esc(t.name)}</div>
+          <div class="sa-teacher-meta">Lærer-PIN: ${esc(t.teacher_pin)} · Admin-PIN: ${esc(t.admin_pin)}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="${t.active ? 'sa-badge-active' : 'sa-badge-inactive'}">${t.active ? 'Aktiv' : 'Inaktiv'}</span>
+          <button class="btn-icon" onclick="editTeacher('${t.id}')" title="Rediger">✏️</button>
+          <button class="btn-icon" onclick="toggleTeacherActive('${t.id}', ${t.active})" title="${t.active ? 'Deaktiver' : 'Aktiver'}">${t.active ? '🔒' : '🔓'}</button>
+        </div>
+      </div>`).join('');
+  } catch(err) {
+    list.innerHTML = `<div style="color:var(--danger)">${esc(err.message)}</div>`;
+  }
+}
+
+function showAddTeacherModal() {
+  document.getElementById('teacherModalTitle').textContent = 'Ny lærer';
+  document.getElementById('tmTeacherId').value = '';
+  document.getElementById('tmName').value = '';
+  document.getElementById('tmDisplayName').value = '';
+  document.getElementById('tmTeacherPin').value = '1234';
+  document.getElementById('tmAdminPin').value = '1234';
+  document.getElementById('teacherModal').classList.add('open');
+}
+
+async function editTeacher(id) {
+  const teachers = await sbGetTeachers();
+  const t = teachers.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('teacherModalTitle').textContent = 'Rediger lærer';
+  document.getElementById('tmTeacherId').value = t.id;
+  document.getElementById('tmName').value = t.name;
+  document.getElementById('tmDisplayName').value = t.display_name;
+  document.getElementById('tmTeacherPin').value = t.teacher_pin;
+  document.getElementById('tmAdminPin').value = t.admin_pin;
+  document.getElementById('teacherModal').classList.add('open');
+}
+
+function closeTeacherModal() { document.getElementById('teacherModal').classList.remove('open'); }
+function handleTeacherModalClick(e) { if (e.target === document.getElementById('teacherModal')) closeTeacherModal(); }
+
+async function saveTeacher() {
+  const id   = document.getElementById('tmTeacherId').value || uid();
+  const name = document.getElementById('tmName').value.trim();
+  if (!name) { toast('Skriv inn navn', 'error'); return; }
+  const t = {
+    id,
+    name,
+    display_name: document.getElementById('tmDisplayName').value.trim() || name,
+    teacher_pin:  document.getElementById('tmTeacherPin').value.trim() || '1234',
+    admin_pin:    document.getElementById('tmAdminPin').value.trim()   || '1234',
+    active: true
+  };
+  try {
+    await sbUpsertTeacher(t);
+    closeTeacherModal();
+    toast(`Lærer «${name}» lagret ✓`, 'success');
+    loadSuperAdminScreen();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function toggleTeacherActive(id, currentlyActive) {
+  const msg = currentlyActive ? 'Deaktiver denne læreren? De vil ikke kunne logge inn.' : 'Aktiver denne læreren igjen?';
+  if (!confirm(msg)) return;
+  try {
+    await sbSetTeacherActive(id, !currentlyActive);
+    toast(currentlyActive ? 'Lærer deaktivert' : 'Lærer aktivert ✓', 'success');
+    loadSuperAdminScreen();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function saveSuperAdminPin() {
+  const pin = document.getElementById('saSuperPin').value.trim();
+  if (!pin || pin.length < 4) { toast('PIN må være minst 4 tegn', 'error'); return; }
+  await saveGlobalSetting('superAdminPassword', pin);
+  toast('Super admin PIN lagret ✓', 'success');
+}
+
+/* ============================================================
+   STUDENT LOGIN (KLASSEMODUS)
+   ============================================================ */
+const AVATAR_EMOJIS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🦆','🦅','🦉','🦋','🐢','🐙','🦀','🐬','🦄','🐉','🌟','🌈','🎈'];
+const AVATAR_COLORS = ['#FF6B6B','#FF9F3C','#FFD93D','#6BCB77','#4D96FF','#C77DFF','#F72585','#4CC9F0','#06D6A0','#E63946'];
+
+let selectedAvatarEmoji = AVATAR_EMOJIS[0];
+let selectedAvatarColor = AVATAR_COLORS[0];
+let currentStudentData = null;
+
+async function checkStudentSession() {
+  const studentId = localStorage.getItem('vvo_student_id');
+  if (!studentId) return null;
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(studentId)}&select=*`, { headers: sbHeaders() });
+    if (!resp.ok) return null;
+    const rows = await resp.json();
+    return rows[0] || null;
+  } catch { return null; }
+}
+
+async function showStudentLogin() {
+  const deployId = await getGlobalSetting('deploymentTeacherId');
+  if (!deployId) { toast('Ingen klasse satt opp ennå', 'error'); return; }
+
+  showScreen('student-login');
+
+  const grid = document.getElementById('studentAvatarList');
+  grid.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(deployId)}&select=*`, { headers: sbHeaders() });
+    const students = resp.ok ? await resp.json() : [];
+    if (!students.length) {
+      grid.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">Ingen elever ennå. Trykk på «Jeg er ny» for å starte.</div>';
+      return;
+    }
+    grid.innerHTML = students.map(s => `
+      <div class="student-avatar-card" onclick="loginAsStudent('${s.id}')">
+        <div class="avatar-bubble" style="background:${s.avatar_color}">${s.avatar_emoji}</div>
+        <div class="avatar-name">${esc(s.username)}</div>
+      </div>`).join('');
+  } catch(err) {
+    grid.innerHTML = `<div style="color:var(--danger)">${esc(err.message)}</div>`;
+  }
+}
+
+async function loginAsStudent(id) {
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(id)}&select=*`, { headers: sbHeaders() });
+    const rows = await resp.json();
+    if (!rows[0]) return;
+    currentStudentData = rows[0];
+    localStorage.setItem('vvo_student_id', id);
+    currentRole = 'student';
+    currentTeacherId = rows[0].teacher_id;
+    await loadCloudSettings();
+    showScreen('student-select');
+    loadStudentSets();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+function showNewStudentFlow() {
+  selectedAvatarEmoji = AVATAR_EMOJIS[0];
+  selectedAvatarColor = AVATAR_COLORS[0];
+  document.getElementById('nsClassCode').value = '';
+  document.getElementById('nsUsername').value = '';
+  renderEmojiPicker();
+  renderColorPicker();
+  updateAvatarPreview();
+  showScreen('new-student');
+}
+
+function renderEmojiPicker() {
+  document.getElementById('nsEmojiPicker').innerHTML = AVATAR_EMOJIS.map(e =>
+    `<button class="avatar-emoji-btn${e === selectedAvatarEmoji ? ' selected' : ''}" onclick="selectEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+
+function renderColorPicker() {
+  document.getElementById('nsColorPicker').innerHTML = AVATAR_COLORS.map(c =>
+    `<button class="avatar-color-btn${c === selectedAvatarColor ? ' selected' : ''}" style="background:${c}" onclick="selectColor('${c}')"></button>`
+  ).join('');
+}
+
+function selectEmoji(e) { selectedAvatarEmoji = e; renderEmojiPicker(); updateAvatarPreview(); }
+function selectColor(c) { selectedAvatarColor = c; renderColorPicker(); updateAvatarPreview(); }
+function updateAvatarPreview() {
+  const el = document.getElementById('nsAvatarPreview');
+  if (el) { el.textContent = selectedAvatarEmoji; el.style.background = selectedAvatarColor; }
+}
+
+async function createNewStudent() {
+  const code     = document.getElementById('nsClassCode').value.trim().toUpperCase();
+  const username = document.getElementById('nsUsername').value.trim();
+  if (!code)     { toast('Skriv inn klasskoden', 'error'); return; }
+  if (!username) { toast('Skriv inn et kallenavn', 'error'); return; }
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?code=eq.${encodeURIComponent(code)}&select=*`, { headers: sbHeaders() });
+    if (!resp.ok) throw new Error('Supabase feil');
+    const classes = await resp.json();
+    if (!classes[0]) { toast('Fant ingen klasse med den koden', 'error'); return; }
+    const cls = classes[0];
+
+    const student = {
+      id: uid(),
+      teacher_id: cls.teacher_id,
+      class_id: cls.id,
+      username,
+      avatar_emoji: selectedAvatarEmoji,
+      avatar_color: selectedAvatarColor
+    };
+    await sbUpsertStudent(student);
+
+    currentStudentData = student;
+    localStorage.setItem('vvo_student_id', student.id);
+    currentRole = 'student';
+    currentTeacherId = cls.teacher_id;
+    await loadCloudSettings();
+    toast(`Velkommen, ${username}! 🎉`, 'success');
+    showScreen('student-select');
+    loadStudentSets();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+function updateStudentInfoBar() {
+  const bar    = document.getElementById('studentInfoBar');
+  const cbar   = document.getElementById('studentCreateBar');
+  if (!bar || !cbar) return;
+  if (currentRole === 'student' && currentStudentData) {
+    bar.style.display = 'flex';
+    cbar.style.display = '';
+    document.getElementById('studentInfoAvatar').textContent = currentStudentData.avatar_emoji;
+    document.getElementById('studentInfoAvatar').style.background = currentStudentData.avatar_color;
+    document.getElementById('studentInfoName').textContent = currentStudentData.username;
+  } else {
+    bar.style.display = 'none';
+    cbar.style.display = 'none';
+  }
+}
+
+function studentLogout() {
+  localStorage.removeItem('vvo_student_id');
+  currentStudentData = null;
+  currentRole = 'guest';
+  currentTeacherId = null;
+  showStudentLogin();
+}
+
+function studentCreateSet() {
+  const displayName = currentStudentData?.username || '';
+  workingSet = {
+    id: uid(), name: '', createdAt: Date.now(),
+    createdBy: displayName,
+    teacherId: currentStudentData?.teacher_id || '',
+    studentId: currentStudentData?.id || '',
+    classId:   currentStudentData?.class_id || '',
+    cards: []
+  };
+  openEditSet();
+}
 
 /* ============================================================
    INIT
@@ -3144,9 +3787,47 @@ document.addEventListener('keydown', e => {
   } catch {}
 })();
 
+async function migrateToMultiTenant() {
+  try {
+    const teachers = await sbGetTeachers();
+    if (teachers.length > 0) return; // Already migrated
+
+    // No teachers yet — create first teacher from existing settings
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?select=*&teacher_id=eq.`, { headers: sbHeaders() });
+    let existingSettings = {};
+    if (resp.ok) { (await resp.json()).forEach(r => existingSettings[r.key] = r.value); }
+
+    const teacherPw   = existingSettings['teacherPassword'] || '1234';
+    const adminPw     = existingSettings['adminPassword']   || '1234';
+    const displayName = existingSettings['displayName']     || 'Lærer';
+    const firstId     = uid();
+
+    await sbUpsertTeacher({ id: firstId, name: displayName, display_name: displayName, teacher_pin: teacherPw, admin_pin: adminPw, active: true });
+
+    // Migrate settings: assign old settings to first teacher
+    await fetch(`${SUPABASE_URL}/rest/v1/settings?teacher_id=eq.`, {
+      method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ teacher_id: firstId })
+    });
+
+    // Migrate card sets: assign orphaned sets to first teacher
+    await fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.`, {
+      method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ teacher_id: firstId })
+    });
+
+    // Set deployment teacher and default super-admin password
+    await saveGlobalSetting('superAdminPassword', 'superadmin1234');
+    await saveGlobalSetting('deploymentTeacherId', firstId);
+
+    toast('App oppdatert – logg inn som lærer for å fortsette', 'success');
+  } catch(err) {
+    console.error('Migration error:', err);
+  }
+}
+
 (async function init() {
   await openDB();
   await loadCloudSettings();
+  await migrateToMultiTenant();
   showScreen('student-select', false);
   history = ['student-select'];
   loadStudentSets();
