@@ -1018,6 +1018,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
     </div>
   </div>
+  <div style="text-align:right;margin-bottom:4px">
+    <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);font-size:13px">↩ Logg ut</button>
+  </div>
   <div id="teacherList" class="set-list"></div>
   <div id="teacherEmpty" class="empty" style="display:none">
     <div class="empty-icon">🃏</div>
@@ -1206,6 +1209,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="sa-header">
     <div class="sa-title">👑 Super Admin</div>
     <div class="sa-subtitle">Administrer lærere og tilgang</div>
+    <div style="margin-top:12px">
+      <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);font-size:13px">↩ Logg ut</button>
+    </div>
   </div>
 
   <div class="section-header" style="margin-top:20px">
@@ -1661,6 +1667,16 @@ function showScreen(name, push = true) {
   document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
   document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && currentRole !== 'superadmin' && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
+}
+
+function teacherLogout() {
+  adminMode = false;
+  currentTeacherId = null;
+  currentRole = 'guest';
+  _cfgCache = {};
+  history = ['student-select'];
+  showScreen('student-select', false);
+  loadStudentSets();
 }
 
 function goHome() {
@@ -3815,7 +3831,7 @@ async function migrateToMultiTenant() {
     });
 
     // Set deployment teacher and default super-admin password
-    await saveGlobalSetting('superAdminPassword', 'superadmin1234');
+    await saveGlobalSetting('superAdminPassword', '999999');
     await saveGlobalSetting('deploymentTeacherId', firstId);
 
     toast('App oppdatert – logg inn som lærer for å fortsette', 'success');
