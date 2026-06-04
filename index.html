@@ -1204,6 +1204,47 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <input type="file" id="cameraSetInput" accept="image/*" capture="environment" style="display:none" onchange="handleCameraSetCapture(this)" />
 </div>
 
+<!-- ── VIEWING-AS BANNER (fixed, shown when super-admin views a teacher's workspace) ── -->
+<div id="viewingAsBanner" style="display:none;position:fixed;top:56px;left:0;right:0;z-index:300;background:#7c3aed;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;align-items:center;justify-content:space-between;gap:12px">
+  <span>👑 Du ser som: <span id="viewingAsName"></span></span>
+  <button onclick="returnToSuperAdmin()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 14px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation">↩ Tilbake</button>
+</div>
+
+<!-- ── SCREEN: TEACHER REGISTER ── -->
+<div class="screen" id="screen-teacher-register">
+  <div style="text-align:center;padding:20px 0 8px">
+    <div style="font-size:24px;font-weight:800">Registrer deg som lærer</div>
+    <div style="font-size:14px;color:var(--text-light);margin-top:6px">Du trenger en invitasjonskode fra administrator</div>
+  </div>
+  <div class="eset-name-card" style="margin-bottom:14px">
+    <div class="eset-name-label">🔑 Invitasjonskode</div>
+    <input class="eset-name-input" id="regInviteCode" type="text" placeholder="F.eks. LAER26" autocomplete="off" style="text-transform:uppercase" />
+  </div>
+  <div class="eset-name-card" style="margin-bottom:14px">
+    <div class="eset-name-label">👤 Ditt fulle navn</div>
+    <input class="eset-name-input" id="regName" type="text" placeholder="F.eks. Anne Olsen" autocomplete="off" />
+  </div>
+  <div class="eset-section" style="margin-bottom:16px">
+    <div class="eset-section-title" style="margin-bottom:12px">🔒 Velg dine PIN-koder</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div class="eset-name-label">Lærer-PIN</div>
+        <input class="settings-input" type="tel" id="regTeacherPin" placeholder="1234" inputmode="numeric" maxlength="8" style="margin-top:4px" />
+        <div style="font-size:11px;color:var(--text-light)">Deles med kollegaer</div>
+      </div>
+      <div>
+        <div class="eset-name-label">Admin-PIN</div>
+        <input class="settings-input" type="tel" id="regAdminPin" placeholder="5678" inputmode="numeric" maxlength="8" style="margin-top:4px" />
+        <div style="font-size:11px;color:var(--text-light)">Bare for deg</div>
+      </div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
+    <button class="btn btn-primary" onclick="registerAsTeacher()">✅ Registrer meg</button>
+  </div>
+</div>
+
 <!-- ── SCREEN: SUPER ADMIN ── -->
 <div class="screen" id="screen-super-admin">
   <div class="sa-header">
@@ -1221,10 +1262,20 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div id="saTeacherList" class="sa-teacher-list"></div>
 
   <div class="settings-group" style="margin-top:24px">
+    <div class="settings-group-title">🔑 Invitasjonskoder</div>
+    <div class="settings-card">
+      <div class="settings-label">Inviter en ny lærer</div>
+      <div class="settings-desc">Generer en engangskode og send den til læreren. De bruker koden til å registrere seg selv med egne PIN-koder.</div>
+      <button class="btn btn-primary btn-sm" onclick="generateAndShowInviteCode()" style="margin-bottom:14px">Generer invitasjonskode</button>
+      <div id="saInviteList"></div>
+    </div>
+  </div>
+
+  <div class="settings-group" style="margin-top:24px">
     <div class="settings-group-title">🔒 Super Admin PIN</div>
     <div class="settings-card">
       <div class="settings-label">Din master PIN-kode</div>
-      <div class="settings-desc">Gir tilgang til denne super-admin visningen. Hold den hemmelig.</div>
+      <div class="settings-desc">Gir tilgang til denne super-admin visningen. Hold den hemmelig. Minst 6 siffer anbefalt.</div>
       <input class="settings-input" type="tel" id="saSuperPin" placeholder="Min. 6 siffer anbefalt" inputmode="numeric" autocomplete="off" />
       <button class="btn btn-primary btn-sm" onclick="saveSuperAdminPin()">Lagre</button>
     </div>
@@ -1416,6 +1467,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
     </div>
     <button class="btn btn-ghost btn-full mt-3" onclick="closePwModal()">Avbryt</button>
+    <button class="btn btn-ghost btn-full" onclick="showTeacherRegistration()" style="font-size:12px;color:var(--text-light);padding:6px">Ny lærer? Registrer deg med invitasjonskode →</button>
   </div>
 </div>
 
@@ -1623,7 +1675,7 @@ async function sbDeleteSet(id) {
 /* ============================================================
    NAVIGATION
    ============================================================ */
-const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set','super-admin']);
+const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set','super-admin','teacher-register']);
 let adminMode = false; // true when logged in with admin PIN
 let currentTeacherId = null;
 let currentRole = 'guest'; // 'guest', 'student', 'teacher', 'admin', 'superadmin'
@@ -1646,9 +1698,10 @@ const NAV_TITLES = {
   'sort':             '🔀 Sorter kortene',
   'speed':            '⚡ Rask svar',
   'speak':            '🎤 Si ordet',
-  'super-admin':      '👑 Super Admin',
-  'student-login':    '🎒 Logg inn',
-  'new-student':      '🎒 Ny elev',
+  'super-admin':        '👑 Super Admin',
+  'teacher-register':   '📝 Registrer deg',
+  'student-login':      '🎒 Logg inn',
+  'new-student':        '🎒 Ny elev',
 };
 
 let history = ['student-select'];
@@ -3529,6 +3582,7 @@ async function loadSuperAdminScreen() {
   list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
   const superPin = await getGlobalSetting('superAdminPassword') || '';
   document.getElementById('saSuperPin').value = superPin;
+  loadInviteCodes();
   try {
     const teachers = await sbGetTeachers();
     if (!teachers.length) {
@@ -3542,8 +3596,9 @@ async function loadSuperAdminScreen() {
           <div class="sa-teacher-name">${esc(t.name)}</div>
           <div class="sa-teacher-meta">Lærer-PIN: ${esc(t.teacher_pin)} · Admin-PIN: ${esc(t.admin_pin)}</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
           <span class="${t.active ? 'sa-badge-active' : 'sa-badge-inactive'}">${t.active ? 'Aktiv' : 'Inaktiv'}</span>
+          ${t.active ? `<button class="btn-icon" onclick="viewAsTeacher('${t.id}','${escAttr(t.name)}')" title="Se som denne læreren">👁</button>` : ''}
           <button class="btn-icon" onclick="editTeacher('${t.id}')" title="Rediger">✏️</button>
           <button class="btn-icon" onclick="toggleTeacherActive('${t.id}', ${t.active})" title="${t.active ? 'Deaktiver' : 'Aktiver'}">${t.active ? '🔒' : '🔓'}</button>
         </div>
@@ -3614,6 +3669,110 @@ async function saveSuperAdminPin() {
   if (!pin || pin.length < 4) { toast('PIN må være minst 4 tegn', 'error'); return; }
   await saveGlobalSetting('superAdminPassword', pin);
   toast('Super admin PIN lagret ✓', 'success');
+}
+
+/* ── VIEW AS TEACHER ── */
+async function viewAsTeacher(id, name) {
+  currentTeacherId = id;
+  currentRole = 'admin';
+  adminMode = true;
+  await loadCloudSettings();
+  const banner = document.getElementById('viewingAsBanner');
+  banner.style.display = 'flex';
+  document.getElementById('viewingAsName').textContent = name;
+  showScreen('teacher-sets');
+  loadTeacherSets();
+}
+
+function returnToSuperAdmin() {
+  currentTeacherId = null;
+  currentRole = 'superadmin';
+  adminMode = true;
+  _cfgCache = {};
+  document.getElementById('viewingAsBanner').style.display = 'none';
+  showScreen('super-admin');
+  loadSuperAdminScreen();
+}
+
+/* ── INVITE CODES ── */
+async function generateAndShowInviteCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no confusable chars
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  try {
+    await saveGlobalSetting(`invite_${code}`, 'pending');
+    toast(`Kode generert: ${code}`, 'success');
+    loadInviteCodes();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function loadInviteCodes() {
+  const el = document.getElementById('saInviteList');
+  if (!el) return;
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/settings?key=like.invite_%25&teacher_id=eq._super&select=key,value&order=key.asc`, { headers: sbHeaders() });
+    const rows = resp.ok ? await resp.json() : [];
+    if (!rows.length) { el.innerHTML = '<div style="color:var(--text-light);font-size:13px">Ingen koder generert ennå</div>'; return; }
+    el.innerHTML = rows.map(r => {
+      const code   = r.key.replace('invite_', '');
+      const isPending = r.value === 'pending';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:monospace;font-size:16px;font-weight:700;letter-spacing:2px;flex:1">${esc(code)}</span>
+        <span style="font-size:12px;padding:2px 8px;border-radius:12px;${isPending ? 'background:#e8f5e9;color:var(--success)' : 'background:#f5f5f5;color:var(--text-light)'}">${isPending ? 'Tilgjengelig' : 'Brukt'}</span>
+        ${isPending ? `<button class="btn-icon" onclick="copyInviteCode('${code}')" title="Kopier">📋</button>` : ''}
+        <button class="btn-icon" onclick="deleteInviteCode('${code}')" title="Slett">🗑️</button>
+      </div>`;
+    }).join('');
+  } catch { el.innerHTML = ''; }
+}
+
+function copyInviteCode(code) {
+  navigator.clipboard?.writeText(code).then(() => toast(`Kode ${code} kopiert ✓`)).catch(() => toast(`Kode: ${code}`));
+}
+
+async function deleteInviteCode(code) {
+  if (!confirm(`Slett koden ${code}?`)) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/settings?key=eq.invite_${encodeURIComponent(code)}&teacher_id=eq._super`, { method: 'DELETE', headers: sbHeaders() });
+    loadInviteCodes();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ── TEACHER SELF-REGISTRATION ── */
+function showTeacherRegistration() {
+  closePwModal();
+  document.getElementById('regInviteCode').value = '';
+  document.getElementById('regName').value = '';
+  document.getElementById('regTeacherPin').value = '';
+  document.getElementById('regAdminPin').value = '';
+  showScreen('teacher-register');
+}
+
+async function registerAsTeacher() {
+  const code       = document.getElementById('regInviteCode').value.trim().toUpperCase();
+  const name       = document.getElementById('regName').value.trim();
+  const teacherPin = document.getElementById('regTeacherPin').value.trim();
+  const adminPin   = document.getElementById('regAdminPin').value.trim();
+
+  if (!code)                     { toast('Skriv inn invitasjonskoden', 'error'); return; }
+  if (!name)                     { toast('Skriv inn ditt navn', 'error'); return; }
+  if (!teacherPin || teacherPin.length < 4) { toast('Lærer-PIN må være minst 4 siffer', 'error'); return; }
+  if (!adminPin   || adminPin.length < 4)   { toast('Admin-PIN må være minst 4 siffer', 'error'); return; }
+  if (teacherPin === adminPin)   { toast('Lærer-PIN og Admin-PIN bør være forskjellige', 'error'); return; }
+
+  // Validate invite code
+  const val = await getGlobalSetting(`invite_${code}`);
+  if (val !== 'pending') { toast('Ugyldig eller allerede brukt invitasjonskode', 'error'); return; }
+
+  try {
+    const teacher = { id: uid(), name, display_name: name, teacher_pin: teacherPin, admin_pin: adminPin, active: true };
+    await sbUpsertTeacher(teacher);
+    // Mark code as used
+    await saveGlobalSetting(`invite_${code}`, 'used');
+    toast(`Velkommen, ${name}! Logg inn med din PIN-kode.`, 'success');
+    goBack();
+    setTimeout(() => promptTeacherPassword(), 600);
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
 }
 
 /* ============================================================
