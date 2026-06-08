@@ -2096,7 +2096,10 @@ async function sbUpsertClass(cls) {
     headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
     body: JSON.stringify(cls)
   });
-  if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({}));
+    throw new Error(`Supabase feil: ${resp.status} — ${body.message || body.hint || body.details || JSON.stringify(body)}`);
+  }
 }
 async function sbDeleteClass(id) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?id=eq.${encodeURIComponent(id)}`, {
