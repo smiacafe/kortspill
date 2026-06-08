@@ -2359,7 +2359,8 @@ function updateCarouselArrows() {
 }
 
 async function loadStudentSets() {
-  const appMode = await getCfg('appMode') || 'standard';
+  let appMode = await getCfg('appMode');
+  if (!appMode) appMode = await getGlobalSetting('appMode') || 'standard';
 
   // Auto-resume student session in Voksen mode
   if (appMode === 'voksen') {
@@ -3688,6 +3689,8 @@ async function saveSettings() {
 async function saveAppModeSetting() {
   const mode = document.getElementById('settingAppMode').value;
   await setCfg('appMode', mode);
+  // Also save globally so students on fresh visits see the correct mode
+  await saveGlobalSetting('appMode', mode);
   toast('App-modus lagret ✓', 'success');
   loadSettingsUI(); // refresh to show/hide class management
 }
