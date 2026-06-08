@@ -2198,6 +2198,10 @@ function showScreen(name, push = true) {
   document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && currentRole !== 'superadmin' && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
 
+  // Auto-load data screens when navigated to directly
+  if (name === 'approval') loadApprovalScreen();
+  else if (name === 'tasks') loadTeacherTasks();
+
   // Activity logging — fire when a student reaches the win screen
   if (name === 'win' && currentRole === 'student' && currentStudentData) {
     logActivity(currentGameType || 'pairs', selectedSetForGame?.id || null);
