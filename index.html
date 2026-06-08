@@ -665,6 +665,37 @@ body {
 }
 .settings-input:focus { border-color: var(--primary); }
 
+/* ── STUDENT SET SECTIONS ── */
+.ss-section { margin-bottom: 24px; }
+.ss-section-title {
+  font-size: 13px; font-weight: 800; color: var(--text-light);
+  text-transform: uppercase; letter-spacing: .8px;
+  margin-bottom: 12px;
+}
+.ss-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.ss-card {
+  background: var(--surface); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+  cursor: pointer; transition: transform .15s, box-shadow .15s;
+}
+.ss-card:active { transform: scale(.97); box-shadow: var(--shadow-lg); }
+.ss-card-preview {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+  padding: 8px; background: var(--bg); aspect-ratio: 1.2;
+}
+.ss-card-cell {
+  border-radius: 6px; overflow: hidden; background: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.ss-card-cell img { width: 100%; height: 100%; object-fit: cover; }
+.ss-card-info { padding: 10px 12px 12px; }
+.ss-card-name  { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ss-card-count { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
 /* ── VOKSEN STUDENT HOME ── */
 .voksen-home { display:none; }
 .voksen-home.active { display:block; }
@@ -822,6 +853,108 @@ body {
 .wit-save-title { font-size:13px; font-weight:800; color:var(--text-light); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
 .wit-set-select { width:100%; padding:11px 13px; border:2px solid var(--border); border-radius:10px; font-size:15px; outline:none; font-family:inherit; transition:border-color .2s; color:var(--text); margin-bottom:10px; }
 .wit-set-select:focus { border-color:var(--primary); }
+
+/* ── TEACHER HOME — TAB WORKSPACE ── */
+.th-header {
+  background: var(--surface);
+  padding: 16px 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin: -20px -20px 20px;
+  position: sticky; top: 60px; z-index: 100;
+}
+.th-teacher-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.th-teacher-name { font-size: 18px; font-weight: 800; flex: 1; }
+.th-teacher-sub  { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+
+.th-tabs {
+  display: flex; gap: 0; overflow-x: auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.th-tabs::-webkit-scrollbar { display: none; }
+.th-tab {
+  flex-shrink: 0; padding: 10px 16px 12px;
+  border: none; background: none; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  color: var(--text-light); border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s; white-space: nowrap;
+}
+.th-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.th-tab-icon { margin-right: 6px; }
+
+.th-tab-content { display: none; }
+.th-tab-content.active { display: block; }
+
+/* Klassen tab */
+.th-student-item {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: transform .12s;
+}
+.th-student-item:active { transform: scale(.98); }
+.th-student-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.th-student-info { flex: 1; min-width: 0; }
+.th-student-name { font-size: 15px; font-weight: 700; }
+.th-student-meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.th-student-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
+.th-badge-active  { background: #e8f5e9; color: var(--success); }
+.th-badge-pending { background: #fff3cd; color: #856404; }
+
+/* Mine kortsett tab — set cards with sharing control */
+.th-set-item {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); margin-bottom: 10px; overflow: hidden;
+}
+.th-set-main {
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+}
+.th-set-thumb { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.th-set-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.th-set-info { flex: 1; min-width: 0; }
+.th-set-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th-set-meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.th-set-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* Sharing selector */
+.th-share-bar {
+  display: flex; border-top: 1px solid var(--border);
+}
+.th-share-btn {
+  flex: 1; padding: 9px 6px; border: none; background: none;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background .12s; color: var(--text-light);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.th-share-btn span:first-child { font-size: 16px; }
+.th-share-btn.active-private { background: #f1f5f9; color: var(--text); }
+.th-share-btn.active-class   { background: #eff6ff; color: #2563eb; }
+.th-share-btn.active-public  { background: #f0fdf4; color: var(--success); }
+.th-share-btn + .th-share-btn { border-left: 1px solid var(--border); }
+
+/* Elevarbeider tab */
+.th-student-section { margin-bottom: 20px; }
+.th-student-section-hd {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.th-student-section-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.th-student-section-name { font-size: 15px; font-weight: 700; }
+.th-student-sets { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; }
+.th-student-set-card {
+  background: var(--surface); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow); overflow: hidden; cursor: pointer;
+  transition: transform .12s;
+}
+.th-student-set-card:active { transform: scale(.97); }
+.th-student-set-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 6px; background: var(--bg); aspect-ratio: 1.4; }
+.th-student-set-preview-cell { border-radius: 4px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.th-student-set-preview-cell img { width: 100%; height: 100%; object-fit: cover; }
+.th-student-set-info { padding: 8px 10px; }
+.th-student-set-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th-student-set-count { font-size: 11px; color: var(--text-light); margin-top: 2px; }
 
 /* ── TASK MANAGEMENT (TEACHER) ── */
 .task-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
@@ -1140,70 +1273,59 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="landing-footer">VVO Kortspill · IKT Agder</div>
 </div>
 
-<!-- ── SCREEN: STUDENT SELECT ── -->
-<div class="screen active" id="screen-student-select">
+<!-- ── SCREEN: STUDENT HOME ── -->
+<div class="screen" id="screen-student-select">
 
-  <!-- ═══ STANDARD MODE: hero + login ═══ -->
-  <div id="standardHomeHeader">
-    <div class="student-home-hero">
-      <h1>VVO språkkort</h1>
-      <p>Velg et kortsett for å starte</p>
+  <!-- Greeting bar -->
+  <div class="vh-greeting">
+    <div id="vhAvatar" class="vh-greeting-avatar"></div>
+    <div class="vh-greeting-text">
+      <div class="vh-greeting-name" id="vhGreeting">Hei! 👋</div>
+      <div class="vh-greeting-sub">Hva vil du gjøre i dag?</div>
     </div>
-    <!-- Login button (shown in Voksen mode when not logged in) -->
-    <div id="studentLoginBtn" style="display:none;margin-bottom:16px">
-      <button class="btn btn-primary btn-full" onclick="showStudentLogin()" style="font-size:15px;padding:14px">🎒 Logg inn</button>
-    </div>
+    <button class="btn btn-secondary btn-sm" onclick="studentLogout()">↩</button>
   </div>
 
-  <!-- ═══ VOKSEN MODE: personalised home (shown when student logged in) ═══ -->
-  <div id="voksenHome" class="voksen-home">
+  <!-- Tasks from teacher -->
+  <div id="vhTasksSection" style="margin-bottom:20px;display:none">
+    <div class="vh-section-title">📋 Oppgaver fra læreren</div>
+    <div id="vhTaskList"></div>
+  </div>
 
-    <!-- Greeting bar -->
-    <div class="vh-greeting">
-      <div id="vhAvatar" class="vh-greeting-avatar"></div>
-      <div class="vh-greeting-text">
-        <div class="vh-greeting-name" id="vhGreeting">Hei! 👋</div>
-        <div class="vh-greeting-sub">Hva vil du gjøre i dag?</div>
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="studentLogout()">Bytt</button>
-    </div>
+  <!-- Camera word finder CTA -->
+  <button class="vh-camera-btn" onclick="openWhatIsThis()" style="margin-bottom:24px">
+    <span class="vh-camera-icon">🔍</span>
+    <span class="vh-camera-text">
+      <span class="vh-camera-label">Hva er dette?</span>
+      <span class="vh-camera-sub" style="display:block">Pek kameraet på noe — finn det norske ordet</span>
+    </span>
+    <span style="margin-left:auto;font-size:22px">→</span>
+  </button>
 
-    <!-- Tasks section -->
-    <div id="vhTasksSection" style="margin-bottom:20px;display:none">
-      <div class="vh-section-title">📋 Oppgaver fra læreren</div>
-      <div id="vhTaskList"></div>
-    </div>
-
-    <!-- Card sets section title -->
-    <div class="vh-section-title" id="vhSetsTitle" style="display:none">📚 Kortsett</div>
-
-    <!-- Camera CTA -->
-    <button class="vh-camera-btn" onclick="openWhatIsThis()" style="margin-bottom:20px">
-      <span class="vh-camera-icon">🔍</span>
-      <span class="vh-camera-text">
-        <span class="vh-camera-label">Hva er dette?</span>
-        <span class="vh-camera-sub" style="display:block">Pek kameraet på noe — finn det norske ordet</span>
-      </span>
-      <span style="margin-left:auto;font-size:22px">→</span>
+  <!-- Own sets -->
+  <div id="ssOwnSection" class="ss-section" style="display:none">
+    <div class="ss-section-title">🃏 Mine kort</div>
+    <div id="ssOwnGrid" class="ss-grid"></div>
+    <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="margin-top:12px;font-size:15px;padding:14px">
+      📸 Lag mine egne ord
     </button>
-
-    <!-- Create own set -->
-    <div id="studentCreateBar" style="display:none;margin-bottom:16px">
-      <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="font-size:15px;padding:14px">📸 Lag mine egne ord</button>
-    </div>
-
-  </div><!-- /voksenHome -->
-
-  <!-- Card set carousel (used by both modes) -->
-  <div class="student-carousel-wrap">
-    <button class="carousel-arrow carousel-left" id="carouselLeft" onclick="scrollCarousel(-1)" aria-label="Forrige">❮</button>
-    <div id="studentList" class="student-grid"></div>
-    <button class="carousel-arrow carousel-right" id="carouselRight" onclick="scrollCarousel(1)" aria-label="Neste">❯</button>
   </div>
-  <div id="studentEmpty" class="empty" style="display:none">
-    <div class="empty-icon">😴</div>
-    <div class="empty-text">Ingen kortspill er klare ennå</div>
-    <p style="color:var(--text-light)">Be læreren din om å lage et kortspill!</p>
+  <!-- Own sets empty (no sets yet but still show create button) -->
+  <div id="ssOwnEmpty" style="display:none;margin-bottom:24px">
+    <div class="ss-section-title">🃏 Mine kort</div>
+    <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="font-size:15px;padding:14px">
+      📸 Lag mine egne ord
+    </button>
+  </div>
+
+  <!-- Class sets (teacher + classmates) -->
+  <div id="ssClassSection" class="ss-section" style="display:none">
+    <div class="ss-section-title">👥 Fra klassen</div>
+    <div id="ssClassGrid" class="ss-grid"></div>
+  </div>
+  <div id="ssClassEmpty" class="empty" style="display:none;padding:30px 0">
+    <div class="empty-icon" style="font-size:40px">😴</div>
+    <div class="empty-text" style="font-size:15px">Ingen kortsett delt med klassen ennå</div>
   </div>
 
 </div>
@@ -1449,43 +1571,92 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="fp-grid" id="fpGrid"></div>
 </div>
 
-<!-- ── SCREEN: TEACHER SETS ── -->
+<!-- ── SCREEN: TEACHER HOME (tabbed workspace) ── -->
 <div class="screen" id="screen-teacher-sets">
-  <div class="section-header">
-    <span class="section-title">Mine kortsett</span>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost btn-sm" onclick="loadTeacherSets()" title="Oppdater fra sky">🔄</button>
-      <button class="btn btn-ghost btn-sm" onclick="openLibrary()" title="Offentlig bibliotek">📚</button>
-      <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder()">📷 Fra kamera</button>
+
+  <!-- Sticky header: teacher name + tabs -->
+  <div class="th-header">
+    <div class="th-teacher-row">
+      <div>
+        <div class="th-teacher-name" id="thTeacherName">Lærer</div>
+        <div class="th-teacher-sub" id="thTeacherSub"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="goSettings()" style="flex-shrink:0">⚙️</button>
+      <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);flex-shrink:0">↩</button>
+    </div>
+    <div class="th-tabs">
+      <button class="th-tab active" id="tab-klassen"    onclick="switchTeacherTab('klassen')">   <span class="th-tab-icon">🏫</span>Klassen</button>
+      <button class="th-tab"        id="tab-oppgaver"   onclick="switchTeacherTab('oppgaver')">  <span class="th-tab-icon">📋</span>Oppgaver</button>
+      <button class="th-tab"        id="tab-kortsett"   onclick="switchTeacherTab('kortsett')">  <span class="th-tab-icon">🃏</span>Mine kortsett</button>
+      <button class="th-tab"        id="tab-elevarbeid" onclick="switchTeacherTab('elevarbeid')"><span class="th-tab-icon">👀</span>Elevarbeider</button>
+    </div>
+  </div>
+
+  <!-- ── TAB: KLASSEN ── -->
+  <div class="th-tab-content active" id="tc-klassen">
+    <!-- Pending notice -->
+    <div id="pendingNotice" style="display:none;margin-bottom:14px">
+      <button class="btn btn-full" onclick="showScreen('approval')"
+        style="background:#fff3cd;color:#856404;border:2px solid #ffc107;font-size:15px;padding:12px 16px;justify-content:flex-start;gap:10px">
+        🙋 Elever venter på godkjenning
+        <span id="pendingCount" class="pending-badge"></span>
+        <span style="margin-left:auto;font-size:13px;opacity:.7">Godkjenn →</span>
+      </button>
+    </div>
+    <div id="thStudentList"></div>
+    <div id="thStudentEmpty" class="empty" style="display:none">
+      <div class="empty-icon">🏫</div>
+      <div class="empty-text">Ingen elever ennå</div>
+      <p style="color:var(--text-light);font-size:14px">Del klassekoden din med elevene dine</p>
+    </div>
+    <!-- Class code display -->
+    <div id="thClassCode" style="display:none;margin-top:20px;background:var(--surface);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)">
+      <div style="font-size:12px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Klassekode</div>
+      <div style="font-size:28px;font-weight:900;letter-spacing:3px;color:var(--primary)" id="thClassCodeVal"></div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:4px">Del denne koden med elevene dine</div>
+    </div>
+  </div>
+
+  <!-- ── TAB: OPPGAVER ── -->
+  <div class="th-tab-content" id="tc-oppgaver">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <button class="btn btn-primary btn-sm" onclick="openNewTask()">+ Ny oppgave</button>
+    </div>
+    <div id="teacherTaskList"></div>
+    <div id="teacherTaskEmpty" class="empty" style="display:none">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">Ingen oppgaver ennå</div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="openNewTask()">+ Gi en oppgave</button>
+    </div>
+  </div>
+
+  <!-- ── TAB: MINE KORTSETT ── -->
+  <div class="th-tab-content" id="tc-kortsett">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="openLibrary()">📚 Bibliotek</button>
+      <button class="btn btn-secondary btn-sm" onclick="openCameraSetBuilder()">📷 Kamera</button>
       <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
     </div>
-  </div>
-  <!-- Voksen mode quick actions — only shown in Voksen mode -->
-  <div id="voksenTeacherBar" style="display:none;margin-bottom:12px;display:none">
-    <button class="btn btn-full" onclick="showScreen('tasks')" style="background:var(--primary-light);color:var(--primary);border:2px solid var(--primary);font-size:15px;padding:12px 16px;justify-content:flex-start;gap:10px;margin-bottom:8px">
-      📋 Oppgaver til elever
-      <span style="margin-left:auto;font-size:13px;opacity:.7">Se og gi oppgaver →</span>
-    </button>
-  </div>
-  <!-- Pending students notification — only shown in Voksen mode -->
-  <div id="pendingNotice" style="display:none;margin-bottom:12px">
-    <button class="btn btn-full" onclick="showScreen('approval')" style="background:#fff3cd;color:#856404;border:2px solid #ffc107;font-size:15px;padding:12px 16px;justify-content:flex-start;gap:10px">
-      🙋 Elever venter på godkjenning<span id="pendingCount" class="pending-badge"></span>
-      <span style="margin-left:auto;font-size:13px;opacity:.7">Se liste →</span>
-    </button>
-  </div>
-  <div style="text-align:right;margin-bottom:4px">
-    <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);font-size:13px">↩ Logg ut</button>
-  </div>
-  <div id="teacherList" class="set-list"></div>
-  <div id="teacherEmpty" class="empty" style="display:none">
-    <div class="empty-icon">🃏</div>
-    <div class="empty-text">Ingen kortsett ennå</div>
-    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
-      <button class="btn btn-camera btn-lg" onclick="openCameraSetBuilder()">📷 Lag kortsett fra kamera</button>
-      <button class="btn btn-primary btn-lg" onclick="newSet()">+ Lag kortsett manuelt</button>
+    <div id="teacherList"></div>
+    <div id="teacherEmpty" class="empty" style="display:none">
+      <div class="empty-icon">🃏</div>
+      <div class="empty-text">Ingen kortsett ennå</div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px">
+        <button class="btn btn-secondary" onclick="openCameraSetBuilder()">📷 Lag fra kamera</button>
+        <button class="btn btn-primary" onclick="newSet()">+ Lag manuelt</button>
+      </div>
     </div>
   </div>
+
+  <!-- ── TAB: ELEVARBEIDER ── -->
+  <div class="th-tab-content" id="tc-elevarbeid">
+    <div id="thStudentSets"></div>
+    <div id="thStudentSetsEmpty" class="empty" style="display:none">
+      <div class="empty-icon">👀</div>
+      <div class="empty-text">Ingen elevarbeider ennå</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── SCREEN: EDIT SET ── -->
@@ -1822,27 +1993,43 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- ── SCREEN: TEACHER REGISTER ── -->
 <div class="screen" id="screen-teacher-register">
-  <div style="text-align:center;padding:20px 0 8px">
+
+  <div style="text-align:center;padding:24px 0 20px">
+    <div style="font-size:40px;margin-bottom:12px">👩‍🏫</div>
     <div style="font-size:24px;font-weight:800">Registrer deg som lærer</div>
-    <div style="font-size:14px;color:var(--text-light);margin-top:6px">Du trenger en invitasjonskode fra administrator</div>
+    <div style="font-size:14px;color:var(--text-light);margin-top:6px;line-height:1.5">
+      Du trenger en invitasjonskode fra administrator.<br>Du velger selv din PIN-kode.
+    </div>
   </div>
+
+  <!-- Step 1: Invite code -->
   <div class="eset-name-card" style="margin-bottom:14px">
     <div class="eset-name-label">🔑 Invitasjonskode</div>
-    <input class="eset-name-input" id="regInviteCode" type="text" placeholder="F.eks. LAER26" autocomplete="off" style="text-transform:uppercase" />
+    <input class="eset-name-input" id="regInviteCode" type="text"
+           placeholder="F.eks. LAER26" autocomplete="off"
+           style="text-transform:uppercase;font-size:22px;letter-spacing:3px" />
+    <div class="eset-name-hint">Få koden av din administrator</div>
   </div>
+
+  <!-- Step 2: Name -->
   <div class="eset-name-card" style="margin-bottom:14px">
     <div class="eset-name-label">👤 Ditt fulle navn</div>
-    <input class="eset-name-input" id="regName" type="text" placeholder="F.eks. Anne Olsen" autocomplete="off" />
+    <input class="eset-name-input" id="regName" type="text"
+           placeholder="F.eks. Anne Olsen" autocomplete="off" />
   </div>
-  <div class="eset-section" style="margin-bottom:16px">
-    <div class="eset-section-title" style="margin-bottom:12px">🔒 Velg din PIN-kode</div>
-    <input class="settings-input" type="tel" id="regTeacherPin" placeholder="Min. 4 siffer" inputmode="numeric" maxlength="8" />
-    <div style="font-size:12px;color:var(--text-light);margin-top:4px">Brukes for å logge inn i lærerdelen</div>
+
+  <!-- Step 3: PIN -->
+  <div class="eset-name-card" style="margin-bottom:24px">
+    <div class="eset-name-label">🔒 Velg din PIN-kode</div>
+    <input class="eset-name-input" id="regTeacherPin" type="tel"
+           placeholder="Minst 4 siffer" inputmode="numeric" maxlength="8"
+           style="font-size:22px;letter-spacing:4px" />
+    <div class="eset-name-hint">Du bruker denne PIN-koden hver gang du logger inn</div>
   </div>
-  <div class="action-bar">
-    <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
-    <button class="btn btn-primary" onclick="registerAsTeacher()">✅ Registrer meg</button>
-  </div>
+
+  <button class="btn btn-primary btn-full btn-lg" onclick="registerAsTeacher()">✅ Registrer meg</button>
+  <button class="btn btn-ghost btn-full" onclick="goBack()" style="margin-top:10px">Avbryt</button>
+
 </div>
 
 <!-- ── SCREEN: SUPER ADMIN ── -->
@@ -1965,83 +2152,64 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- ── SCREEN: SETTINGS ── -->
 <div class="screen" id="screen-settings">
+
+  <!-- Name -->
   <div class="settings-group">
-    <div class="settings-group-title">👤 Identitet</div>
+    <div class="settings-group-title">👤 Ditt navn</div>
     <div class="settings-card">
-      <div class="settings-label">Ditt navn</div>
       <div class="settings-desc">Vises som «laget av» på kortsett du oppretter.</div>
       <input class="settings-input" type="text" id="settingDisplayName" placeholder="F.eks. Anne Olsen" autocomplete="off" />
-      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
     </div>
   </div>
 
+  <!-- PIN -->
   <div class="settings-group">
-    <div class="settings-group-title">🔒 Tilgangskontroll</div>
+    <div class="settings-group-title">🔒 Din PIN-kode</div>
     <div class="settings-card">
-      <div class="settings-label">Lærer-PIN</div>
-      <div class="settings-desc">Gir tilgang til å redigere kortsett. Deles med lærere. Standard: <strong>1234</strong>.</div>
-      <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
-    </div>
-    <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="saveSettings()">Lagre</button>
-  </div>
-
-  <div class="settings-group">
-    <div class="settings-group-title">✨ AI-forslag</div>
-    <div class="settings-card">
-      <div class="settings-label">Gemini API-nøkkel</div>
-      <div class="settings-desc">For AI-forslag til kortinnhold. Hent gratis nøkkel på <strong>aistudio.google.com</strong>.</div>
-      <input class="settings-input" type="password" id="settingClaude" placeholder="AIzaSy…" autocomplete="off" />
-      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
+      <div class="settings-desc">Brukes for å logge inn som lærer. Minst 4 siffer.</div>
+      <input class="settings-input" type="tel" id="settingPassword" placeholder="Ny PIN-kode" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
     </div>
   </div>
 
-  <div class="settings-group">
-    <div class="settings-group-title">🔍 Bildesøk</div>
-    <div class="settings-card">
-      <div class="settings-label">Pixabay API-nøkkel</div>
-      <div class="settings-desc">For å søke etter bilder fra internett. Registrer deg gratis på <strong>pixabay.com</strong>.</div>
-      <input class="settings-input" type="password" id="settingPixabay" placeholder="Din Pixabay API-nøkkel…" autocomplete="off" />
-      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Lagre</button>
-    </div>
-  </div>
+  <button class="btn btn-primary btn-full" onclick="saveSettings()" style="margin-bottom:24px">💾 Lagre endringer</button>
 
-  <div class="settings-group">
-    <div class="settings-group-title">⚙️ App-modus</div>
-    <div class="settings-card">
-      <div class="settings-label">Modus</div>
-      <div class="settings-desc"><strong>Standard:</strong> Lærer lager kortsett, elever spiller. <strong>Voksen:</strong> Elever melder seg inn i klassen med kode, lager egne kort og får oppgaver fra lærer.</div>
-      <select class="settings-input" id="settingAppMode" onchange="saveAppModeSetting()">
-        <option value="standard">Standard (lærer lager, elever spiller)</option>
-        <option value="voksen">Voksen (elever melder seg inn og lager)</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="settings-group" id="classManagementSection" style="display:none">
-    <div class="settings-group-title">🏫 Klasser</div>
+  <!-- Class -->
+  <div class="settings-group" id="classManagementSection">
+    <div class="settings-group-title">🏫 Klasse</div>
     <div id="classListSettings"></div>
-    <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="addNewClass()">+ Ny klasse</button>
+    <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="addNewClass()">+ Ny klasse</button>
   </div>
 
+  <!-- Data -->
   <div class="settings-group">
     <div class="settings-group-title">📦 Data</div>
-    <div class="settings-card">
-      <div class="settings-label">Flytt lokale kortsett til skyen</div>
-      <div class="settings-desc">Første gang du bruker skylagring: trykk her for å kopiere kortsett som er lagret lokalt på denne enheten opp til skyen.</div>
-      <button class="btn btn-primary btn-sm mt-3" onclick="migrateLocalToCloud()">☁️ Kopier lokale kortsett til sky</button>
-    </div>
-    <div class="settings-card mt-3">
-      <div class="settings-label">Eksporter kortsett</div>
-      <div class="settings-desc">Last ned alle kortsett som en fil for sikkerhetskopi eller deling.</div>
-      <button class="btn btn-secondary btn-sm mt-3" onclick="exportData()">📤 Eksporter alle kortsett</button>
-    </div>
-    <div class="settings-card mt-3">
-      <div class="settings-label">Importer kortsett</div>
-      <div class="settings-desc">Last inn kortsett fra en eksportert fil.</div>
-      <button class="btn btn-secondary btn-sm mt-3" onclick="document.getElementById('importFileInput').click()">📥 Importer</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 Eksporter</button>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFileInput').click()">📥 Importer</button>
       <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(this)" />
     </div>
   </div>
+
+  <!-- Advanced (API keys) — collapsed by default -->
+  <div class="settings-group">
+    <button class="btn btn-ghost btn-sm" onclick="toggleAdvanced()" style="padding:0;color:var(--text-light);margin-bottom:10px" id="advancedToggleBtn">
+      ▶ Avansert (API-nøkler)
+    </button>
+    <div id="advancedSection" style="display:none">
+      <div class="settings-card" style="margin-bottom:10px">
+        <div class="settings-label">Gemini API-nøkkel</div>
+        <div class="settings-desc">For AI-forslag og kameraidentifisering. Hent gratis på <strong>aistudio.google.com</strong>.</div>
+        <input class="settings-input" type="password" id="settingClaude" placeholder="AIzaSy…" autocomplete="off" />
+      </div>
+      <div class="settings-card" style="margin-bottom:10px">
+        <div class="settings-label">Pixabay API-nøkkel</div>
+        <div class="settings-desc">For bildesøk. Registrer deg gratis på <strong>pixabay.com</strong>.</div>
+        <input class="settings-input" type="password" id="settingPixabay" placeholder="Din Pixabay API-nøkkel…" autocomplete="off" />
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 Lagre API-nøkler</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── TEACHER PASSWORD MODAL ── -->
@@ -2067,7 +2235,7 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
     </div>
     <button class="btn btn-ghost btn-full mt-3" onclick="closePwModal()">Avbryt</button>
-    <button class="btn btn-ghost btn-full" onclick="showTeacherRegistration()" style="font-size:12px;color:var(--text-light);padding:6px">Ny lærer? Registrer deg med invitasjonskode →</button>
+    <button class="btn btn-ghost btn-full" onclick="showTeacherRegistration()" style="font-size:13px;color:var(--primary);padding:8px;font-weight:600">Ny lærer? Registrer deg her →</button>
   </div>
 </div>
 
@@ -2157,7 +2325,7 @@ function sbHeaders(extra = {}) {
   return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
 }
 function sbRowToSet(r) {
-  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '', isPublic: r.is_public || false };
+  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '', isPublic: r.is_public || false, visibility: r.visibility || 'private' };
 }
 async function sbGetAllSets() {
   let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
@@ -2176,7 +2344,7 @@ async function sbUpsertSet(set) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets`, {
     method: 'POST',
     headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '', teacher_id: set.teacherId || currentTeacherId || '', student_id: set.studentId || '', class_id: set.classId || '', is_public: set.isPublic || false })
+    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '', teacher_id: set.teacherId || currentTeacherId || '', student_id: set.studentId || '', class_id: set.classId || '', is_public: set.isPublic || false, visibility: set.visibility || 'private' })
   });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
 }
@@ -2294,7 +2462,7 @@ const NAV_TITLES = {
   'flashcard':        '👀 Se og lær',
   'find-picture':     '🔍 Finn bildet',
   'win':              '🎉 Ferdig!',
-  'teacher-sets':     '👩‍🏫 Lærervisning',
+  'teacher-sets':     '👩‍🏫 Arbeidsrom',
   'edit-set':         '✏️ Rediger kortsett',
   'edit-card':        '🃏 Rediger kort',
   'camera-set':       '📷 Nytt kortsett fra kamera',
@@ -2505,73 +2673,81 @@ function updateCarouselArrows() {
 }
 
 async function loadStudentSets() {
-  let appMode = await getCfg('appMode');
-  if (!appMode) appMode = await getGlobalSetting('appMode') || 'standard';
-
-  // Auto-resume student session in Voksen mode
-  if (appMode === 'voksen') {
-    if (!currentStudentData) {
-      const savedStudent = await checkStudentSession();
-      if (savedStudent) {
-        // If still pending, go to waiting screen instead
-        if (savedStudent.status === 'pending') {
-          currentStudentData = savedStudent;
-          showPendingScreen();
-          return;
-        }
+  // Restore session if needed
+  if (!currentStudentData) {
+    const savedStudent = await checkStudentSession();
+    if (savedStudent) {
+      if (savedStudent.status === 'pending') {
         currentStudentData = savedStudent;
-        currentRole = 'student';
-        currentTeacherId = savedStudent.teacher_id;
-        await loadCloudSettings();
+        showPendingScreen();
+        return;
       }
+      currentStudentData = savedStudent;
+      currentRole = 'student';
+      currentTeacherId = savedStudent.teacher_id;
+      await loadCloudSettings();
     }
-    if (currentRole === 'student' && currentStudentData) {
-      showVoksenHome();
-    } else {
-      hideVoksenHome();
-      const loginBtn = document.getElementById('studentLoginBtn');
-      if (loginBtn) loginBtn.style.display = '';
-    }
-  } else {
-    // Standard mode
-    hideVoksenHome();
-    const loginBtn = document.getElementById('studentLoginBtn');
-    if (loginBtn) loginBtn.style.display = 'none';
   }
+  if (!currentStudentData) { showScreen('landing', false); return; }
 
-  let sets;
+  // Update greeting
+  const avatar = document.getElementById('vhAvatar');
+  if (avatar) {
+    avatar.textContent = currentStudentData.avatar_emoji;
+    avatar.style.background = currentStudentData.avatar_color;
+  }
+  document.getElementById('vhGreeting').textContent = 'Hei! 👋';
+
+  // Load tasks
+  loadVoksenTasks();
+
+  // Fetch sets
   try {
-    const deploymentTeacherId = await getGlobalSetting('deploymentTeacherId');
-    let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
-    if (currentRole === 'student' && currentStudentData) {
-      url += `&class_id=eq.${encodeURIComponent(currentStudentData.class_id)}`;
-    } else if (currentTeacherId) {
-      url += `&teacher_id=eq.${encodeURIComponent(currentTeacherId)}`;
-    } else if (deploymentTeacherId) {
-      url += `&teacher_id=eq.${encodeURIComponent(deploymentTeacherId)}`;
-    }
-    const resp = await fetch(url, { headers: sbHeaders() });
-    sets = resp.ok ? (await resp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2) : [];
-  } catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
+    const [ownResp, classResp, teacherResp] = await Promise.all([
+      // Own sets — all visibility
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?student_id=eq.${encodeURIComponent(currentStudentData.id)}&select=*&order=created_at.desc`, { headers: sbHeaders() }),
+      // Classmates' sets — class/public only
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?class_id=eq.${encodeURIComponent(currentStudentData.class_id)}&student_id=neq.${encodeURIComponent(currentStudentData.id)}&student_id=neq.&visibility=in.(class,public)&select=*&order=created_at.desc`, { headers: sbHeaders() }),
+      // Teacher's sets — class/public only
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentStudentData.teacher_id)}&student_id=eq.&visibility=in.(class,public)&select=*&order=created_at.desc`, { headers: sbHeaders() }),
+    ]);
 
-  const list  = document.getElementById('studentList');
-  const empty = document.getElementById('studentEmpty');
-  if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  list.innerHTML = sets.map(s => {
+    const ownSets     = ownResp.ok     ? (await ownResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2)     : [];
+    const classSets   = classResp.ok   ? (await classResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2)   : [];
+    const teacherSets = teacherResp.ok ? (await teacherResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2) : [];
+    const sharedSets  = [...teacherSets, ...classSets];
+
+    renderStudentSetSection('ssOwnSection', 'ssOwnEmpty', 'ssOwnGrid', ownSets);
+    renderStudentSetSection('ssClassSection', 'ssClassEmpty', 'ssClassGrid', sharedSets, true);
+
+  } catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); }
+}
+
+function renderStudentSetSection(sectionId, emptyId, gridId, sets, showEmptyState = false) {
+  const section = document.getElementById(sectionId);
+  const empty   = document.getElementById(emptyId);
+  const grid    = document.getElementById(gridId);
+  if (!section || !grid) return;
+
+  if (!sets.length) {
+    section.style.display = 'none';
+    if (empty) empty.style.display = showEmptyState ? '' : 'none';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  section.style.display = '';
+  grid.innerHTML = sets.map(s => {
     const preview = s.cards.slice(0,4).map(c =>
-      `<div class="student-preview-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+      `<div class="ss-card-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
     return `
-      <div class="student-set-card" onclick="selectSet('${s.id}')">
-        <div class="student-preview">${preview}</div>
-        <div class="student-set-info">
-          <div class="student-set-name">${esc(s.name || 'Uten navn')}</div>
-          <div class="student-set-count">${s.cards.length} kortpar</div>
+      <div class="ss-card" onclick="selectSet('${s.id}')">
+        <div class="ss-card-preview">${preview}</div>
+        <div class="ss-card-info">
+          <div class="ss-card-name">${esc(s.name || 'Uten navn')}</div>
+          <div class="ss-card-count">${s.cards.length} kort</div>
         </div>
       </div>`;
   }).join('');
-  list.onscroll = updateCarouselArrows;
-  setTimeout(updateCarouselArrows, 50);
 }
 
 /* ============================================================
@@ -2855,7 +3031,7 @@ function guessFP(id) {
   }
 }
 function goToStudentSelect() {
-  history = ['student-select'];
+  history = ['landing', 'student-select'];
   showScreen('student-select', false);
   loadStudentSets();
 }
@@ -2876,10 +3052,83 @@ function playTone(freqs, type = 'sine', vol = 0.3) {
 }
 
 /* ============================================================
-   TEACHER – CARD SET LIST
+   TEACHER – WORKSPACE (tabbed)
    ============================================================ */
+let _activeTeacherTab = 'klassen';
+
+function switchTeacherTab(tab) {
+  _activeTeacherTab = tab;
+  document.querySelectorAll('.th-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.th-tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('tc-' + tab).classList.add('active');
+  // Load content for tab
+  if (tab === 'klassen')    loadTeacherKlassen();
+  else if (tab === 'oppgaver')   loadTeacherTasks();
+  else if (tab === 'kortsett')   loadTeacherOwnSets();
+  else if (tab === 'elevarbeid') loadElevarbeider();
+}
+
 async function loadTeacherSets() {
-  loadPendingCount(); // refresh pending badge (non-blocking)
+  // Load teacher header info
+  try {
+    const teachers = await sbGetTeachers();
+    const me = teachers.find(t => t.id === currentTeacherId);
+    if (me) {
+      document.getElementById('thTeacherName').textContent = me.display_name || me.name || 'Lærer';
+    }
+  } catch {}
+  loadPendingCount();
+  // Load active tab
+  switchTeacherTab(_activeTeacherTab);
+}
+
+async function loadTeacherKlassen() {
+  const list  = document.getElementById('thStudentList');
+  const empty = document.getElementById('thStudentEmpty');
+  const codeEl = document.getElementById('thClassCode');
+  const codeVal = document.getElementById('thClassCodeVal');
+  list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  // Show class code
+  try {
+    const classes = await sbGetClasses();
+    if (classes[0]) {
+      codeEl.style.display = '';
+      codeVal.textContent = classes[0].code;
+      document.getElementById('thTeacherSub').textContent = classes[0].name;
+    }
+  } catch {}
+
+  // Load students with real names
+  try {
+    const [students, nameRows] = await Promise.all([
+      sbGetStudentsByTeacher(),
+      fetch(`${SUPABASE_URL}/rest/v1/teacher_student_names?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=student_id,real_name`, { headers: sbHeaders() }).then(r => r.json()).catch(() => [])
+    ]);
+    const nameMap = {};
+    nameRows.forEach(n => { nameMap[n.student_id] = n.real_name; });
+    const active  = students.filter(s => s.status === 'active');
+    const pending = students.filter(s => s.status === 'pending');
+    if (!students.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    list.innerHTML = [...active, ...pending].map(s => {
+      const name    = nameMap[s.id] || '—';
+      const isPending = s.status === 'pending';
+      return `
+        <div class="th-student-item">
+          <div class="th-student-avatar" style="background:${esc(s.avatar_color)}">${esc(s.avatar_emoji)}</div>
+          <div class="th-student-info">
+            <div class="th-student-name">${esc(name)}</div>
+            <div class="th-student-meta">${isPending ? 'Venter på godkjenning' : 'Aktiv elev'}</div>
+          </div>
+          <span class="th-student-badge ${isPending ? 'th-badge-pending' : 'th-badge-active'}">${isPending ? '⏳' : '✓'}</span>
+        </div>`;
+    }).join('');
+  } catch(err) { list.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
+}
+
+async function loadTeacherOwnSets() {
   let sets;
   try { sets = await sbGetAllSets(); }
   catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
@@ -2890,21 +3139,104 @@ async function loadTeacherSets() {
   list.innerHTML = sets.map(s => {
     const cardWithImg = s.cards.find(c => c.imageData);
     const thumb = cardWithImg
-      ? `<div style="width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`
-      : `<div style="width:52px;height:52px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🃏</div>`;
+      ? `<img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt="">`
+      : '🃏';
+    const vis = s.visibility || 'private';
     return `
-    <div class="set-item" onclick="editSet('${s.id}')">
-      ${thumb}
-      <div class="set-info">
-        <div class="set-name">${esc(s.name || 'Uten navn')}</div>
-        <div class="set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}${s.createdBy ? ' · ' + esc(s.createdBy) : ''}</div>
-      </div>
-      <div class="set-actions" onclick="event.stopPropagation()">
-        <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser">📋</button>
-        <button class="btn-icon" onclick="delSet('${s.id}')" title="Slett">🗑️</button>
-      </div>
-    </div>`;
+      <div class="th-set-item">
+        <div class="th-set-main" onclick="editSet('${s.id}')">
+          <div class="th-set-thumb">${cardWithImg ? `<img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt="">` : '🃏'}</div>
+          <div class="th-set-info">
+            <div class="th-set-name">${esc(s.name || 'Uten navn')}</div>
+            <div class="th-set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}</div>
+          </div>
+          <div class="th-set-actions" onclick="event.stopPropagation()">
+            <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser">📋</button>
+            <button class="btn-icon" onclick="delSet('${s.id}')" title="Slett">🗑️</button>
+          </div>
+        </div>
+        <div class="th-share-bar">
+          <button class="th-share-btn ${vis==='private'?'active-private':''}" onclick="setVisibility('${s.id}','private',this)">
+            <span>🔒</span><span>Privat</span>
+          </button>
+          <button class="th-share-btn ${vis==='class'?'active-class':''}" onclick="setVisibility('${s.id}','class',this)">
+            <span>👥</span><span>Klassen</span>
+          </button>
+          <button class="th-share-btn ${vis==='public'?'active-public':''}" onclick="setVisibility('${s.id}','public',this)">
+            <span>🌍</span><span>Alle</span>
+          </button>
+        </div>
+      </div>`;
   }).join('');
+}
+
+async function setVisibility(setId, vis, btn) {
+  // Optimistic UI update
+  const bar = btn.closest('.th-share-bar');
+  bar.querySelectorAll('.th-share-btn').forEach(b => b.className = 'th-share-btn');
+  btn.classList.add(vis === 'private' ? 'active-private' : vis === 'class' ? 'active-class' : 'active-public');
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/card_sets?id=eq.${encodeURIComponent(setId)}`, {
+      method: 'PATCH',
+      headers: sbHeaders(),
+      body: JSON.stringify({ visibility: vis, is_public: vis === 'public' })
+    });
+    toast(vis === 'private' ? '🔒 Privat' : vis === 'class' ? '👥 Delt med klassen' : '🌍 Delt med alle', 'success');
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function loadElevarbeider() {
+  const el    = document.getElementById('thStudentSets');
+  const empty = document.getElementById('thStudentSetsEmpty');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  empty.style.display = 'none';
+  try {
+    const [students, nameRows, setsResp] = await Promise.all([
+      sbGetStudentsByTeacher(),
+      fetch(`${SUPABASE_URL}/rest/v1/teacher_student_names?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=student_id,real_name`, { headers: sbHeaders() }).then(r => r.json()).catch(() => []),
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&student_id=neq.&select=*&order=created_at.desc`, { headers: sbHeaders() })
+    ]);
+    const nameMap = {};
+    nameRows.forEach(n => { nameMap[n.student_id] = n.real_name; });
+    const sets = setsResp.ok ? (await setsResp.json()).map(sbRowToSet).filter(s => s.studentId) : [];
+    if (!sets.length) { el.innerHTML = ''; empty.style.display = ''; return; }
+
+    // Group by student
+    const byStudent = {};
+    sets.forEach(s => {
+      if (!byStudent[s.studentId]) byStudent[s.studentId] = [];
+      byStudent[s.studentId].push(s);
+    });
+
+    el.innerHTML = Object.entries(byStudent).map(([sid, sSets]) => {
+      const student = students.find(s => s.id === sid);
+      const name    = nameMap[sid] || '—';
+      const avatar  = student ? `<div class="th-student-section-avatar" style="background:${esc(student.avatar_color)}">${esc(student.avatar_emoji)}</div>` : '';
+      const cards   = sSets.map(s => {
+        const preview = s.cards.slice(0,4).map(c =>
+          `<div class="th-student-set-preview-cell">${c.imageData ? `<img src="${c.imageData}" alt="" loading="lazy">` : '🃏'}</div>`).join('');
+        const vis = s.visibility || 'private';
+        return `
+          <div class="th-student-set-card">
+            <div class="th-student-set-preview" onclick="editSet('${s.id}')">${preview}</div>
+            <div class="th-student-set-info">
+              <div class="th-student-set-name">${esc(s.name || 'Uten navn')}</div>
+              <div class="th-student-set-count">${s.cards.length} kort</div>
+            </div>
+            <div class="th-share-bar">
+              <button class="th-share-btn ${vis==='private'?'active-private':''}" onclick="setVisibility('${s.id}','private',this)" style="font-size:10px;padding:6px 4px"><span>🔒</span><span>Privat</span></button>
+              <button class="th-share-btn ${vis==='class'?'active-class':''}"   onclick="setVisibility('${s.id}','class',this)"   style="font-size:10px;padding:6px 4px"><span>👥</span><span>Klassen</span></button>
+              <button class="th-share-btn ${vis==='public'?'active-public':''}" onclick="setVisibility('${s.id}','public',this)"  style="font-size:10px;padding:6px 4px"><span>🌍</span><span>Alle</span></button>
+            </div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="th-student-section">
+          <div class="th-student-section-hd">${avatar}<div class="th-student-section-name">${esc(name)}</div></div>
+          <div class="th-student-sets">${cards}</div>
+        </div>`;
+    }).join('');
+  } catch(err) { el.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
 }
 
 /* ============================================================
@@ -2914,7 +3246,7 @@ let workingSet = null;
 
 function newSet() {
   const displayName = _cfgCache['displayName'] || '';
-  workingSet = { id: uid(), name: '', createdAt: Date.now(), createdBy: displayName, teacherId: currentTeacherId || '', studentId: '', classId: '', cards: [] };
+  workingSet = { id: uid(), name: '', createdAt: Date.now(), createdBy: displayName, teacherId: currentTeacherId || '', studentId: '', classId: '', cards: [], visibility: 'private', isPublic: false };
   openEditSet();
 }
 
@@ -2971,7 +3303,7 @@ async function delSet(id) {
   if (!confirm('Vil du slette dette kortsettet?')) return;
   try { await sbDeleteSet(id); } catch(err) { toast('Sletting feilet: ' + err.message, 'error'); return; }
   toast('Kortsett slettet');
-  loadTeacherSets();
+  loadTeacherOwnSets();
 }
 
 async function dupSet(id) {
@@ -2979,9 +3311,10 @@ async function dupSet(id) {
   if (!s) return;
   const copy = deepCopy(s);
   copy.id = uid(); copy.name = s.name + ' (kopi)'; copy.createdAt = Date.now();
+  copy.visibility = 'private';
   try { await sbUpsertSet(copy); } catch(err) { toast('Duplisering feilet: ' + err.message, 'error'); return; }
   toast('Kortsett duplisert 📋', 'success');
-  loadTeacherSets();
+  loadTeacherOwnSets();
 }
 
 /* ============================================================
@@ -3686,6 +4019,7 @@ async function saveCameraSet() {
         showScreen('student-select');
         loadStudentSets();
       } else {
+        _activeTeacherTab = 'kortsett';
         showScreen('teacher-sets');
         loadTeacherSets();
       }
@@ -3795,51 +4129,50 @@ function addChip(text) {
    SETTINGS
    ============================================================ */
 async function loadSettingsUI() {
-  document.getElementById('settingDisplayName').value = await getCfg('displayName')     || '';
-  document.getElementById('settingPassword').value    = await getCfg('teacherPassword') || '';
-  document.getElementById('settingClaude').value        = await getCfg('claude')            || '';
-  document.getElementById('settingPixabay').value       = await getCfg('pixabay')           || '';
-  document.getElementById('settingAppMode').value       = await getCfg('appMode')           || 'standard';
-  const appMode = await getCfg('appMode') || 'standard';
-  const cmSection = document.getElementById('classManagementSection');
-  if (appMode === 'voksen' && currentTeacherId) {
-    cmSection.style.display = '';
-    loadClassList();
-  } else {
-    cmSection.style.display = 'none';
-  }
+  document.getElementById('settingDisplayName').value = await getCfg('displayName') || '';
+  document.getElementById('settingPassword').value    = '';  // never pre-fill PIN
+  document.getElementById('settingClaude').value      = await getCfg('claude')      || '';
+  document.getElementById('settingPixabay').value     = await getCfg('pixabay')     || '';
+  // Class section — always shown for teachers
+  if (currentTeacherId) loadClassList();
+}
+
+function toggleAdvanced() {
+  const sec = document.getElementById('advancedSection');
+  const btn = document.getElementById('advancedToggleBtn');
+  const open = sec.style.display === '';
+  sec.style.display = open ? 'none' : '';
+  btn.textContent = (open ? '▶' : '▼') + ' Avansert (API-nøkler)';
 }
 
 async function saveSettings() {
-  await setCfg('displayName', document.getElementById('settingDisplayName').value.trim());
-  // Update teacher PINs in teachers table if logged in as admin
+  const displayName = document.getElementById('settingDisplayName').value.trim();
+  const newPin      = document.getElementById('settingPassword').value.trim();
+  const geminiKey   = document.getElementById('settingClaude').value.trim();
+  const pixabayKey  = document.getElementById('settingPixabay').value.trim();
+
+  await setCfg('displayName', displayName);
+  if (geminiKey) await setCfg('claude',   geminiKey);
+  if (pixabayKey) await setCfg('pixabay', pixabayKey);
+
+  // Update teacher record in Supabase if PIN or name changed
   if (currentTeacherId && adminMode) {
-    const pw  = document.getElementById('settingPassword').value.trim();
-    const apw = document.getElementById('settingAdminPassword').value.trim();
+    const patch = { display_name: displayName };
+    if (newPin && newPin.length >= 4) {
+      patch.teacher_pin = newPin;
+      await setCfg('teacherPassword', newPin);
+    }
     try {
       await fetch(`${SUPABASE_URL}/rest/v1/teachers?id=eq.${encodeURIComponent(currentTeacherId)}`, {
-        method: 'PATCH', headers: sbHeaders(),
-        body: JSON.stringify({
-          teacher_pin:  pw  || '1234',
-          admin_pin:    apw || '1234',
-          display_name: document.getElementById('settingDisplayName').value.trim()
-        })
+        method: 'PATCH', headers: sbHeaders(), body: JSON.stringify(patch)
       });
     } catch {}
   }
-  await setCfg('claude',   document.getElementById('settingClaude').value.trim());
-  await setCfg('pixabay',  document.getElementById('settingPixabay').value.trim());
   toast('Innstillinger lagret ✓', 'success');
+  document.getElementById('settingPassword').value = ''; // clear PIN field after save
 }
 
-async function saveAppModeSetting() {
-  const mode = document.getElementById('settingAppMode').value;
-  await setCfg('appMode', mode);
-  // Also save globally so students on fresh visits see the correct mode
-  await saveGlobalSetting('appMode', mode);
-  toast('App-modus lagret ✓', 'success');
-  loadSettingsUI(); // refresh to show/hide class management
-}
+// saveAppModeSetting retired — Standard mode removed, app is always Voksen mode
 
 /* ============================================================
    IMPORT / EXPORT
@@ -4815,37 +5148,48 @@ async function deleteInviteCode(code) {
 /* ── TEACHER SELF-REGISTRATION ── */
 function showTeacherRegistration() {
   closePwModal();
-  document.getElementById('regInviteCode').value = '';
-  document.getElementById('regName').value = '';
-  document.getElementById('regTeacherPin').value = '';
-  document.getElementById('regAdminPin').value = '';
+  document.getElementById('regInviteCode').value  = '';
+  document.getElementById('regName').value        = '';
+  document.getElementById('regTeacherPin').value  = '';
   showScreen('teacher-register');
 }
 
 async function registerAsTeacher() {
-  const code       = document.getElementById('regInviteCode').value.trim().toUpperCase();
-  const name       = document.getElementById('regName').value.trim();
-  const teacherPin = document.getElementById('regTeacherPin').value.trim();
-  const adminPin   = document.getElementById('regAdminPin').value.trim();
+  const code = document.getElementById('regInviteCode').value.trim().toUpperCase();
+  const name = document.getElementById('regName').value.trim();
+  const pin  = document.getElementById('regTeacherPin').value.trim();
 
-  if (!code)                     { toast('Skriv inn invitasjonskoden', 'error'); return; }
-  if (!name)                     { toast('Skriv inn ditt navn', 'error'); return; }
-  if (!teacherPin || teacherPin.length < 4) { toast('Lærer-PIN må være minst 4 siffer', 'error'); return; }
-  if (!adminPin   || adminPin.length < 4)   { toast('Admin-PIN må være minst 4 siffer', 'error'); return; }
-  if (teacherPin === adminPin)   { toast('Lærer-PIN og Admin-PIN bør være forskjellige', 'error'); return; }
+  if (!code)             { toast('Skriv inn invitasjonskoden', 'error'); return; }
+  if (!name)             { toast('Skriv inn ditt navn', 'error'); return; }
+  if (pin.length < 4)    { toast('PIN-koden må være minst 4 siffer', 'error'); return; }
+  if (!/^\d+$/.test(pin)){ toast('PIN-koden kan bare inneholde tall', 'error'); return; }
 
   // Validate invite code
   const val = await getGlobalSetting(`invite_${code}`);
   if (val !== 'pending') { toast('Ugyldig eller allerede brukt invitasjonskode', 'error'); return; }
 
   try {
-    const teacher = { id: uid(), name, display_name: name, teacher_pin: teacherPin, admin_pin: adminPin, active: true };
+    const teacher = {
+      id:           uid(),
+      name:         name,
+      display_name: name,
+      teacher_pin:  pin,
+      active:       true
+    };
     await sbUpsertTeacher(teacher);
-    // Mark code as used
+
+    // Auto-create a default class for the new teacher
+    const className  = name.split(' ')[0] + 's klasse';
+    const classCode  = name.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0,4) + Math.floor(Math.random()*90+10);
+    await sbUpsertClass({ id: uid(), teacher_id: teacher.id, name: className, code: classCode });
+
+    // Mark invite code as used
     await saveGlobalSetting(`invite_${code}`, 'used');
-    toast(`Velkommen, ${name}! Logg inn med din PIN-kode.`, 'success');
-    goBack();
-    setTimeout(() => promptTeacherPassword(), 600);
+    toast(`Velkommen, ${name}! 🎉 Klassekode: ${classCode} — logg inn med PIN-koden din.`, 'success');
+    // Go back to landing and open PIN modal after short delay
+    history = ['landing'];
+    showScreen('landing', false);
+    setTimeout(() => promptTeacherPassword(), 800);
   } catch(err) { toast('Feil: ' + err.message, 'error'); }
 }
 
@@ -5002,37 +5346,11 @@ async function checkPendingStatus() {
   } catch(err) { toast('Feil: ' + err.message, 'error'); }
 }
 
-function updateStudentInfoBar() {
-  // Legacy — only used in Standard mode now; Voksen home handles its own UI
-  const cbar = document.getElementById('studentCreateBar');
-  if (cbar) cbar.style.display = 'none';
-}
+function updateStudentInfoBar() { /* retired — student home handles its own UI */ }
 
 /* ============================================================
    VOKSEN HOME
    ============================================================ */
-function showVoksenHome() {
-  document.getElementById('standardHomeHeader').style.display = 'none';
-  document.getElementById('voksenHome').classList.add('active');
-  // Greeting
-  const avatar = document.getElementById('vhAvatar');
-  avatar.textContent   = currentStudentData.avatar_emoji;
-  avatar.style.background = currentStudentData.avatar_color;
-  document.getElementById('vhGreeting').textContent = 'Hei! 👋';
-  // Show create bar
-  const cbar = document.getElementById('studentCreateBar');
-  if (cbar) cbar.style.display = '';
-  // Show sets title
-  document.getElementById('vhSetsTitle').style.display = '';
-  // Load tasks async
-  loadVoksenTasks();
-}
-
-function hideVoksenHome() {
-  document.getElementById('standardHomeHeader').style.display = '';
-  document.getElementById('voksenHome').classList.remove('active');
-  document.getElementById('vhSetsTitle').style.display = 'none';
-}
 
 async function loadVoksenTasks() {
   const section = document.getElementById('vhTasksSection');
