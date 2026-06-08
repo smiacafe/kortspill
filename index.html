@@ -2297,7 +2297,7 @@ function pinDelete() {
 
 async function checkPin() {
   // Level 1: Super-admin
-  const superPw = await getGlobalSetting('superAdminPassword') || 'superadmin1234';
+  const superPw = await getGlobalSetting('superAdminPassword') || '123456';
   if (_pin === superPw) {
     currentRole = 'superadmin';
     currentTeacherId = null;
