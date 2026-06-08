@@ -557,6 +557,222 @@ body {
 }
 .settings-input:focus { border-color: var(--primary); }
 
+/* ── VOKSEN STUDENT HOME ── */
+.voksen-home { display:none; }
+.voksen-home.active { display:block; }
+
+.vh-greeting {
+  display:flex; align-items:center; gap:14px;
+  background:var(--surface); border-radius:var(--radius);
+  padding:16px 18px; margin-bottom:20px; box-shadow:var(--shadow);
+}
+.vh-greeting-avatar { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.vh-greeting-text   { flex:1; }
+.vh-greeting-name   { font-size:20px; font-weight:800; }
+.vh-greeting-sub    { font-size:13px; color:var(--text-light); margin-top:2px; }
+
+.vh-section-title {
+  font-size:13px; font-weight:800; color:var(--text-light);
+  text-transform:uppercase; letter-spacing:.8px;
+  margin:0 0 10px;
+}
+
+/* Task cards */
+.vh-task-card {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); overflow:hidden;
+  margin-bottom:12px; cursor:pointer;
+  display:flex; align-items:stretch; gap:0;
+  transition:transform .12s, box-shadow .12s;
+  border:none; width:100%; text-align:left; font-family:inherit;
+}
+.vh-task-card:active { transform:scale(.98); box-shadow:var(--shadow-lg); }
+.vh-task-accent { width:6px; flex-shrink:0; }
+.vh-task-accent.play  { background:linear-gradient(180deg,#2563EB,#1D4ED8); }
+.vh-task-accent.photo { background:linear-gradient(180deg,#16A34A,#15803D); }
+.vh-task-body   { flex:1; padding:16px 16px 16px 14px; }
+.vh-task-type   { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.vh-task-type.play  { color:#2563EB; }
+.vh-task-type.photo { color:#16A34A; }
+.vh-task-desc   { font-size:16px; font-weight:700; line-height:1.3; color:var(--text); }
+.vh-task-sub    { font-size:13px; color:var(--text-light); margin-top:4px; }
+.vh-task-arrow  { display:flex; align-items:center; padding-right:16px; font-size:20px; color:var(--text-light); }
+
+/* Progress strip */
+.vh-progress-strip {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px 18px;
+  display:flex; gap:0; margin-bottom:20px;
+}
+.vh-stat { flex:1; text-align:center; }
+.vh-stat + .vh-stat { border-left:1px solid var(--border); }
+.vh-stat-val   { font-size:28px; font-weight:900; color:var(--primary); line-height:1; }
+.vh-stat-label { font-size:12px; color:var(--text-light); margin-top:4px; }
+
+/* Camera CTA */
+.vh-camera-btn {
+  width:100%; padding:20px 16px; margin-top:8px; margin-bottom:8px;
+  border-radius:var(--radius); border:none; cursor:pointer;
+  background:linear-gradient(135deg,#0f172a,#1e3a5f);
+  color:#fff; display:flex; align-items:center; gap:16px;
+  font-family:inherit; transition:opacity .15s;
+}
+.vh-camera-btn:active { opacity:.85; }
+.vh-camera-icon { font-size:40px; flex-shrink:0; }
+.vh-camera-text {}
+.vh-camera-label { font-size:18px; font-weight:800; }
+.vh-camera-sub   { font-size:13px; opacity:.7; margin-top:2px; }
+
+/* ── PUBLIC LIBRARY ── */
+.lib-search-bar { display:flex; gap:10px; margin-bottom:20px; }
+.lib-search-input {
+  flex:1; padding:12px 14px; border:2px solid var(--border); border-radius:12px;
+  font-size:16px; outline:none; font-family:inherit; transition:border-color .2s; color:var(--text);
+}
+.lib-search-input:focus { border-color:var(--primary); }
+
+.lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
+.lib-card {
+  background:var(--surface); border-radius:var(--radius); overflow:hidden;
+  box-shadow:var(--shadow); cursor:pointer; transition:transform .15s, box-shadow .15s;
+}
+.lib-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.lib-card-preview {
+  display:grid; grid-template-columns:1fr 1fr; gap:3px;
+  padding:8px; background:var(--bg); aspect-ratio:1;
+}
+.lib-card-cell {
+  border-radius:6px; overflow:hidden; background:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.lib-card-cell img { width:100%; height:100%; object-fit:cover; }
+.lib-card-info { padding:10px 12px 12px; }
+.lib-card-name { font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lib-card-meta { font-size:12px; color:var(--text-light); margin-top:3px; }
+
+/* Library preview modal */
+.lib-modal-preview {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:16px;
+}
+.lib-modal-cell {
+  aspect-ratio:1; border-radius:8px; overflow:hidden; background:var(--bg);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.lib-modal-cell img { width:100%; height:100%; object-fit:cover; }
+
+/* ── WHAT IS THIS — CAMERA WORD FINDER ── */
+.wit-screen { padding:0; overflow:hidden; }
+.wit-screen.active { display:flex; flex-direction:column; height:100dvh; }
+
+.wit-capture-phase {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:linear-gradient(160deg,#0d1b2a 0%,#1a3a5c 100%);
+  gap:20px; padding:32px; text-align:center;
+}
+.wit-shutter-btn {
+  width:160px; height:160px; border-radius:50%;
+  background:linear-gradient(135deg,#0066DD,#004499);
+  border:6px solid rgba(255,255,255,.25);
+  box-shadow:0 0 0 3px rgba(0,102,221,.4), 0 8px 32px rgba(0,0,0,.4);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; cursor:pointer; transition:transform .12s, box-shadow .12s;
+  color:#fff; font-family:inherit;
+}
+.wit-shutter-btn:active { transform:scale(.93); }
+.wit-shutter-icon  { font-size:52px; line-height:1; }
+.wit-shutter-label { font-size:14px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
+.wit-hint { color:rgba(255,255,255,.55); font-size:15px; max-width:260px; line-height:1.5; }
+
+.wit-result-phase {
+  flex:1; display:flex; flex-direction:column; overflow:hidden;
+}
+.wit-result-img {
+  height:42vh; flex-shrink:0; overflow:hidden; background:#000;
+}
+.wit-result-img img { width:100%; height:100%; object-fit:contain; display:block; }
+.wit-result-panel {
+  flex:1; background:#fff; padding:24px 20px 16px;
+  display:flex; flex-direction:column; gap:16px; overflow-y:auto;
+}
+.wit-word-display {
+  text-align:center;
+}
+.wit-word {
+  font-size:42px; font-weight:900; color:var(--text);
+  letter-spacing:-.5px; line-height:1.1;
+}
+.wit-word-hint { font-size:14px; color:var(--text-light); margin-top:6px; }
+.wit-listen-btn {
+  width:100%; padding:16px; border-radius:var(--radius);
+  background:var(--primary); color:#fff; border:none;
+  font-size:17px; font-weight:700; cursor:pointer;
+  font-family:inherit; transition:background .15s;
+}
+.wit-listen-btn:active { background:var(--primary-dark); }
+.wit-save-section { border-top:1px solid var(--border); padding-top:16px; }
+.wit-save-title { font-size:13px; font-weight:800; color:var(--text-light); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+.wit-set-select { width:100%; padding:11px 13px; border:2px solid var(--border); border-radius:10px; font-size:15px; outline:none; font-family:inherit; transition:border-color .2s; color:var(--text); margin-bottom:10px; }
+.wit-set-select:focus { border-color:var(--primary); }
+
+/* ── TASK MANAGEMENT (TEACHER) ── */
+.task-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+.task-type-btn {
+  border:2.5px solid var(--border); border-radius:var(--radius);
+  padding:22px 12px; background:var(--surface);
+  cursor:pointer; text-align:center; transition:all .15s;
+  font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.task-type-btn:hover  { border-color:var(--primary); background:var(--primary-light); }
+.task-type-btn.selected { border-color:var(--primary); background:var(--primary-light); }
+.task-type-icon  { font-size:36px; }
+.task-type-label { font-size:15px; font-weight:800; }
+.task-type-desc  { font-size:12px; color:var(--text-light); line-height:1.4; }
+
+.teacher-task-item {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); margin-bottom:10px;
+  display:flex; align-items:stretch; overflow:hidden;
+}
+.teacher-task-accent       { width:5px; flex-shrink:0; }
+.teacher-task-accent.play  { background:linear-gradient(180deg,#2563EB,#1D4ED8); }
+.teacher-task-accent.photo { background:linear-gradient(180deg,#16A34A,#15803D); }
+.teacher-task-body  { flex:1; padding:14px 14px; }
+.teacher-task-type  { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; margin-bottom:3px; }
+.teacher-task-type.play  { color:#2563EB; }
+.teacher-task-type.photo { color:#16A34A; }
+.teacher-task-desc  { font-size:15px; font-weight:700; color:var(--text); }
+.teacher-task-meta  { font-size:12px; color:var(--text-light); margin-top:3px; }
+.teacher-task-del   { display:flex; align-items:center; padding:0 14px; }
+
+/* ── PENDING BADGE ── */
+.pending-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--danger); color:#fff;
+  border-radius:50%; width:20px; height:20px;
+  font-size:11px; font-weight:800; margin-left:6px; flex-shrink:0;
+}
+
+/* ── APPROVAL SCREEN ── */
+.approval-item {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px 18px;
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+}
+.approval-avatar { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.approval-info   { flex:1; min-width:0; }
+.approval-name-input {
+  width:100%; font-size:15px; font-weight:600;
+  border:none; border-bottom:2px solid var(--border);
+  outline:none; padding:4px 0 6px; font-family:inherit;
+  color:var(--text); background:transparent;
+  transition:border-color .2s;
+}
+.approval-name-input:focus  { border-bottom-color:var(--primary); }
+.approval-name-input::placeholder { color:var(--text-light); font-weight:400; }
+.approval-meta { font-size:12px; color:var(--text-light); margin-top:4px; }
+.approval-actions { display:flex; gap:8px; flex-shrink:0; }
+
 /* ── SUPER ADMIN ── */
 .sa-header { text-align:center; padding:16px 0 8px; }
 .sa-title   { font-size:26px; font-weight:800; }
@@ -791,27 +1007,59 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- ── SCREEN: STUDENT SELECT ── -->
 <div class="screen active" id="screen-student-select">
-  <div class="student-home-hero">
-    <h1>VVO språkkort</h1>
-    <p>Velg et kortsett for å starte</p>
-  </div>
-  <!-- Student info bar (shown in Klassemodus when logged in) -->
-  <div id="studentInfoBar" style="display:none;background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;align-items:center;gap:12px;box-shadow:var(--shadow)">
-    <div id="studentInfoAvatar" class="avatar-bubble" style="width:40px;height:40px;font-size:22px;flex-shrink:0"></div>
-    <div style="flex:1">
-      <div style="font-weight:700" id="studentInfoName"></div>
-      <div style="font-size:12px;color:var(--text-light)">Logget inn</div>
+
+  <!-- ═══ STANDARD MODE: hero + login ═══ -->
+  <div id="standardHomeHeader">
+    <div class="student-home-hero">
+      <h1>VVO språkkort</h1>
+      <p>Velg et kortsett for å starte</p>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="studentLogout()">Bytt elev</button>
+    <!-- Login button (shown in Voksen mode when not logged in) -->
+    <div id="studentLoginBtn" style="display:none;margin-bottom:16px">
+      <button class="btn btn-primary btn-full" onclick="showStudentLogin()" style="font-size:15px;padding:14px">🎒 Logg inn</button>
+    </div>
   </div>
-  <!-- Login button (shown in Klassemodus when not logged in) -->
-  <div id="studentLoginBtn" style="display:none;margin-bottom:16px">
-    <button class="btn btn-primary btn-full" onclick="showStudentLogin()" style="font-size:15px;padding:14px">🎒 Logg inn som elev</button>
-  </div>
-  <!-- Create own card set button (Klassemodus only) -->
-  <div id="studentCreateBar" style="display:none;margin-bottom:16px">
-    <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="font-size:15px;padding:14px">📸 Lag mine egne ord</button>
-  </div>
+
+  <!-- ═══ VOKSEN MODE: personalised home (shown when student logged in) ═══ -->
+  <div id="voksenHome" class="voksen-home">
+
+    <!-- Greeting bar -->
+    <div class="vh-greeting">
+      <div id="vhAvatar" class="vh-greeting-avatar"></div>
+      <div class="vh-greeting-text">
+        <div class="vh-greeting-name" id="vhGreeting">Hei! 👋</div>
+        <div class="vh-greeting-sub">Hva vil du gjøre i dag?</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="studentLogout()">Bytt</button>
+    </div>
+
+    <!-- Tasks section -->
+    <div id="vhTasksSection" style="margin-bottom:20px;display:none">
+      <div class="vh-section-title">📋 Oppgaver fra læreren</div>
+      <div id="vhTaskList"></div>
+    </div>
+
+    <!-- Card sets section title -->
+    <div class="vh-section-title" id="vhSetsTitle" style="display:none">📚 Kortsett</div>
+
+    <!-- Camera CTA -->
+    <button class="vh-camera-btn" onclick="openWhatIsThis()" style="margin-bottom:20px">
+      <span class="vh-camera-icon">🔍</span>
+      <span class="vh-camera-text">
+        <span class="vh-camera-label">Hva er dette?</span>
+        <span class="vh-camera-sub" style="display:block">Pek kameraet på noe — finn det norske ordet</span>
+      </span>
+      <span style="margin-left:auto;font-size:22px">→</span>
+    </button>
+
+    <!-- Create own set -->
+    <div id="studentCreateBar" style="display:none;margin-bottom:16px">
+      <button class="btn btn-success btn-full" onclick="studentCreateSet()" style="font-size:15px;padding:14px">📸 Lag mine egne ord</button>
+    </div>
+
+  </div><!-- /voksenHome -->
+
+  <!-- Card set carousel (used by both modes) -->
   <div class="student-carousel-wrap">
     <button class="carousel-arrow carousel-left" id="carouselLeft" onclick="scrollCarousel(-1)" aria-label="Forrige">❮</button>
     <div id="studentList" class="student-grid"></div>
@@ -822,6 +1070,64 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <div class="empty-text">Ingen kortspill er klare ennå</div>
     <p style="color:var(--text-light)">Be læreren din om å lage et kortspill!</p>
   </div>
+
+</div>
+
+<!-- ── SCREEN: WHAT IS THIS — CAMERA WORD FINDER ── -->
+<div class="screen wit-screen" id="screen-what-is-this">
+
+  <!-- Phase 1: Capture -->
+  <div id="witCapturePhase" class="wit-capture-phase">
+    <button class="wit-shutter-btn" onclick="triggerWitCapture()">
+      <span class="wit-shutter-icon">🔍</span>
+      <span class="wit-shutter-label">Ta bilde</span>
+    </button>
+    <p class="wit-hint">Pek kameraet mot noe du lurer på hva heter på norsk — og trykk</p>
+  </div>
+
+  <!-- Phase 2: Result -->
+  <div id="witResultPhase" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+    <div class="wit-result-img">
+      <img id="witResultImg" src="" alt="" />
+    </div>
+    <div class="wit-result-panel">
+
+      <!-- Word display + identifying spinner -->
+      <div class="wit-word-display">
+        <div id="witSpinner" class="spinner-wrap" style="justify-content:center">
+          <div class="spinner"></div>
+          <span style="color:var(--text-light);font-size:15px">Identifiserer…</span>
+        </div>
+        <div id="witWordWrap" style="display:none">
+          <div class="wit-word" id="witWord"></div>
+          <div class="wit-word-hint">Trykk for å høre uttalen</div>
+        </div>
+      </div>
+
+      <!-- Listen button -->
+      <button class="wit-listen-btn" id="witListenBtn" style="display:none" onclick="witSpeak()">
+        🔊 Hør ordet
+      </button>
+
+      <!-- Save to card set -->
+      <div class="wit-save-section" id="witSaveSection" style="display:none">
+        <div class="wit-save-title">💾 Lagre som kort?</div>
+        <select class="wit-set-select" id="witSetSelect">
+          <option value="__new__">+ Lag et nytt kortsett</option>
+        </select>
+        <button class="btn btn-success btn-full" onclick="witSaveCard()">✅ Lagre kortet</button>
+      </div>
+
+      <!-- Try again -->
+      <button class="btn btn-secondary btn-full" id="witRetryBtn" style="display:none" onclick="witReset()">
+        🔄 Ta et nytt bilde
+      </button>
+
+    </div>
+  </div>
+
+  <input type="file" id="witFileInput" accept="image/*" capture="environment"
+         style="display:none" onchange="handleWitCapture(this)" />
 </div>
 
 <!-- ── SCREEN: DIFFICULTY ── -->
@@ -1014,9 +1320,24 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <span class="section-title">Mine kortsett</span>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost btn-sm" onclick="loadTeacherSets()" title="Oppdater fra sky">🔄</button>
+      <button class="btn btn-ghost btn-sm" onclick="openLibrary()" title="Offentlig bibliotek">📚</button>
       <button class="btn btn-camera btn-sm" onclick="openCameraSetBuilder()">📷 Fra kamera</button>
       <button class="btn btn-primary btn-sm" onclick="newSet()">+ Nytt kortsett</button>
     </div>
+  </div>
+  <!-- Voksen mode quick actions — only shown in Voksen mode -->
+  <div id="voksenTeacherBar" style="display:none;margin-bottom:12px;display:none">
+    <button class="btn btn-full" onclick="showScreen('tasks')" style="background:var(--primary-light);color:var(--primary);border:2px solid var(--primary);font-size:15px;padding:12px 16px;justify-content:flex-start;gap:10px;margin-bottom:8px">
+      📋 Oppgaver til elever
+      <span style="margin-left:auto;font-size:13px;opacity:.7">Se og gi oppgaver →</span>
+    </button>
+  </div>
+  <!-- Pending students notification — only shown in Voksen mode -->
+  <div id="pendingNotice" style="display:none;margin-bottom:12px">
+    <button class="btn btn-full" onclick="showScreen('approval')" style="background:#fff3cd;color:#856404;border:2px solid #ffc107;font-size:15px;padding:12px 16px;justify-content:flex-start;gap:10px">
+      🙋 Elever venter på godkjenning<span id="pendingCount" class="pending-badge"></span>
+      <span style="margin-left:auto;font-size:13px;opacity:.7">Se liste →</span>
+    </button>
   </div>
   <div style="text-align:right;margin-bottom:4px">
     <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);font-size:13px">↩ Logg ut</button>
@@ -1041,6 +1362,21 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <input class="eset-name-input" id="setNameInput" type="text"
            placeholder="F.eks. Kjøkken, Dyr, Transport…" autocomplete="off" />
     <div class="eset-name-hint">Skriv inn temaet — dette brukes også som grunnlag for AI-forslag</div>
+    <!-- Public library toggle -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div>
+        <div style="font-size:14px;font-weight:700">📚 Del i biblioteket</div>
+        <div style="font-size:12px;color:var(--text-light);margin-top:2px">Andre lærere kan finne og kopiere dette kortsettet</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin:0">
+        <input type="checkbox" id="setIsPublic" style="opacity:0;width:0;height:0;position:absolute"
+               onchange="workingSet.isPublic = this.checked; document.getElementById('setIsPublicToggle').style.background = this.checked ? 'var(--primary)' : 'var(--border)'; document.getElementById('setIsPublicKnob').style.transform = this.checked ? 'translateX(20px)' : 'translateX(0)'" />
+        <span id="setIsPublicToggle" onclick="document.getElementById('setIsPublic').click()"
+          style="position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:background .2s"></span>
+        <span id="setIsPublicKnob"
+          style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none"></span>
+      </label>
+    </div>
   </div>
 
   <!-- 2. AI-generated cards -->
@@ -1210,6 +1546,145 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <button onclick="returnToSuperAdmin()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 14px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation">↩ Tilbake</button>
 </div>
 
+<!-- ── SCREEN: TEACHER TASK LIST ── -->
+<div class="screen" id="screen-tasks">
+  <div class="section-header">
+    <span class="section-title">Oppgaver</span>
+    <button class="btn btn-primary btn-sm" onclick="openNewTask()">+ Ny oppgave</button>
+  </div>
+  <div id="teacherTaskList"></div>
+  <div id="teacherTaskEmpty" class="empty" style="display:none">
+    <div class="empty-icon">📋</div>
+    <div class="empty-text">Ingen oppgaver ennå</div>
+    <button class="btn btn-primary btn-lg" style="margin-top:8px" onclick="openNewTask()">+ Gi en oppgave</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: NEW TASK ── -->
+<div class="screen" id="screen-new-task">
+
+  <!-- Step 1: type selector (always visible) -->
+  <div class="eset-name-card" style="margin-bottom:18px">
+    <div class="eset-name-label">📋 Hva slags oppgave?</div>
+    <div class="task-type-grid">
+      <button class="task-type-btn" id="ttPlay" onclick="selectTaskType('play')">
+        <span class="task-type-icon">🎮</span>
+        <span class="task-type-label">Spill et spill</span>
+        <span class="task-type-desc">Eleven spiller et bestemt kortsett</span>
+      </button>
+      <button class="task-type-btn" id="ttPhoto" onclick="selectTaskType('photo')">
+        <span class="task-type-icon">📸</span>
+        <span class="task-type-label">Ta bilder</span>
+        <span class="task-type-desc">Eleven fotograferer ting og lager ord av dem</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Play task fields -->
+  <div id="ntPlayFields" style="display:none">
+    <div class="eset-section" style="margin-bottom:14px">
+      <div class="eset-section-title" style="margin-bottom:12px">🃏 Velg kortsett</div>
+      <select class="settings-input" id="ntSetSelect" style="font-size:15px">
+        <option value="">— Velg et kortsett —</option>
+      </select>
+    </div>
+    <div class="eset-section" style="margin-bottom:14px">
+      <div class="eset-section-title" style="margin-bottom:12px">🎮 Velg spilltype</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="ntGameModeGrid"></div>
+    </div>
+  </div>
+
+  <!-- Photo task fields -->
+  <div id="ntPhotoFields" style="display:none">
+    <div class="eset-section" style="margin-bottom:14px">
+      <div class="eset-section-title" style="margin-bottom:4px">🎯 Antall bilder</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:10px">Hvor mange bilder skal eleven ta?</div>
+      <input class="settings-input" type="number" id="ntPhotoCount" min="1" max="30" value="5" style="font-size:18px;font-weight:700;width:100px" />
+    </div>
+  </div>
+
+  <!-- Description — always visible once type is chosen -->
+  <div id="ntDescSection" style="display:none">
+    <div class="eset-section" style="margin-bottom:14px">
+      <div class="eset-section-title" style="margin-bottom:4px">📝 Beskrivelse til eleven</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:10px">F.eks. «Ta 5 bilder av ting på arbeidsplassen din»</div>
+      <textarea class="settings-input" id="ntDescription" rows="3"
+        placeholder="Skriv en kort beskrivelse…"
+        style="resize:none;font-size:15px;line-height:1.5"></textarea>
+    </div>
+
+    <!-- Assign to -->
+    <div class="eset-section" style="margin-bottom:14px">
+      <div class="eset-section-title" style="margin-bottom:12px">👥 Hvem får oppgaven?</div>
+      <select class="settings-input" id="ntAssignTo" style="font-size:15px" onchange="updateStudentSelect()">
+        <option value="class">Hele klassen</option>
+        <option value="student">Én bestemt elev</option>
+      </select>
+      <div id="ntStudentWrap" style="display:none;margin-top:10px">
+        <select class="settings-input" id="ntStudentSelect" style="font-size:15px">
+          <option value="">— Velg elev —</option>
+        </select>
+      </div>
+      <div id="ntClassWrap" style="margin-top:10px">
+        <select class="settings-input" id="ntClassSelect" style="font-size:15px">
+          <option value="">— Velg klasse —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
+    <button class="btn btn-primary" id="ntSaveBtn" onclick="saveNewTask()" style="display:none">💾 Lagre oppgave</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: APPROVAL DASHBOARD ── -->
+<div class="screen" id="screen-approval">
+  <div style="margin-bottom:20px">
+    <div style="font-size:20px;font-weight:800;margin-bottom:4px">🙋 Godkjenn elever</div>
+    <div style="font-size:14px;color:var(--text-light)">Skriv inn elevens navn og godkjenn eller avslå.</div>
+  </div>
+  <div id="approvalList"></div>
+  <div id="approvalEmpty" class="empty" style="display:none">
+    <div class="empty-icon">✅</div>
+    <div class="empty-text">Ingen elever venter på godkjenning</div>
+  </div>
+</div>
+
+<!-- ── SCREEN: PUBLIC LIBRARY ── -->
+<div class="screen" id="screen-library">
+  <div style="margin-bottom:16px">
+    <div style="font-size:14px;color:var(--text-light);margin-bottom:12px">Søk etter kortsett laget av andre lærere. Kopier til din egen samling og rediger fritt.</div>
+    <div class="lib-search-bar">
+      <input class="lib-search-input" id="libSearchInput" type="search"
+             placeholder="Søk etter tema, f.eks. Kjøkken…"
+             onkeydown="if(event.key==='Enter')searchLibrary()"
+             autocomplete="off" />
+      <button class="btn btn-primary" onclick="searchLibrary()">Søk</button>
+    </div>
+  </div>
+  <div id="libResults">
+    <div class="modal-info" style="padding:40px 0">Skriv inn et søkeord for å finne kortsett</div>
+  </div>
+</div>
+
+<!-- ── MODAL: LIBRARY PREVIEW ── -->
+<div class="modal-overlay sheet" id="libPreviewModal" onclick="handleLibModalClick(event)">
+  <div class="modal-sheet" id="libPreviewModalInner">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="libPreviewTitle">Kortsett</div>
+    <div class="modal-sheet-body">
+      <div id="libPreviewMeta" style="font-size:13px;color:var(--text-light);margin-bottom:14px"></div>
+      <div class="lib-modal-preview" id="libPreviewGrid"></div>
+      <div id="libPreviewCards" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+      <button class="btn btn-success btn-full btn-lg" id="libCopyBtn" onclick="copyLibrarySet()">
+        📋 Kopier til mine kortsett
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── SCREEN: TEACHER REGISTER ── -->
 <div class="screen" id="screen-teacher-register">
   <div style="text-align:center;padding:20px 0 8px">
@@ -1225,19 +1700,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <input class="eset-name-input" id="regName" type="text" placeholder="F.eks. Anne Olsen" autocomplete="off" />
   </div>
   <div class="eset-section" style="margin-bottom:16px">
-    <div class="eset-section-title" style="margin-bottom:12px">🔒 Velg dine PIN-koder</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div>
-        <div class="eset-name-label">Lærer-PIN</div>
-        <input class="settings-input" type="tel" id="regTeacherPin" placeholder="1234" inputmode="numeric" maxlength="8" style="margin-top:4px" />
-        <div style="font-size:11px;color:var(--text-light)">Deles med kollegaer</div>
-      </div>
-      <div>
-        <div class="eset-name-label">Admin-PIN</div>
-        <input class="settings-input" type="tel" id="regAdminPin" placeholder="5678" inputmode="numeric" maxlength="8" style="margin-top:4px" />
-        <div style="font-size:11px;color:var(--text-light)">Bare for deg</div>
-      </div>
-    </div>
+    <div class="eset-section-title" style="margin-bottom:12px">🔒 Velg din PIN-kode</div>
+    <input class="settings-input" type="tel" id="regTeacherPin" placeholder="Min. 4 siffer" inputmode="numeric" maxlength="8" />
+    <div style="font-size:12px;color:var(--text-light);margin-top:4px">Brukes for å logge inn i lærerdelen</div>
   </div>
   <div class="action-bar">
     <button class="btn btn-secondary" onclick="goBack()">Avbryt</button>
@@ -1296,15 +1761,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         <label style="font-size:13px;font-weight:600;color:var(--text-light)">Visningsnavn (på kort)</label>
         <input class="settings-input" type="text" id="tmDisplayName" placeholder="F.eks. Anne" autocomplete="off" style="margin-top:4px" />
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div>
-          <label style="font-size:13px;font-weight:600;color:var(--text-light)">Lærer-PIN</label>
-          <input class="settings-input" type="tel" id="tmTeacherPin" placeholder="1234" inputmode="numeric" maxlength="8" style="margin-top:4px" />
-        </div>
-        <div>
-          <label style="font-size:13px;font-weight:600;color:var(--text-light)">Admin-PIN</label>
-          <input class="settings-input" type="tel" id="tmAdminPin" placeholder="5678" inputmode="numeric" maxlength="8" style="margin-top:4px" />
-        </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:var(--text-light)">PIN-kode</label>
+        <input class="settings-input" type="tel" id="tmTeacherPin" placeholder="1234" inputmode="numeric" maxlength="8" style="margin-top:4px" />
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px">
@@ -1329,18 +1788,14 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: NEW STUDENT SETUP ── -->
 <div class="screen" id="screen-new-student">
   <div style="text-align:center;padding:20px 0 8px">
-    <div style="font-size:22px;font-weight:800">Lag din profil</div>
+    <div style="font-size:22px;font-weight:800">Meld deg inn</div>
+    <div style="font-size:15px;color:var(--text-light);margin-top:6px">Velg et bilde som er deg — læreren din godkjenner deg</div>
   </div>
 
   <div class="eset-name-card" style="margin-bottom:16px">
     <div class="eset-name-label">📝 Klasskode</div>
     <input class="eset-name-input" id="nsClassCode" type="text" placeholder="F.eks. KAFÉ3" autocomplete="off" style="text-transform:uppercase" />
     <div class="eset-name-hint">Få koden av læreren din</div>
-  </div>
-
-  <div class="eset-name-card" style="margin-bottom:16px">
-    <div class="eset-name-label">👤 Kallenavn</div>
-    <input class="eset-name-input" id="nsUsername" type="text" placeholder="F.eks. Bjørn" autocomplete="off" />
   </div>
 
   <div class="eset-section" style="margin-bottom:16px">
@@ -1354,7 +1809,22 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
   <div class="action-bar">
     <button class="btn btn-secondary" onclick="goBack()">Tilbake</button>
-    <button class="btn btn-primary" onclick="createNewStudent()">✅ Start</button>
+    <button class="btn btn-primary" onclick="createNewStudent()">✅ Send inn</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: PENDING APPROVAL ── -->
+<div class="screen" id="screen-pending">
+  <div style="text-align:center;padding:60px 20px 40px">
+    <div id="pendingAvatarDisplay" class="avatar-preview-big" style="margin:0 auto 24px;width:90px;height:90px;font-size:52px"></div>
+    <div style="font-size:26px;font-weight:800;margin-bottom:12px">Venter på godkjenning ⏳</div>
+    <div style="font-size:16px;color:var(--text-light);line-height:1.6;max-width:300px;margin:0 auto 32px">
+      Læreren din må godkjenne deg før du kan begynne.<br>Kom tilbake når læreren sier du er klar!
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="checkPendingStatus()">🔄 Sjekk om jeg er godkjent</button>
+    <div style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="studentLogout()">Bruk en annen kode</button>
+    </div>
   </div>
 </div>
 
@@ -1376,11 +1846,6 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <div class="settings-label">Lærer-PIN</div>
       <div class="settings-desc">Gir tilgang til å redigere kortsett. Deles med lærere. Standard: <strong>1234</strong>.</div>
       <input class="settings-input" type="tel" id="settingPassword" placeholder="F.eks. 1234" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
-    </div>
-    <div class="settings-card" style="margin-top:12px">
-      <div class="settings-label">Admin-PIN</div>
-      <div class="settings-desc">Gir tilgang til innstillinger i tillegg til kortsett. Hold denne hemmelig. Standard: <strong>1234</strong>.</div>
-      <input class="settings-input" type="tel" id="settingAdminPassword" placeholder="F.eks. 5678" pattern="[0-9]*" maxlength="8" autocomplete="off" inputmode="numeric" />
     </div>
     <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="saveSettings()">Lagre</button>
   </div>
@@ -1409,10 +1874,10 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <div class="settings-group-title">⚙️ App-modus</div>
     <div class="settings-card">
       <div class="settings-label">Modus</div>
-      <div class="settings-desc"><strong>Standard:</strong> Lærer lager kortsett, elever spiller. <strong>Klassemodus:</strong> Elever logger inn og kan lage egne kortsett.</div>
+      <div class="settings-desc"><strong>Standard:</strong> Lærer lager kortsett, elever spiller. <strong>Voksen:</strong> Elever melder seg inn i klassen med kode, lager egne kort og får oppgaver fra lærer.</div>
       <select class="settings-input" id="settingAppMode" onchange="saveAppModeSetting()">
         <option value="standard">Standard (lærer lager, elever spiller)</option>
-        <option value="klassemodus">Klassemodus (elever logger inn og lager)</option>
+        <option value="voksen">Voksen (elever melder seg inn og lager)</option>
       </select>
     </div>
   </div>
@@ -1557,7 +2022,7 @@ function sbHeaders(extra = {}) {
   return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
 }
 function sbRowToSet(r) {
-  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '' };
+  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '', isPublic: r.is_public || false };
 }
 async function sbGetAllSets() {
   let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
@@ -1576,7 +2041,7 @@ async function sbUpsertSet(set) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/card_sets`, {
     method: 'POST',
     headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '', teacher_id: set.teacherId || currentTeacherId || '', student_id: set.studentId || '', class_id: set.classId || '' })
+    body: JSON.stringify({ id: set.id, name: set.name, cards: set.cards, created_by: set.createdBy || '', teacher_id: set.teacherId || currentTeacherId || '', student_id: set.studentId || '', class_id: set.classId || '', is_public: set.isPublic || false })
   });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
 }
@@ -1675,7 +2140,7 @@ async function sbDeleteSet(id) {
 /* ============================================================
    NAVIGATION
    ============================================================ */
-const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set','super-admin','teacher-register']);
+const TEACHER_SCREENS = new Set(['teacher-sets','edit-set','edit-card','settings','camera-set','super-admin','teacher-register','approval','tasks','new-task','library']);
 let adminMode = false; // true when logged in with admin PIN
 let currentTeacherId = null;
 let currentRole = 'guest'; // 'guest', 'student', 'teacher', 'admin', 'superadmin'
@@ -1700,8 +2165,14 @@ const NAV_TITLES = {
   'speak':            '🎤 Si ordet',
   'super-admin':        '👑 Super Admin',
   'teacher-register':   '📝 Registrer deg',
+  'approval':           '🙋 Godkjenn elever',
+  'tasks':              '📋 Oppgaver',
+  'new-task':           '📋 Ny oppgave',
+  'library':            '📚 Kortsett-bibliotek',
   'student-login':      '🎒 Logg inn',
-  'new-student':        '🎒 Ny elev',
+  'new-student':        '🎒 Meld deg inn',
+  'pending':            '⏳ Venter på godkjenning',
+  'what-is-this':       '🔍 Hva er dette?',
 };
 
 let history = ['student-select'];
@@ -1720,6 +2191,30 @@ function showScreen(name, push = true) {
   document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
   document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && currentRole !== 'superadmin' && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
+
+  // Activity logging — fire when a student reaches the win screen
+  if (name === 'win' && currentRole === 'student' && currentStudentData) {
+    logActivity(currentGameType || 'pairs', selectedSetForGame?.id || null);
+  }
+}
+
+/* ============================================================
+   ACTIVITY LOGGING
+   ============================================================ */
+function logActivity(gameMode, setId = null) {
+  // Fire-and-forget — never blocks the UI
+  if (!currentStudentData?.id) return;
+  fetch(`${SUPABASE_URL}/rest/v1/activity_log`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+    body: JSON.stringify({
+      id:         uid(),
+      student_id: currentStudentData.id,
+      teacher_id: currentStudentData.teacher_id || '',
+      set_id:     setId,
+      game_mode:  gameMode,
+    })
+  }).catch(() => {}); // silent fail — logging should never break gameplay
 }
 
 function teacherLogout() {
@@ -1751,6 +2246,8 @@ function goBack() {
 
   if (dest === 'student-select') loadStudentSets();
   else if (dest === 'teacher-sets') loadTeacherSets();
+  else if (dest === 'approval') loadApprovalScreen();
+  else if (dest === 'tasks') loadTeacherTasks();
   else if (dest === 'edit-set' && leaving === 'edit-card') refreshCardsGrid();
 }
 
@@ -1815,14 +2312,11 @@ async function checkPin() {
   let teachers = [];
   try { teachers = await sbGetTeachers(); } catch {}
 
-  const adminMatch   = teachers.find(t => t.active && t.admin_pin   === _pin);
-  const teacherMatch = teachers.find(t => t.active && t.teacher_pin === _pin);
-
-  const matched = adminMatch || teacherMatch;
+  const matched = teachers.find(t => t.active && t.teacher_pin === _pin);
   if (matched) {
     currentTeacherId = matched.id;
-    currentRole = adminMatch ? 'admin' : 'teacher';
-    adminMode = !!adminMatch;
+    currentRole = 'admin';
+    adminMode = true;
     await loadCloudSettings();
     closePwModal();
     showScreen('teacher-sets');
@@ -1864,26 +2358,35 @@ function updateCarouselArrows() {
 async function loadStudentSets() {
   const appMode = await getCfg('appMode') || 'standard';
 
-  // Auto-resume student session in Klassemodus
-  if (appMode === 'klassemodus') {
+  // Auto-resume student session in Voksen mode
+  if (appMode === 'voksen') {
     if (!currentStudentData) {
       const savedStudent = await checkStudentSession();
       if (savedStudent) {
+        // If still pending, go to waiting screen instead
+        if (savedStudent.status === 'pending') {
+          currentStudentData = savedStudent;
+          showPendingScreen();
+          return;
+        }
         currentStudentData = savedStudent;
         currentRole = 'student';
         currentTeacherId = savedStudent.teacher_id;
         await loadCloudSettings();
       }
     }
-    // Show/hide login button
-    const loginBtn = document.getElementById('studentLoginBtn');
-    if (loginBtn) loginBtn.style.display = currentStudentData ? 'none' : '';
-    updateStudentInfoBar();
+    if (currentRole === 'student' && currentStudentData) {
+      showVoksenHome();
+    } else {
+      hideVoksenHome();
+      const loginBtn = document.getElementById('studentLoginBtn');
+      if (loginBtn) loginBtn.style.display = '';
+    }
   } else {
-    // Standard mode: hide Klassemodus UI
+    // Standard mode
+    hideVoksenHome();
     const loginBtn = document.getElementById('studentLoginBtn');
     if (loginBtn) loginBtn.style.display = 'none';
-    updateStudentInfoBar();
   }
 
   let sets;
@@ -2079,6 +2582,7 @@ function playAgain() {
 let fcGame = null;
 
 function startFlashcards() {
+  currentGameType = 'flashcard';
   const cards = selectedSetForGame.cards;
   if (!cards.length) { toast('Kortsettet er tomt', 'error'); return; }
   preWarmAudio(cards);
@@ -2225,6 +2729,7 @@ function playTone(freqs, type = 'sine', vol = 0.3) {
    TEACHER – CARD SET LIST
    ============================================================ */
 async function loadTeacherSets() {
+  loadPendingCount(); // refresh pending badge (non-blocking)
   let sets;
   try { sets = await sbGetAllSets(); }
   catch(err) { toast('Kunne ikke laste kortsett: ' + err.message, 'error'); sets = []; }
@@ -2273,6 +2778,15 @@ async function editSet(id) {
 function openEditSet() {
   document.getElementById('setNameInput').value = workingSet.name;
   document.getElementById('aiChips').innerHTML  = '';
+  // Sync public toggle
+  const cb     = document.getElementById('setIsPublic');
+  const toggle = document.getElementById('setIsPublicToggle');
+  const knob   = document.getElementById('setIsPublicKnob');
+  if (cb && toggle && knob) {
+    cb.checked = !!workingSet.isPublic;
+    toggle.style.background = workingSet.isPublic ? 'var(--primary)' : 'var(--border)';
+    knob.style.transform    = workingSet.isPublic ? 'translateX(20px)' : 'translateX(0)';
+  }
   refreshCardsGrid();
   showScreen('edit-set');
 }
@@ -3006,11 +3520,25 @@ async function saveCameraSet() {
     } else {
       // Creating a new set
       const name = document.getElementById('camSetName').value.trim() || 'Nytt kortsett';
-      const set = { id: uid(), name, createdAt: Date.now(), teacherId: currentTeacherId || '', studentId: '', classId: '', cards: _camCards };
+      const isStudent = currentRole === 'student' && currentStudentData;
+      const set = {
+        id: uid(), name, createdAt: Date.now(),
+        teacherId:  isStudent ? currentStudentData.teacher_id : (currentTeacherId || ''),
+        studentId:  isStudent ? currentStudentData.id         : '',
+        classId:    isStudent ? currentStudentData.class_id   : '',
+        cards: _camCards
+      };
       await sbUpsertSet(set);
+      // Log activity for students saving a camera set
+      if (isStudent) logActivity('camera_save', set.id);
       toast(`«${name}» lagret med ${_camCards.length} kort ✓`, 'success');
-      showScreen('teacher-sets');
-      loadTeacherSets();
+      if (isStudent) {
+        showScreen('student-select');
+        loadStudentSets();
+      } else {
+        showScreen('teacher-sets');
+        loadTeacherSets();
+      }
     }
   } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); }
 }
@@ -3117,15 +3645,14 @@ function addChip(text) {
    SETTINGS
    ============================================================ */
 async function loadSettingsUI() {
-  document.getElementById('settingDisplayName').value   = await getCfg('displayName')      || '';
-  document.getElementById('settingPassword').value      = await getCfg('teacherPassword')  || '';
-  document.getElementById('settingAdminPassword').value = await getCfg('adminPassword')    || '';
+  document.getElementById('settingDisplayName').value = await getCfg('displayName')     || '';
+  document.getElementById('settingPassword').value    = await getCfg('teacherPassword') || '';
   document.getElementById('settingClaude').value        = await getCfg('claude')            || '';
   document.getElementById('settingPixabay').value       = await getCfg('pixabay')           || '';
   document.getElementById('settingAppMode').value       = await getCfg('appMode')           || 'standard';
   const appMode = await getCfg('appMode') || 'standard';
   const cmSection = document.getElementById('classManagementSection');
-  if (appMode === 'klassemodus' && currentTeacherId) {
+  if (appMode === 'voksen' && currentTeacherId) {
     cmSection.style.display = '';
     loadClassList();
   } else {
@@ -3297,6 +3824,7 @@ async function showSortSelect() {
 }
 
 async function startSortGame(secondId) {
+  currentGameType = 'sort';
   const setB = await sbGetSet(secondId);
   if (!setB) return;
   const setA = selectedSetForGame;
@@ -3530,6 +4058,7 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('pwModal').classList.contains('open'))        { closePwModal(); return; }
     if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
     if (document.getElementById('teacherModal').classList.contains('open'))   { closeTeacherModal(); return; }
+    if (document.getElementById('libPreviewModal').classList.contains('open')){ closeLibPreviewModal(); return; }
     if (history.length > 1) goBack();
   }
   if (document.getElementById('pwModal').classList.contains('open')) {
@@ -3572,6 +4101,399 @@ async function addNewClass() {
 async function deleteClass(id) {
   if (!confirm('Slett denne klassen? Elever vil miste tilgang.')) return;
   try { await sbDeleteClass(id); toast('Klasse slettet'); loadClassList(); } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ============================================================
+   APPROVAL DASHBOARD
+   ============================================================ */
+
+async function loadPendingCount() {
+  // Only relevant in Voksen mode
+  const appMode = await getCfg('appMode') || 'standard';
+  const notice  = document.getElementById('pendingNotice');
+  const vBar    = document.getElementById('voksenTeacherBar');
+  if (!notice) return;
+  if (appMode !== 'voksen' || !currentTeacherId) {
+    notice.style.display = 'none';
+    if (vBar) vBar.style.display = 'none';
+    return;
+  }
+  if (vBar) vBar.style.display = '';
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&status=eq.pending&select=id`,
+      { headers: sbHeaders() }
+    );
+    if (!resp.ok) return;
+    const rows = await resp.json();
+    if (rows.length > 0) {
+      document.getElementById('pendingCount').textContent = rows.length;
+      notice.style.display = '';
+    } else {
+      notice.style.display = 'none';
+    }
+  } catch {}
+}
+
+async function loadApprovalScreen() {
+  const list  = document.getElementById('approvalList');
+  const empty = document.getElementById('approvalEmpty');
+  list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div> Laster…</div>';
+  empty.style.display = 'none';
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&status=eq.pending&select=*&order=created_at.asc`,
+      { headers: sbHeaders() }
+    );
+    if (!resp.ok) throw new Error('Supabase feil');
+    const students = await resp.json();
+    if (!students.length) {
+      list.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    list.innerHTML = students.map(s => `
+      <div class="approval-item" id="approval-${s.id}">
+        <div class="approval-avatar" style="background:${esc(s.avatar_color)}">${esc(s.avatar_emoji)}</div>
+        <div class="approval-info">
+          <input class="approval-name-input" id="aname-${s.id}"
+                 type="text" placeholder="Skriv inn elevens navn…" autocomplete="off"
+                 onkeydown="if(event.key==='Enter')approveStudent('${s.id}')" />
+          <div class="approval-meta">Ble med: ${new Date(s.created_at).toLocaleDateString('no-NO')}</div>
+        </div>
+        <div class="approval-actions">
+          <button class="btn btn-success btn-sm" onclick="approveStudent('${s.id}')">✅ Godkjenn</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectStudent('${s.id}')">✕</button>
+        </div>
+      </div>`).join('');
+  } catch(err) { list.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
+}
+
+async function approveStudent(id) {
+  const nameInput = document.getElementById(`aname-${id}`);
+  const realName  = nameInput?.value.trim() || '';
+  if (!realName) { nameInput?.focus(); toast('Skriv inn elevens navn først', 'error'); return; }
+  try {
+    // 1. Set student status to active
+    await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(id)}`, {
+      method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ status: 'active' })
+    });
+    // 2. Save real name in teacher-private table (upsert)
+    await fetch(`${SUPABASE_URL}/rest/v1/teacher_student_names`, {
+      method: 'POST',
+      headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify({ teacher_id: currentTeacherId, student_id: id, real_name: realName })
+    });
+    // 3. Remove row from UI
+    document.getElementById(`approval-${id}`)?.remove();
+    toast(`${realName} er godkjent ✅`, 'success');
+    // 4. Refresh pending count badge
+    loadPendingCount();
+    // 5. Show empty state if no more pending
+    if (!document.querySelector('.approval-item')) {
+      document.getElementById('approvalEmpty').style.display = '';
+    }
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function rejectStudent(id) {
+  if (!confirm('Avslå denne eleven? De vil bli slettet.')) return;
+  try {
+    await sbDeleteStudent(id);
+    document.getElementById(`approval-${id}`)?.remove();
+    toast('Elev avslått og slettet');
+    loadPendingCount();
+    if (!document.querySelector('.approval-item')) {
+      document.getElementById('approvalEmpty').style.display = '';
+    }
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ============================================================
+   TASK MANAGEMENT (TEACHER)
+   ============================================================ */
+let _newTaskType = null;
+let _newTaskGameMode = null;
+
+const GAME_MODES = [
+  { id:'flashcard', icon:'👀', label:'Se og lær' },
+  { id:'pairs',     icon:'🎴', label:'Finn par' },
+  { id:'find',      icon:'🔍', label:'Finn bildet' },
+  { id:'multiple',  icon:'🃏', label:'Hva er dette?' },
+  { id:'sort',      icon:'🔀', label:'Sorter' },
+  { id:'speak',     icon:'🎤', label:'Si ordet' },
+];
+
+async function loadTeacherTasks() {
+  const list  = document.getElementById('teacherTaskList');
+  const empty = document.getElementById('teacherTaskEmpty');
+  if (!list) return;
+  list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div> Laster…</div>';
+  empty.style.display = 'none';
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/tasks?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&order=created_at.desc`,
+      { headers: sbHeaders() }
+    );
+    if (!resp.ok) throw new Error('Supabase feil');
+    const tasks = await resp.json();
+    if (!tasks.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+
+    // Fetch class names for display
+    let classMap = {};
+    try {
+      const cr = await fetch(`${SUPABASE_URL}/rest/v1/classes?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=id,name`, { headers: sbHeaders() });
+      if (cr.ok) { (await cr.json()).forEach(c => { classMap[c.id] = c.name; }); }
+    } catch {}
+
+    // Fetch student name map (real names from teacher_student_names)
+    let studentMap = {};
+    try {
+      const sr = await fetch(`${SUPABASE_URL}/rest/v1/teacher_student_names?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=student_id,real_name`, { headers: sbHeaders() });
+      if (sr.ok) { (await sr.json()).forEach(s => { studentMap[s.student_id] = s.real_name; }); }
+    } catch {}
+
+    list.innerHTML = tasks.map(t => {
+      const isPlay    = t.type === 'play';
+      const typeLabel = isPlay ? '🎮 Spill' : '📸 Ta bilder';
+      const typeClass = isPlay ? 'play' : 'photo';
+      const assignee  = t.student_id ? (studentMap[t.student_id] || 'Én elev')
+                      : t.class_id   ? (classMap[t.class_id]    || 'Klassen')
+                      : 'Alle';
+      const modeName  = t.game_mode ? ` · ${gameModeName(t.game_mode)}` : '';
+      return `
+        <div class="teacher-task-item">
+          <div class="teacher-task-accent ${typeClass}"></div>
+          <div class="teacher-task-body">
+            <div class="teacher-task-type ${typeClass}">${typeLabel}${modeName}</div>
+            <div class="teacher-task-desc">${esc(t.description || 'Oppgave')}</div>
+            <div class="teacher-task-meta">👥 ${esc(assignee)}</div>
+          </div>
+          <div class="teacher-task-del">
+            <button class="btn-icon" onclick="deleteTask('${t.id}')" title="Slett oppgave">🗑️</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err) { list.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Slett denne oppgaven?')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/tasks?id=eq.${encodeURIComponent(id)}`, { method:'DELETE', headers: sbHeaders() });
+    toast('Oppgave slettet');
+    loadTeacherTasks();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function openNewTask() {
+  _newTaskType = null;
+  _newTaskGameMode = null;
+  // Reset UI
+  document.getElementById('ttPlay').classList.remove('selected');
+  document.getElementById('ttPhoto').classList.remove('selected');
+  document.getElementById('ntPlayFields').style.display  = 'none';
+  document.getElementById('ntPhotoFields').style.display = 'none';
+  document.getElementById('ntDescSection').style.display = 'none';
+  document.getElementById('ntSaveBtn').style.display     = 'none';
+  document.getElementById('ntDescription').value = '';
+  document.getElementById('ntPhotoCount').value  = '5';
+  document.getElementById('ntAssignTo').value    = 'class';
+  document.getElementById('ntStudentWrap').style.display = 'none';
+  document.getElementById('ntClassWrap').style.display   = '';
+
+  // Populate game mode grid
+  document.getElementById('ntGameModeGrid').innerHTML = GAME_MODES.map(m => `
+    <button class="task-type-btn" id="gm-${m.id}" onclick="selectTaskGameMode('${m.id}')" style="padding:14px 8px">
+      <span style="font-size:26px">${m.icon}</span>
+      <span style="font-size:13px;font-weight:700">${m.label}</span>
+    </button>`).join('');
+
+  // Populate card set dropdown
+  try {
+    const sets = await sbGetAllSets();
+    const sel  = document.getElementById('ntSetSelect');
+    sel.innerHTML = '<option value="">— Velg et kortsett —</option>' +
+      sets.map(s => `<option value="${s.id}">${esc(s.name || 'Uten navn')} (${s.cards.length} kort)</option>`).join('');
+  } catch {}
+
+  // Populate class dropdown
+  try {
+    const classes = await sbGetClasses();
+    const sel = document.getElementById('ntClassSelect');
+    sel.innerHTML = classes.length
+      ? classes.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')
+      : '<option value="">Ingen klasser</option>';
+  } catch {}
+
+  // Populate student dropdown
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/teacher_student_names?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=student_id,real_name`,
+      { headers: sbHeaders() }
+    );
+    const names = resp.ok ? await resp.json() : [];
+    const sel = document.getElementById('ntStudentSelect');
+    sel.innerHTML = names.length
+      ? '<option value="">— Velg elev —</option>' + names.map(n => `<option value="${n.student_id}">${esc(n.real_name)}</option>`).join('')
+      : '<option value="">Ingen elever ennå</option>';
+  } catch {}
+
+  showScreen('new-task');
+}
+
+function selectTaskType(type) {
+  _newTaskType = type;
+  document.getElementById('ttPlay').classList.toggle('selected',  type === 'play');
+  document.getElementById('ttPhoto').classList.toggle('selected', type === 'photo');
+  document.getElementById('ntPlayFields').style.display  = type === 'play'  ? '' : 'none';
+  document.getElementById('ntPhotoFields').style.display = type === 'photo' ? '' : 'none';
+  document.getElementById('ntDescSection').style.display = '';
+  document.getElementById('ntSaveBtn').style.display     = '';
+}
+
+function selectTaskGameMode(mode) {
+  _newTaskGameMode = mode;
+  GAME_MODES.forEach(m => {
+    document.getElementById(`gm-${m.id}`)?.classList.toggle('selected', m.id === mode);
+  });
+}
+
+function updateStudentSelect() {
+  const val = document.getElementById('ntAssignTo').value;
+  document.getElementById('ntStudentWrap').style.display = val === 'student' ? '' : 'none';
+  document.getElementById('ntClassWrap').style.display   = val === 'class'   ? '' : 'none';
+}
+
+async function saveNewTask() {
+  if (!_newTaskType) { toast('Velg oppgavetype først', 'error'); return; }
+  const desc = document.getElementById('ntDescription').value.trim();
+  if (!desc)  { toast('Skriv en beskrivelse til eleven', 'error'); return; }
+
+  const assignTo  = document.getElementById('ntAssignTo').value;
+  const classId   = assignTo === 'class'   ? (document.getElementById('ntClassSelect').value   || null) : null;
+  const studentId = assignTo === 'student' ? (document.getElementById('ntStudentSelect').value || null) : null;
+
+  if (assignTo === 'class'   && !classId)   { toast('Velg en klasse', 'error'); return; }
+  if (assignTo === 'student' && !studentId) { toast('Velg en elev', 'error'); return; }
+
+  const task = {
+    id:          uid(),
+    teacher_id:  currentTeacherId,
+    class_id:    classId,
+    student_id:  studentId,
+    type:        _newTaskType,
+    description: desc,
+    game_mode:   _newTaskType === 'play'  ? (_newTaskGameMode || null) : null,
+    set_id:      _newTaskType === 'play'  ? (document.getElementById('ntSetSelect').value || null) : null,
+    photo_count: _newTaskType === 'photo' ? (parseInt(document.getElementById('ntPhotoCount').value) || 5) : null,
+  };
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
+      method: 'POST',
+      headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+      body: JSON.stringify(task)
+    });
+    toast('Oppgave lagret ✅', 'success');
+    goBack(); // returns to task list, which auto-reloads
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ============================================================
+   PUBLIC LIBRARY
+   ============================================================ */
+let _libPreviewSet = null;
+
+function openLibrary() {
+  document.getElementById('libSearchInput').value = '';
+  document.getElementById('libResults').innerHTML =
+    '<div class="modal-info" style="padding:40px 0">Skriv inn et søkeord for å finne kortsett</div>';
+  showScreen('library');
+}
+
+async function searchLibrary() {
+  const query = document.getElementById('libSearchInput').value.trim();
+  const resultsEl = document.getElementById('libResults');
+  if (!query) { toast('Skriv inn et søkeord', 'error'); return; }
+  resultsEl.innerHTML = '<div class="spinner-wrap" style="justify-content:center;padding:40px 0"><div class="spinner"></div><span style="color:var(--text-light)">Søker…</span></div>';
+  try {
+    // ilike search on name, is_public must be true
+    const url = `${SUPABASE_URL}/rest/v1/card_sets?is_public=eq.true&name=ilike.*${encodeURIComponent(query)}*&select=id,name,cards,created_by,teacher_id&order=created_at.desc&limit=40`;
+    const resp = await fetch(url, { headers: sbHeaders() });
+    if (!resp.ok) throw new Error('Supabase feil');
+    const rows = await resp.json();
+    const sets = rows.map(sbRowToSet).filter(s => s.cards?.length >= 2);
+    if (!sets.length) {
+      resultsEl.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Ingen kortsett funnet for «' + esc(query) + '»</div></div>';
+      return;
+    }
+    resultsEl.innerHTML = `<div class="lib-grid">${sets.map(s => {
+      const preview = s.cards.slice(0,4).map(c =>
+        `<div class="lib-card-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+      return `
+        <div class="lib-card" onclick="previewLibrarySet('${s.id}')">
+          <div class="lib-card-preview">${preview}</div>
+          <div class="lib-card-info">
+            <div class="lib-card-name">${esc(s.name || 'Uten navn')}</div>
+            <div class="lib-card-meta">${s.cards.length} kort${s.createdBy ? ' · ' + esc(s.createdBy) : ''}</div>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+  } catch(err) { resultsEl.innerHTML = ''; toast('Søk feilet: ' + err.message, 'error'); }
+}
+
+async function previewLibrarySet(id) {
+  try {
+    const s = await sbGetSet(id);
+    if (!s) return;
+    _libPreviewSet = s;
+    document.getElementById('libPreviewTitle').textContent = s.name || 'Kortsett';
+    document.getElementById('libPreviewMeta').textContent  =
+      `${s.cards.length} kort${s.createdBy ? ' · Laget av ' + s.createdBy : ''}`;
+    // Preview grid — first 6 cards
+    document.getElementById('libPreviewGrid').innerHTML = s.cards.slice(0,6).map(c =>
+      `<div class="lib-modal-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+    // Word list
+    document.getElementById('libPreviewCards').innerHTML = s.cards.slice(0,12).map(c =>
+      `<div style="padding:8px 12px;background:var(--bg);border-radius:8px;font-size:14px;font-weight:600">${esc(c.text || '–')}</div>`).join('');
+    document.getElementById('libPreviewModal').classList.add('open');
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+function handleLibModalClick(e) {
+  if (e.target === document.getElementById('libPreviewModal')) closeLibPreviewModal();
+}
+function closeLibPreviewModal() {
+  document.getElementById('libPreviewModal').classList.remove('open');
+  _libPreviewSet = null;
+}
+
+async function copyLibrarySet() {
+  if (!_libPreviewSet) return;
+  const btn = document.getElementById('libCopyBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Kopierer…';
+  try {
+    const copy = deepCopy(_libPreviewSet);
+    copy.id         = uid();
+    copy.name       = _libPreviewSet.name;
+    copy.createdAt  = Date.now();
+    copy.teacherId  = currentTeacherId || '';
+    copy.studentId  = '';
+    copy.classId    = '';
+    copy.isPublic   = false; // copy starts private
+    copy.createdBy  = _cfgCache['displayName'] || '';
+    await sbUpsertSet(copy);
+    toast(`«${copy.name}» kopiert til dine kortsett ✅`, 'success');
+    closeLibPreviewModal();
+    loadTeacherSets();
+  } catch(err) {
+    toast('Kopiering feilet: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📋 Kopier til mine kortsett';
+  }
 }
 
 /* ============================================================
@@ -3841,7 +4763,6 @@ function showNewStudentFlow() {
   selectedAvatarEmoji = AVATAR_EMOJIS[0];
   selectedAvatarColor = AVATAR_COLORS[0];
   document.getElementById('nsClassCode').value = '';
-  document.getElementById('nsUsername').value = '';
   renderEmojiPicker();
   renderColorPicker();
   updateAvatarPreview();
@@ -3868,10 +4789,8 @@ function updateAvatarPreview() {
 }
 
 async function createNewStudent() {
-  const code     = document.getElementById('nsClassCode').value.trim().toUpperCase();
-  const username = document.getElementById('nsUsername').value.trim();
-  if (!code)     { toast('Skriv inn klasskoden', 'error'); return; }
-  if (!username) { toast('Skriv inn et kallenavn', 'error'); return; }
+  const code = document.getElementById('nsClassCode').value.trim().toUpperCase();
+  if (!code) { toast('Skriv inn klasskoden', 'error'); return; }
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?code=eq.${encodeURIComponent(code)}&select=*`, { headers: sbHeaders() });
@@ -3884,37 +4803,313 @@ async function createNewStudent() {
       id: uid(),
       teacher_id: cls.teacher_id,
       class_id: cls.id,
-      username,
+      username: '',           // no username — avatar only
       avatar_emoji: selectedAvatarEmoji,
-      avatar_color: selectedAvatarColor
+      avatar_color: selectedAvatarColor,
+      status: 'pending'
     };
     await sbUpsertStudent(student);
 
     currentStudentData = student;
     localStorage.setItem('vvo_student_id', student.id);
-    currentRole = 'student';
-    currentTeacherId = cls.teacher_id;
-    await loadCloudSettings();
-    toast(`Velkommen, ${username}! 🎉`, 'success');
-    showScreen('student-select');
-    loadStudentSets();
+    showPendingScreen();
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+function showPendingScreen() {
+  const el = document.getElementById('pendingAvatarDisplay');
+  if (el && currentStudentData) {
+    el.textContent = currentStudentData.avatar_emoji;
+    el.style.background = currentStudentData.avatar_color;
+  }
+  showScreen('pending');
+}
+
+async function checkPendingStatus() {
+  if (!currentStudentData) { studentLogout(); return; }
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(currentStudentData.id)}&select=status`, { headers: sbHeaders() });
+    if (!resp.ok) throw new Error('Supabase feil');
+    const rows = await resp.json();
+    if (!rows[0]) { toast('Fant ikke profilen din', 'error'); return; }
+    if (rows[0].status === 'active') {
+      // Re-fetch full student record and proceed
+      const full = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(currentStudentData.id)}&select=*`, { headers: sbHeaders() });
+      const students = await full.json();
+      currentStudentData = students[0];
+      currentRole = 'student';
+      currentTeacherId = currentStudentData.teacher_id;
+      localStorage.setItem('vvo_student_id', currentStudentData.id);
+      await loadCloudSettings();
+      toast('Du er godkjent! Velkommen 🎉', 'success');
+      showScreen('student-select');
+      loadStudentSets();
+    } else {
+      toast('Ikke godkjent ennå — prøv igjen litt senere', 'error');
+    }
   } catch(err) { toast('Feil: ' + err.message, 'error'); }
 }
 
 function updateStudentInfoBar() {
-  const bar    = document.getElementById('studentInfoBar');
-  const cbar   = document.getElementById('studentCreateBar');
-  if (!bar || !cbar) return;
-  if (currentRole === 'student' && currentStudentData) {
-    bar.style.display = 'flex';
-    cbar.style.display = '';
-    document.getElementById('studentInfoAvatar').textContent = currentStudentData.avatar_emoji;
-    document.getElementById('studentInfoAvatar').style.background = currentStudentData.avatar_color;
-    document.getElementById('studentInfoName').textContent = currentStudentData.username;
-  } else {
-    bar.style.display = 'none';
-    cbar.style.display = 'none';
-  }
+  // Legacy — only used in Standard mode now; Voksen home handles its own UI
+  const cbar = document.getElementById('studentCreateBar');
+  if (cbar) cbar.style.display = 'none';
+}
+
+/* ============================================================
+   VOKSEN HOME
+   ============================================================ */
+function showVoksenHome() {
+  document.getElementById('standardHomeHeader').style.display = 'none';
+  document.getElementById('voksenHome').classList.add('active');
+  // Greeting
+  const avatar = document.getElementById('vhAvatar');
+  avatar.textContent   = currentStudentData.avatar_emoji;
+  avatar.style.background = currentStudentData.avatar_color;
+  document.getElementById('vhGreeting').textContent = 'Hei! 👋';
+  // Show create bar
+  const cbar = document.getElementById('studentCreateBar');
+  if (cbar) cbar.style.display = '';
+  // Show sets title
+  document.getElementById('vhSetsTitle').style.display = '';
+  // Load tasks async
+  loadVoksenTasks();
+}
+
+function hideVoksenHome() {
+  document.getElementById('standardHomeHeader').style.display = '';
+  document.getElementById('voksenHome').classList.remove('active');
+  document.getElementById('vhSetsTitle').style.display = 'none';
+}
+
+async function loadVoksenTasks() {
+  const section = document.getElementById('vhTasksSection');
+  const list    = document.getElementById('vhTaskList');
+  if (!section || !list) return;
+  try {
+    // Fetch tasks for this student's class (or assigned directly)
+    const classId   = currentStudentData.class_id;
+    const studentId = currentStudentData.id;
+    const url = `${SUPABASE_URL}/rest/v1/tasks?or=(class_id.eq.${encodeURIComponent(classId)},student_id.eq.${encodeURIComponent(studentId)})&teacher_id=eq.${encodeURIComponent(currentStudentData.teacher_id)}&order=created_at.desc`;
+    const resp = await fetch(url, { headers: sbHeaders() });
+    if (!resp.ok) return;
+    const tasks = await resp.json();
+    if (!tasks.length) { section.style.display = 'none'; return; }
+    section.style.display = '';
+    list.innerHTML = tasks.map(t => {
+      const isPlay  = t.type === 'play';
+      const typeLabel = isPlay ? '🎮 Spill' : '📸 Ta bilder';
+      const typeClass = isPlay ? 'play' : 'photo';
+      const sub = isPlay
+        ? (t.game_mode ? gameModeName(t.game_mode) : '')
+        : (t.photo_count ? `Mål: ${t.photo_count} bilder` : '');
+      return `
+        <button class="vh-task-card" onclick="startTask('${t.id}')">
+          <div class="vh-task-accent ${typeClass}"></div>
+          <div class="vh-task-body">
+            <div class="vh-task-type ${typeClass}">${typeLabel}</div>
+            <div class="vh-task-desc">${esc(t.description || 'Oppgave')}</div>
+            ${sub ? `<div class="vh-task-sub">${esc(sub)}</div>` : ''}
+          </div>
+          <div class="vh-task-arrow">›</div>
+        </button>`;
+    }).join('');
+  } catch { section.style.display = 'none'; }
+}
+
+function gameModeName(mode) {
+  const names = { pairs:'Finn par', find:'Finn bildet', flashcard:'Se og lær', multiple:'Hva er dette?', sort:'Sorter kortene', speed:'Rask svar', speak:'Si ordet' };
+  return names[mode] || mode;
+}
+
+async function startTask(taskId) {
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/tasks?id=eq.${encodeURIComponent(taskId)}&select=*`, { headers: sbHeaders() });
+    const tasks = await resp.json();
+    const task = tasks[0];
+    if (!task) return;
+    if (task.type === 'photo') {
+      // Open camera builder with task context
+      studentCreateSet(task);
+    } else if (task.type === 'play' && task.set_id) {
+      const s = await sbGetSet(task.set_id);
+      if (!s) { toast('Finner ikke kortsettet', 'error'); return; }
+      selectedSetForGame = s;
+      document.getElementById('gtSetName').textContent = s.name;
+      if (task.game_mode) {
+        pickGameType(task.game_mode);
+      } else {
+        showScreen('game-type');
+      }
+    } else {
+      showScreen('game-type');
+    }
+  } catch(err) { toast('Feil: ' + err.message, 'error'); }
+}
+
+async function loadVoksenProgress() {
+  const section = document.getElementById('vhProgressSection');
+  if (!section) return;
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/activity_log?student_id=eq.${encodeURIComponent(currentStudentData.id)}&select=created_at`,
+      { headers: sbHeaders() }
+    );
+    if (!resp.ok) return;
+    const rows = await resp.json();
+    document.getElementById('vhStatSets').textContent = rows.length || '0';
+    if (rows.length) {
+      const last = new Date(rows[0].created_at);
+      document.getElementById('vhStatStreak').textContent = last.toLocaleDateString('no-NO', { day:'numeric', month:'short' });
+    } else {
+      document.getElementById('vhStatStreak').textContent = '–';
+    }
+    section.style.display = '';
+  } catch { section.style.display = 'none'; }
+}
+
+function openWhatIsThis() {
+  witReset();
+  showScreen('what-is-this');
+}
+
+/* ============================================================
+   WHAT IS THIS — CAMERA WORD FINDER
+   ============================================================ */
+let _witImageData = null;
+let _witWord      = null;
+
+function witReset() {
+  _witImageData = null;
+  _witWord      = null;
+  // Show capture phase, hide result phase
+  document.getElementById('witCapturePhase').style.display = '';
+  document.getElementById('witResultPhase').style.display  = 'none';
+  document.getElementById('witFileInput').value = '';
+}
+
+function triggerWitCapture() {
+  document.getElementById('witFileInput').click();
+}
+
+async function handleWitCapture(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Switch to result phase immediately — show spinner
+  document.getElementById('witCapturePhase').style.display = 'none';
+  const resultPhase = document.getElementById('witResultPhase');
+  resultPhase.style.display = 'flex';
+  document.getElementById('witSpinner').style.display    = 'flex';
+  document.getElementById('witWordWrap').style.display   = 'none';
+  document.getElementById('witListenBtn').style.display  = 'none';
+  document.getElementById('witSaveSection').style.display = 'none';
+  document.getElementById('witRetryBtn').style.display   = 'none';
+
+  // Compress and show image preview immediately
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const compressed = await compressImg(e.target.result, 900, 900);
+    _witImageData = compressed;
+    document.getElementById('witResultImg').src = compressed;
+    input.value = '';
+
+    // Call Gemini to identify
+    const apiKey = await getCfg('claude');
+    if (!apiKey) {
+      witShowError('Legg til Gemini API-nøkkel i innstillinger');
+      return;
+    }
+    try {
+      const word = await identifyImageWithGemini(compressed, apiKey);
+      if (!word) { witShowError('Klarte ikke å kjenne igjen bildet — prøv et annet'); return; }
+      _witWord = word;
+      // Show result
+      document.getElementById('witSpinner').style.display    = 'none';
+      document.getElementById('witWord').textContent         = word;
+      document.getElementById('witWordWrap').style.display   = '';
+      document.getElementById('witListenBtn').style.display  = '';
+      document.getElementById('witRetryBtn').style.display   = '';
+      // Auto-speak the word
+      speakText(word);
+      // Populate set dropdown and show save section
+      await witPopulateSetSelect();
+      document.getElementById('witSaveSection').style.display = '';
+    } catch(err) {
+      witShowError('Feil: ' + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function witShowError(msg) {
+  document.getElementById('witSpinner').style.display  = 'none';
+  document.getElementById('witRetryBtn').style.display = '';
+  toast(msg, 'error');
+}
+
+function witSpeak() {
+  if (_witWord) speakText(_witWord);
+}
+
+async function witPopulateSetSelect() {
+  const sel = document.getElementById('witSetSelect');
+  sel.innerHTML = '<option value="__new__">+ Lag et nytt kortsett</option>';
+  try {
+    // Student's own sets
+    let url = `${SUPABASE_URL}/rest/v1/card_sets?select=id,name&order=created_at.desc`;
+    if (currentRole === 'student' && currentStudentData) {
+      url += `&student_id=eq.${encodeURIComponent(currentStudentData.id)}`;
+    }
+    const resp = await fetch(url, { headers: sbHeaders() });
+    if (resp.ok) {
+      const sets = await resp.json();
+      sets.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value       = s.id;
+        opt.textContent = s.name || 'Uten navn';
+        sel.appendChild(opt);
+      });
+    }
+  } catch {}
+}
+
+async function witSaveCard() {
+  if (!_witImageData || !_witWord) return;
+  const setChoice = document.getElementById('witSetSelect').value;
+  const card = {
+    id:        uid(),
+    text:      _witWord,
+    imageData: _witImageData,
+    audioData: null,
+    ttsEnabled: true,   // auto-TTS so the card speaks when played
+  };
+
+  try {
+    if (setChoice === '__new__') {
+      // Create a new set with just this card
+      const set = {
+        id:        uid(),
+        name:      _witWord,
+        createdAt: Date.now(),
+        teacherId: currentStudentData?.teacher_id || currentTeacherId || '',
+        studentId: currentStudentData?.id || '',
+        classId:   currentStudentData?.class_id || '',
+        cards:     [card],
+      };
+      await sbUpsertSet(set);
+      toast(`Kort lagret i nytt kortsett «${_witWord}» ✅`, 'success');
+    } else {
+      // Add to existing set
+      const existing = await sbGetSet(setChoice);
+      if (!existing) { toast('Fant ikke kortsettet', 'error'); return; }
+      existing.cards.push(card);
+      await sbUpsertSet(existing);
+      toast(`Kort lagt til i «${existing.name}» ✅`, 'success');
+    }
+    // Reset to capture phase so they can look up another word
+    witReset();
+  } catch(err) { toast('Lagring feilet: ' + err.message, 'error'); }
 }
 
 function studentLogout() {
@@ -3925,17 +5120,17 @@ function studentLogout() {
   showStudentLogin();
 }
 
-function studentCreateSet() {
-  const displayName = currentStudentData?.username || '';
+function studentCreateSet(task = null) {
   workingSet = {
-    id: uid(), name: '', createdAt: Date.now(),
-    createdBy: displayName,
+    id: uid(), name: task?.description || '', createdAt: Date.now(),
+    createdBy: '',
     teacherId: currentStudentData?.teacher_id || '',
     studentId: currentStudentData?.id || '',
     classId:   currentStudentData?.class_id || '',
+    taskId:    task?.id || '',
     cards: []
   };
-  openEditSet();
+  openCameraSetBuilder(workingSet);
 }
 
 /* ============================================================
@@ -4010,6 +5205,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
   const cur = history[history.length - 1];
   if (cur === 'teacher-sets') loadTeacherSets();
+  else if (cur === 'approval') loadApprovalScreen();
   else if (cur === 'student-select') loadStudentSets();
 });
 </script>
