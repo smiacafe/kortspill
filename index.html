@@ -122,6 +122,114 @@ body {
 .btn-full { width: 100%; justify-content: center; }
 .btn-sm   { padding: 7px 14px; font-size: 13px; }
 
+/* ── LANDING PAGE ── */
+#screen-landing {
+  padding: 0; max-width: none;
+  min-height: 100dvh;
+  display: none;
+  flex-direction: column;
+}
+#screen-landing.active { display: flex; }
+
+.landing-hero {
+  flex: 1;
+  background: linear-gradient(150deg, #0f172a 0%, #1e3a5f 50%, #0f4c81 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 28px 40px;
+  position: relative; overflow: hidden;
+  text-align: center;
+}
+
+/* Decorative background circles */
+.landing-hero::before {
+  content: '';
+  position: absolute; top: -120px; right: -120px;
+  width: 400px; height: 400px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  pointer-events: none;
+}
+.landing-hero::after {
+  content: '';
+  position: absolute; bottom: -80px; left: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  pointer-events: none;
+}
+
+.landing-cards-decoration {
+  display: flex; gap: 12px; margin-bottom: 36px;
+  position: relative; z-index: 1;
+}
+.landing-card-mini {
+  width: 52px; height: 68px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  animation: landingFloat 3s ease-in-out infinite;
+}
+.landing-card-mini:nth-child(1) { background:#2563EB; animation-delay:0s; }
+.landing-card-mini:nth-child(2) { background:#16A34A; animation-delay:.4s; transform:translateY(-10px); }
+.landing-card-mini:nth-child(3) { background:#9333EA; animation-delay:.8s; }
+.landing-card-mini:nth-child(4) { background:#EA580C; animation-delay:.2s; transform:translateY(-6px); }
+@keyframes landingFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.landing-card-mini:nth-child(2) { animation-name: landingFloat2; }
+.landing-card-mini:nth-child(4) { animation-name: landingFloat3; }
+@keyframes landingFloat2 { 0%,100%{transform:translateY(-10px)} 50%{transform:translateY(-18px)} }
+@keyframes landingFloat3 { 0%,100%{transform:translateY(-6px)}  50%{transform:translateY(-14px)} }
+
+.landing-title {
+  font-size: 38px; font-weight: 900; color: #fff;
+  letter-spacing: -1px; line-height: 1.1;
+  margin-bottom: 10px; position: relative; z-index: 1;
+}
+.landing-title span { color: #60a5fa; }
+.landing-sub {
+  font-size: 16px; color: rgba(255,255,255,.65);
+  margin-bottom: 44px; line-height: 1.5;
+  position: relative; z-index: 1; max-width: 280px;
+}
+
+.landing-btns {
+  display: flex; flex-direction: column; gap: 14px;
+  width: 100%; max-width: 320px;
+  position: relative; z-index: 1;
+}
+.landing-btn-student {
+  padding: 18px 24px; border-radius: 16px; border: none;
+  background: #fff; color: #0f172a;
+  font-size: 17px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  transition: transform .12s, box-shadow .12s;
+}
+.landing-btn-student:active { transform: scale(.97); }
+.landing-btn-teacher {
+  padding: 18px 24px; border-radius: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1);
+  color: #fff; font-size: 17px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 14px;
+  backdrop-filter: blur(8px);
+  transition: transform .12s, background .15s;
+}
+.landing-btn-teacher:active { transform: scale(.97); background: rgba(255,255,255,.18); }
+.landing-btn-icon { font-size: 26px; flex-shrink: 0; }
+.landing-btn-text { text-align: left; }
+.landing-btn-label { display: block; }
+.landing-btn-sub   { display: block; font-size: 12px; font-weight: 500; opacity: .65; margin-top: 2px; }
+
+.landing-footer {
+  padding: 16px 20px;
+  text-align: center; font-size: 12px;
+  color: rgba(255,255,255,.3);
+  background: linear-gradient(150deg, #0f172a 0%, #1e3a5f 100%);
+}
+
 /* ── STUDENT HOME ── */
 .student-home-hero {
   text-align: center;
@@ -994,16 +1102,43 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" id="mainNav" style="display:none">
   <button class="nav-back" id="navBack" onclick="goBack()" aria-label="Tilbake">←</button>
-  <span class="nav-title" id="navTitle">VVO språkkort</span>
-  <!-- Home button — visible on student screens when not on home page -->
+  <span class="nav-title" id="navTitle"></span>
   <button class="nav-btn nav-home-btn" id="navHomeBtn" onclick="goHome()" title="Hjem" aria-label="Hjem" style="display:none">🏠</button>
-  <!-- Teacher lock button — visible on student-facing screens -->
-  <button class="nav-btn nav-teacher-btn" id="navTeacherBtn" onclick="promptTeacherPassword()" title="Lærerinnlogging" aria-label="Lærer">Lærer</button>
-  <!-- Settings button — visible only inside teacher screens -->
   <button class="nav-btn" id="navSettingsBtn" onclick="goSettings()" title="Innstillinger" aria-label="Innstillinger" style="display:none">⚙️</button>
 </nav>
+
+<!-- ── LANDING PAGE ── -->
+<div class="screen active" id="screen-landing">
+  <div class="landing-hero">
+    <div class="landing-cards-decoration">
+      <div class="landing-card-mini">🍎</div>
+      <div class="landing-card-mini">🚗</div>
+      <div class="landing-card-mini">🏠</div>
+      <div class="landing-card-mini">🐶</div>
+    </div>
+    <div class="landing-title">VVO <span>Kortspill</span></div>
+    <div class="landing-sub">Lær norske ord gjennom bilder, lyd og spill</div>
+    <div class="landing-btns">
+      <button class="landing-btn-student" onclick="showStudentLogin()">
+        <span class="landing-btn-icon">🎒</span>
+        <span class="landing-btn-text">
+          <span class="landing-btn-label">Jeg er elev</span>
+          <span class="landing-btn-sub">Logg inn med klassekoden din</span>
+        </span>
+      </button>
+      <button class="landing-btn-teacher" onclick="promptTeacherPassword()">
+        <span class="landing-btn-icon">👩‍🏫</span>
+        <span class="landing-btn-text">
+          <span class="landing-btn-label">Jeg er lærer</span>
+          <span class="landing-btn-sub">Logg inn eller registrer deg</span>
+        </span>
+      </button>
+    </div>
+  </div>
+  <div class="landing-footer">VVO Kortspill · IKT Agder</div>
+</div>
 
 <!-- ── SCREEN: STUDENT SELECT ── -->
 <div class="screen active" id="screen-student-select">
@@ -2175,13 +2310,14 @@ const NAV_TITLES = {
   'tasks':              '📋 Oppgaver',
   'new-task':           '📋 Ny oppgave',
   'library':            '📚 Kortsett-bibliotek',
+  'landing':            '',
   'student-login':      '🎒 Logg inn',
   'new-student':        '🎒 Meld deg inn',
   'pending':            '⏳ Venter på godkjenning',
   'what-is-this':       '🔍 Hva er dette?',
 };
 
-let history = ['student-select'];
+let history = ['landing'];
 
 function currentScreen() { return history[history.length - 1]; }
 
@@ -2190,11 +2326,15 @@ function showScreen(name, push = true) {
   document.getElementById('screen-' + name).classList.add('active');
   if (push) history.push(name); else history[history.length - 1] = name;
 
+  // Hide nav on landing page, show everywhere else
+  const nav = document.getElementById('mainNav');
+  if (name === 'landing') { nav.style.display = 'none'; return; }
+  nav.style.display = '';
+
   document.getElementById('navTitle').textContent = NAV_TITLES[name] || '';
   document.getElementById('navBack').classList.toggle('visible', history.length > 1);
 
   const isTeacher = TEACHER_SCREENS.has(name);
-  document.getElementById('navTeacherBtn').style.display  = isTeacher ? 'none' : '';
   document.getElementById('navSettingsBtn').style.display = (isTeacher && adminMode && currentRole !== 'superadmin' && name !== 'settings') ? '' : 'none';
   document.getElementById('navHomeBtn').style.display     = (!isTeacher && name !== 'student-select') ? '' : 'none';
 
@@ -2232,18 +2372,16 @@ function teacherLogout() {
   currentTeacherId = null;
   currentRole = 'guest';
   _cfgCache = {};
-  history = ['student-select'];
-  showScreen('student-select', false);
-  loadStudentSets();
+  history = ['landing'];
+  showScreen('landing', false);
 }
 
 function goHome() {
   adminMode = false;
   currentTeacherId = null;
   currentRole = 'guest';
-  history = ['student-select'];
-  showScreen('student-select', false);
-  loadStudentSets();
+  history = ['landing'];
+  showScreen('landing', false);
 }
 
 function goBack() {
@@ -2254,7 +2392,8 @@ function goBack() {
   const dest    = currentScreen();
   showScreen(dest, false);
 
-  if (dest === 'student-select') loadStudentSets();
+  if (dest === 'landing') { /* landing handles itself */ }
+  else if (dest === 'student-select') loadStudentSets();
   else if (dest === 'teacher-sets') loadTeacherSets();
   else if (dest === 'approval') loadApprovalScreen();
   else if (dest === 'tasks') loadTeacherTasks();
@@ -5130,7 +5269,8 @@ function studentLogout() {
   currentStudentData = null;
   currentRole = 'guest';
   currentTeacherId = null;
-  showStudentLogin();
+  history = ['landing'];
+  showScreen('landing', false);
 }
 
 function studentCreateSet(task = null) {
@@ -5206,11 +5346,33 @@ async function migrateToMultiTenant() {
 
 (async function init() {
   await openDB();
-  await loadCloudSettings();
   await migrateToMultiTenant();
-  showScreen('student-select', false);
-  history = ['student-select'];
-  loadStudentSets();
+
+  // Check for saved student session — restore directly to student home
+  const savedId = localStorage.getItem('vvo_student_id');
+  if (savedId) {
+    const savedStudent = await checkStudentSession();
+    if (savedStudent) {
+      if (savedStudent.status === 'pending') {
+        currentStudentData = savedStudent;
+        history = ['landing', 'pending'];
+        showScreen('pending', false);
+      } else {
+        currentStudentData = savedStudent;
+        currentRole = 'student';
+        currentTeacherId = savedStudent.teacher_id;
+        await loadCloudSettings();
+        history = ['landing', 'student-select'];
+        showScreen('student-select', false);
+        loadStudentSets();
+      }
+      return;
+    }
+  }
+
+  // Default: show landing page
+  showScreen('landing', false);
+  history = ['landing'];
 })();
 
 // Auto-refresh when switching back to this tab/app
@@ -5220,6 +5382,7 @@ document.addEventListener('visibilitychange', () => {
   if (cur === 'teacher-sets') loadTeacherSets();
   else if (cur === 'approval') loadApprovalScreen();
   else if (cur === 'student-select') loadStudentSets();
+  else if (cur === 'landing') { /* nothing to reload */ }
 });
 </script>
 </body>
