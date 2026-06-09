@@ -4708,6 +4708,11 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Backspace') pinDelete();
     if (e.key === 'Enter' && _pin.length >= 4) checkPin();
   }
+  if (document.getElementById('studentPinModal').classList.contains('open')) {
+    if (e.key >= '0' && e.key <= '9') sPinPress(e.key);
+    if (e.key === 'Backspace') sPinDelete();
+    if (e.key === 'Enter') checkStudentPin();
+  }
 });
 
 /* ============================================================
@@ -5435,13 +5440,13 @@ function handleStudentPinModalClick(e) {
 }
 
 async function checkStudentPin() {
-  if (!_sPinStudentId || _sPin.length < 4) return;
+  if (!_sPinStudentId) return;
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(_sPinStudentId)}&select=*`, { headers: sbHeaders() });
     const rows = await resp.json();
     const student = rows[0];
     if (!student) { toast('Fant ikke eleven', 'error'); closeStudentPinModal(); return; }
-    if (student.student_pin === _sPin) {
+    if (!student.student_pin || student.student_pin === _sPin) {
       closeStudentPinModal();
       currentStudentData = student;
       localStorage.setItem('vvo_student_id', student.id);
