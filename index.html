@@ -4210,7 +4210,7 @@ async function identifyImageWithGemini(dataUrl, apiKey) {
   const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
   const body = JSON.stringify({ contents: [{ parts: [
-    { text: 'Hva er det viktigste objektet i dette bildet? Svar med ett norsk bokmål-ord eller en kort frase (maks 3 ord). Kun ordet/frasen, ingenting annet.' },
+    { text: 'Hva er det viktigste objektet i dette bildet? Svar på norsk bokmål med ubestemt artikkel og substantiv, for eksempel "en kopp", "et vindu", "en bil". Maks 3 ord. Kun svaret, ingenting annet.' },
     { inline_data: { mime_type: mimeType, data: base64 } }
   ]}]});
   for (let attempt = 0; attempt <= 2; attempt++) {
@@ -5159,7 +5159,7 @@ async function loadSuperAdminScreen() {
         <div class="sa-teacher-avatar">👤</div>
         <div class="sa-teacher-info">
           <div class="sa-teacher-name">${esc(t.name)}</div>
-          <div class="sa-teacher-meta">Lærer-PIN: ${esc(t.teacher_pin)} · Admin-PIN: ${esc(t.admin_pin)}</div>
+          <div class="sa-teacher-meta">PIN: ${esc(t.teacher_pin)}</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
           <span class="${t.active ? 'sa-badge-active' : 'sa-badge-inactive'}">${t.active ? 'Aktiv' : 'Inaktiv'}</span>
@@ -5179,7 +5179,6 @@ function showAddTeacherModal() {
   document.getElementById('tmName').value = '';
   document.getElementById('tmDisplayName').value = '';
   document.getElementById('tmTeacherPin').value = '1234';
-  document.getElementById('tmAdminPin').value = '1234';
   document.getElementById('teacherModal').classList.add('open');
 }
 
@@ -5192,7 +5191,6 @@ async function editTeacher(id) {
   document.getElementById('tmName').value = t.name;
   document.getElementById('tmDisplayName').value = t.display_name;
   document.getElementById('tmTeacherPin').value = t.teacher_pin;
-  document.getElementById('tmAdminPin').value = t.admin_pin;
   document.getElementById('teacherModal').classList.add('open');
 }
 
@@ -5208,7 +5206,6 @@ async function saveTeacher() {
     name,
     display_name: document.getElementById('tmDisplayName').value.trim() || name,
     teacher_pin:  document.getElementById('tmTeacherPin').value.trim() || '1234',
-    admin_pin:    document.getElementById('tmAdminPin').value.trim()   || '1234',
     active: true
   };
   try {
