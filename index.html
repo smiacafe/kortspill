@@ -2650,6 +2650,7 @@ function goSettings() { showScreen('settings'); loadSettingsUI(); }
    ============================================================ */
 let _pin = '';
 let _selectedTeacher = null; // teacher object chosen in step 1
+let _teacherPickerList = []; // cached for index-based lookup
 
 function promptTeacherPassword() {
   _pin = '';
@@ -2669,15 +2670,16 @@ async function loadTeacherPickerList() {
   try {
     const teachers = await sbGetTeachers();
     const active   = teachers.filter(t => t.active);
+    _teacherPickerList = active;
     spinner.style.display = 'none';
     if (!active.length) {
       list.innerHTML = '<div style="text-align:center;color:var(--text-light);font-size:14px;padding:12px 0">Ingen lærere registrert ennå</div>';
       return;
     }
-    list.innerHTML = active.map(t => {
+    list.innerHTML = active.map((t, i) => {
       const initial = (t.display_name || t.name || '?')[0].toUpperCase();
       return `
-        <button class="pw-teacher-btn" onclick="selectTeacherForLogin(${JSON.stringify(JSON.stringify(t))})">
+        <button class="pw-teacher-btn" onclick="selectTeacherForLogin(${i})">
           <div class="pw-teacher-initial">${esc(initial)}</div>
           <div>
             <div class="pw-teacher-name-text">${esc(t.display_name || t.name)}</div>
@@ -2699,8 +2701,8 @@ async function loadTeacherPickerList() {
   }
 }
 
-function selectTeacherForLogin(teacherJson) {
-  _selectedTeacher = JSON.parse(teacherJson);
+function selectTeacherForLogin(index) {
+  _selectedTeacher = _teacherPickerList[index];
   _pin = '';
   document.getElementById('pwError').style.display = 'none';
   document.getElementById('pwSelectedName').textContent = _selectedTeacher.display_name || _selectedTeacher.name;
