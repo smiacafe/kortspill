@@ -986,6 +986,26 @@ body {
 .teacher-task-meta  { font-size:12px; color:var(--text-light); margin-top:3px; }
 .teacher-task-del   { display:flex; align-items:center; padding:0 14px; }
 
+/* ── TEACHER PICKER ── */
+.pw-teacher-btn {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; border-radius:12px;
+  border:2px solid var(--border); background:var(--bg);
+  cursor:pointer; transition:all .12s; font-family:inherit;
+  width:100%; text-align:left;
+}
+.pw-teacher-btn:hover, .pw-teacher-btn:active {
+  border-color:var(--primary); background:var(--primary-light);
+}
+.pw-teacher-initial {
+  width:40px; height:40px; border-radius:50%;
+  background:var(--primary); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:800; flex-shrink:0;
+}
+.pw-teacher-name-text { font-size:16px; font-weight:700; color:var(--text); }
+.pw-teacher-sub { font-size:12px; color:var(--text-light); margin-top:2px; }
+
 /* ── PENDING BADGE ── */
 .pending-badge {
   display:inline-flex; align-items:center; justify-content:center;
@@ -2129,6 +2149,14 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     </div>
   </div>
 
+  <div class="eset-name-card" style="margin-bottom:16px">
+    <div class="eset-name-label">🔒 Velg din PIN-kode</div>
+    <input class="eset-name-input" id="nsStudentPin" type="tel"
+           placeholder="Minst 4 siffer" inputmode="numeric" maxlength="8"
+           style="font-size:22px;letter-spacing:4px" />
+    <div class="eset-name-hint">Du bruker denne for å logge inn neste gang</div>
+  </div>
+
   <div class="action-bar">
     <button class="btn btn-secondary" onclick="goBack()">Tilbake</button>
     <button class="btn btn-primary" onclick="createNewStudent()">✅ Send inn</button>
@@ -2212,30 +2240,74 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 </div>
 
-<!-- ── TEACHER PASSWORD MODAL ── -->
+<!-- ── TEACHER LOGIN MODAL ── -->
 <div class="modal-overlay" id="pwModal" onclick="handlePwModalClick(event)">
   <div class="modal-centre" id="pwModalInner">
-    <div class="pw-icon">🔑</div>
-    <div class="pw-title">Lærertilgang</div>
-    <div class="pw-desc">Tast inn PIN-koden</div>
-    <div class="pin-dots" id="pinDots"></div>
-    <div class="pw-error" id="pwError">Feil PIN-kode – prøv igjen</div>
-    <div class="pin-pad">
-      <button ontouchstart="event.preventDefault();pinPress('1')" onclick="pinPress('1')">1</button>
-      <button ontouchstart="event.preventDefault();pinPress('2')" onclick="pinPress('2')">2</button>
-      <button ontouchstart="event.preventDefault();pinPress('3')" onclick="pinPress('3')">3</button>
-      <button ontouchstart="event.preventDefault();pinPress('4')" onclick="pinPress('4')">4</button>
-      <button ontouchstart="event.preventDefault();pinPress('5')" onclick="pinPress('5')">5</button>
-      <button ontouchstart="event.preventDefault();pinPress('6')" onclick="pinPress('6')">6</button>
-      <button ontouchstart="event.preventDefault();pinPress('7')" onclick="pinPress('7')">7</button>
-      <button ontouchstart="event.preventDefault();pinPress('8')" onclick="pinPress('8')">8</button>
-      <button ontouchstart="event.preventDefault();pinPress('9')" onclick="pinPress('9')">9</button>
-      <button class="pin-ok" ontouchstart="event.preventDefault();checkPin()" onclick="checkPin()">OK</button>
-      <button ontouchstart="event.preventDefault();pinPress('0')" onclick="pinPress('0')">0</button>
-      <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
+
+    <!-- Step 1: Who are you? -->
+    <div id="pwStep1">
+      <div class="pw-icon">👩‍🏫</div>
+      <div class="pw-title">Hvem er du?</div>
+      <div class="pw-desc">Velg navnet ditt for å logge inn</div>
+      <div id="pwTeacherList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:280px;overflow-y:auto"></div>
+      <div id="pwTeacherSpinner" class="spinner-wrap" style="justify-content:center">
+        <div class="spinner"></div>
+      </div>
+      <button class="btn btn-ghost btn-full" onclick="closePwModal()">Avbryt</button>
+      <button class="btn btn-ghost btn-full" onclick="showTeacherRegistration()" style="font-size:13px;color:var(--primary);padding:8px;font-weight:600">Ny lærer? Registrer deg her →</button>
     </div>
-    <button class="btn btn-ghost btn-full mt-3" onclick="closePwModal()">Avbryt</button>
-    <button class="btn btn-ghost btn-full" onclick="showTeacherRegistration()" style="font-size:13px;color:var(--primary);padding:8px;font-weight:600">Ny lærer? Registrer deg her →</button>
+
+    <!-- Step 2: PIN pad (shown after selecting a name) -->
+    <div id="pwStep2" style="display:none">
+      <div class="pw-icon" id="pwSelectedIcon">👩‍🏫</div>
+      <div class="pw-title" id="pwSelectedName">Lærer</div>
+      <div class="pw-desc">Tast inn din PIN-kode</div>
+      <div class="pin-dots" id="pinDots"></div>
+      <div class="pw-error" id="pwError">Feil PIN-kode – prøv igjen</div>
+      <div class="pin-pad">
+        <button ontouchstart="event.preventDefault();pinPress('1')" onclick="pinPress('1')">1</button>
+        <button ontouchstart="event.preventDefault();pinPress('2')" onclick="pinPress('2')">2</button>
+        <button ontouchstart="event.preventDefault();pinPress('3')" onclick="pinPress('3')">3</button>
+        <button ontouchstart="event.preventDefault();pinPress('4')" onclick="pinPress('4')">4</button>
+        <button ontouchstart="event.preventDefault();pinPress('5')" onclick="pinPress('5')">5</button>
+        <button ontouchstart="event.preventDefault();pinPress('6')" onclick="pinPress('6')">6</button>
+        <button ontouchstart="event.preventDefault();pinPress('7')" onclick="pinPress('7')">7</button>
+        <button ontouchstart="event.preventDefault();pinPress('8')" onclick="pinPress('8')">8</button>
+        <button ontouchstart="event.preventDefault();pinPress('9')" onclick="pinPress('9')">9</button>
+        <button class="pin-ok" ontouchstart="event.preventDefault();checkPin()" onclick="checkPin()">OK</button>
+        <button ontouchstart="event.preventDefault();pinPress('0')" onclick="pinPress('0')">0</button>
+        <button class="pin-del" ontouchstart="event.preventDefault();pinDelete()" onclick="pinDelete()">⌫</button>
+      </div>
+      <button class="btn btn-ghost btn-full mt-3" onclick="pwBackToStep1()">← Velg annen bruker</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── STUDENT PIN MODAL ── -->
+<div class="modal-overlay" id="studentPinModal" onclick="handleStudentPinModalClick(event)">
+  <div class="modal-centre" id="studentPinModalInner">
+    <div style="text-align:center;margin-bottom:6px">
+      <div id="sPinAvatar" class="avatar-preview-big" style="width:64px;height:64px;font-size:36px;margin:0 auto 10px"></div>
+      <div class="pw-title">Tast inn din PIN</div>
+    </div>
+    <div class="pin-dots" id="sPinDots"></div>
+    <div class="pw-error" id="sPinError">Feil PIN-kode – prøv igjen</div>
+    <div class="pin-pad">
+      <button ontouchstart="event.preventDefault();sPinPress('1')" onclick="sPinPress('1')">1</button>
+      <button ontouchstart="event.preventDefault();sPinPress('2')" onclick="sPinPress('2')">2</button>
+      <button ontouchstart="event.preventDefault();sPinPress('3')" onclick="sPinPress('3')">3</button>
+      <button ontouchstart="event.preventDefault();sPinPress('4')" onclick="sPinPress('4')">4</button>
+      <button ontouchstart="event.preventDefault();sPinPress('5')" onclick="sPinPress('5')">5</button>
+      <button ontouchstart="event.preventDefault();sPinPress('6')" onclick="sPinPress('6')">6</button>
+      <button ontouchstart="event.preventDefault();sPinPress('7')" onclick="sPinPress('7')">7</button>
+      <button ontouchstart="event.preventDefault();sPinPress('8')" onclick="sPinPress('8')">8</button>
+      <button ontouchstart="event.preventDefault();sPinPress('9')" onclick="sPinPress('9')">9</button>
+      <button class="pin-ok" ontouchstart="event.preventDefault();checkStudentPin()" onclick="checkStudentPin()">OK</button>
+      <button ontouchstart="event.preventDefault();sPinPress('0')" onclick="sPinPress('0')">0</button>
+      <button class="pin-del" ontouchstart="event.preventDefault();sPinDelete()" onclick="sPinDelete()">⌫</button>
+    </div>
+    <button class="btn btn-ghost btn-full mt-3" onclick="closeStudentPinModal()">Avbryt</button>
   </div>
 </div>
 
@@ -2325,10 +2397,13 @@ function sbHeaders(extra = {}) {
   return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
 }
 function sbRowToSet(r) {
-  return { id: r.id, name: r.name, cards: r.cards || [], createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '', isPublic: r.is_public || false, visibility: r.visibility || 'private' };
+  return { id: r.id, name: r.name, cards: r.cards || [], cardCount: r.card_count ?? (r.cards?.length ?? 0), createdAt: new Date(r.created_at).getTime(), createdBy: r.created_by || '', teacherId: r.teacher_id || '', studentId: r.student_id || '', classId: r.class_id || '', isPublic: r.is_public || false, visibility: r.visibility || 'private' };
 }
+// Metadata-only columns for list views — never fetch the cards column in lists
+const SETS_META = 'id,name,created_at,teacher_id,student_id,class_id,visibility,is_public,created_by';
+
 async function sbGetAllSets() {
-  let url = `${SUPABASE_URL}/rest/v1/card_sets?select=*&order=created_at.desc`;
+  let url = `${SUPABASE_URL}/rest/v1/card_sets?select=${SETS_META}&order=created_at.desc`;
   if (currentTeacherId) url += `&teacher_id=eq.${encodeURIComponent(currentTeacherId)}`;
   const resp = await fetch(url, { headers: sbHeaders() });
   if (!resp.ok) throw new Error(`Supabase feil: ${resp.status}`);
@@ -2574,12 +2649,83 @@ function goSettings() { showScreen('settings'); loadSettingsUI(); }
    TEACHER PASSWORD
    ============================================================ */
 let _pin = '';
+let _selectedTeacher = null; // teacher object chosen in step 1
 
 function promptTeacherPassword() {
   _pin = '';
-  document.getElementById('pwError').style.display = 'none';
-  renderPinDots();
+  _selectedTeacher = null;
+  // Show step 1
+  document.getElementById('pwStep1').style.display = '';
+  document.getElementById('pwStep2').style.display = 'none';
   document.getElementById('pwModal').classList.add('open');
+  loadTeacherPickerList();
+}
+
+async function loadTeacherPickerList() {
+  const list    = document.getElementById('pwTeacherList');
+  const spinner = document.getElementById('pwTeacherSpinner');
+  list.innerHTML = '';
+  spinner.style.display = 'flex';
+  try {
+    const teachers = await sbGetTeachers();
+    const active   = teachers.filter(t => t.active);
+    spinner.style.display = 'none';
+    if (!active.length) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-light);font-size:14px;padding:12px 0">Ingen lærere registrert ennå</div>';
+      return;
+    }
+    list.innerHTML = active.map(t => {
+      const initial = (t.display_name || t.name || '?')[0].toUpperCase();
+      return `
+        <button class="pw-teacher-btn" onclick="selectTeacherForLogin(${JSON.stringify(JSON.stringify(t))})">
+          <div class="pw-teacher-initial">${esc(initial)}</div>
+          <div>
+            <div class="pw-teacher-name-text">${esc(t.display_name || t.name)}</div>
+          </div>
+        </button>`;
+    }).join('');
+    // Super admin entry at the bottom
+    list.innerHTML += `
+      <button class="pw-teacher-btn" onclick="selectSuperAdminLogin()" style="border-color:var(--border);opacity:.6">
+        <div class="pw-teacher-initial" style="background:#7c3aed">👑</div>
+        <div>
+          <div class="pw-teacher-name-text">Administrator</div>
+          <div class="pw-teacher-sub">Super Admin</div>
+        </div>
+      </button>`;
+  } catch {
+    spinner.style.display = 'none';
+    list.innerHTML = '<div style="text-align:center;color:var(--danger);font-size:14px;padding:12px 0">Kunne ikke laste lærerliste</div>';
+  }
+}
+
+function selectTeacherForLogin(teacherJson) {
+  _selectedTeacher = JSON.parse(teacherJson);
+  _pin = '';
+  document.getElementById('pwError').style.display = 'none';
+  document.getElementById('pwSelectedName').textContent = _selectedTeacher.display_name || _selectedTeacher.name;
+  document.getElementById('pwSelectedIcon').textContent = '👩‍🏫';
+  renderPinDots();
+  document.getElementById('pwStep1').style.display = 'none';
+  document.getElementById('pwStep2').style.display = '';
+}
+
+function selectSuperAdminLogin() {
+  _selectedTeacher = { _isSuperAdmin: true };
+  _pin = '';
+  document.getElementById('pwError').style.display = 'none';
+  document.getElementById('pwSelectedName').textContent = 'Administrator';
+  document.getElementById('pwSelectedIcon').textContent = '👑';
+  renderPinDots();
+  document.getElementById('pwStep1').style.display = 'none';
+  document.getElementById('pwStep2').style.display = '';
+}
+
+function pwBackToStep1() {
+  _selectedTeacher = null;
+  _pin = '';
+  document.getElementById('pwStep2').style.display = 'none';
+  document.getElementById('pwStep1').style.display = '';
 }
 
 function closePwModal() {
@@ -2613,25 +2759,27 @@ function pinDelete() {
 }
 
 async function checkPin() {
-  // Level 1: Super-admin
-  const superPw = await getGlobalSetting('superAdminPassword') || '123456';
-  if (_pin === superPw) {
-    currentRole = 'superadmin';
-    currentTeacherId = null;
-    adminMode = true;
-    closePwModal();
-    showScreen('super-admin');
-    loadSuperAdminScreen();
+  if (!_selectedTeacher) return;
+
+  // Super admin path
+  if (_selectedTeacher._isSuperAdmin) {
+    const superPw = await getGlobalSetting('superAdminPassword') || '123456';
+    if (_pin === superPw) {
+      currentRole = 'superadmin';
+      currentTeacherId = null;
+      adminMode = true;
+      closePwModal();
+      showScreen('super-admin');
+      loadSuperAdminScreen();
+      return;
+    }
+    pinWrong();
     return;
   }
 
-  // Level 2: Teacher or Admin by looking up teachers table
-  let teachers = [];
-  try { teachers = await sbGetTeachers(); } catch {}
-
-  const matched = teachers.find(t => t.active && t.teacher_pin === _pin);
-  if (matched) {
-    currentTeacherId = matched.id;
+  // Teacher path — check PIN against the selected teacher only
+  if (_selectedTeacher.active && _selectedTeacher.teacher_pin === _pin) {
+    currentTeacherId = _selectedTeacher.id;
     currentRole = 'admin';
     adminMode = true;
     await loadCloudSettings();
@@ -2641,8 +2789,10 @@ async function checkPin() {
     return;
   }
 
-  // Wrong PIN — only shake/reset if user hasn't pressed a digit recently (debounce already fired)
-  // and the pin is long enough to not be a prefix of a longer correct PIN (max known PIN = 12)
+  pinWrong();
+}
+
+function pinWrong() {
   if (_pin.length >= 4) {
     const dots = document.getElementById('pinDots');
     dots.classList.add('shake');
@@ -2704,17 +2854,17 @@ async function loadStudentSets() {
   // Fetch sets
   try {
     const [ownResp, classResp, teacherResp] = await Promise.all([
-      // Own sets — all visibility
-      fetch(`${SUPABASE_URL}/rest/v1/card_sets?student_id=eq.${encodeURIComponent(currentStudentData.id)}&select=*&order=created_at.desc`, { headers: sbHeaders() }),
-      // Classmates' sets — class/public only
-      fetch(`${SUPABASE_URL}/rest/v1/card_sets?class_id=eq.${encodeURIComponent(currentStudentData.class_id)}&student_id=neq.${encodeURIComponent(currentStudentData.id)}&student_id=neq.&visibility=in.(class,public)&select=*&order=created_at.desc`, { headers: sbHeaders() }),
-      // Teacher's sets — class/public only
-      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentStudentData.teacher_id)}&student_id=eq.&visibility=in.(class,public)&select=*&order=created_at.desc`, { headers: sbHeaders() }),
+      // Own sets — all visibility, metadata only
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?student_id=eq.${encodeURIComponent(currentStudentData.id)}&select=${SETS_META}&order=created_at.desc`, { headers: sbHeaders() }),
+      // Classmates' sets — class/public only, metadata only
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?class_id=eq.${encodeURIComponent(currentStudentData.class_id)}&student_id=neq.${encodeURIComponent(currentStudentData.id)}&student_id=neq.&visibility=in.(class,public)&select=${SETS_META}&order=created_at.desc`, { headers: sbHeaders() }),
+      // Teacher's sets — class/public only, metadata only
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentStudentData.teacher_id)}&student_id=eq.&visibility=in.(class,public)&select=${SETS_META}&order=created_at.desc`, { headers: sbHeaders() }),
     ]);
 
-    const ownSets     = ownResp.ok     ? (await ownResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2)     : [];
-    const classSets   = classResp.ok   ? (await classResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2)   : [];
-    const teacherSets = teacherResp.ok ? (await teacherResp.json()).map(sbRowToSet).filter(s => s.cards?.length >= 2) : [];
+    const ownSets     = ownResp.ok     ? (await ownResp.json()).map(sbRowToSet) : [];
+    const classSets   = classResp.ok   ? (await classResp.json()).map(sbRowToSet) : [];
+    const teacherSets = teacherResp.ok ? (await teacherResp.json()).map(sbRowToSet) : [];
     const sharedSets  = [...teacherSets, ...classSets];
 
     renderStudentSetSection('ssOwnSection', 'ssOwnEmpty', 'ssOwnGrid', ownSets);
@@ -2736,15 +2886,18 @@ function renderStudentSetSection(sectionId, emptyId, gridId, sets, showEmptyStat
   }
   if (empty) empty.style.display = 'none';
   section.style.display = '';
-  grid.innerHTML = sets.map(s => {
-    const preview = s.cards.slice(0,4).map(c =>
-      `<div class="ss-card-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+  // Palette for placeholder card colours
+  const colours = ['#4D96FF','#6BCB77','#FF6B6B','#FFD93D','#C77DFF','#FF9F3C','#4CC9F0','#F72585'];
+  grid.innerHTML = sets.map((s, i) => {
+    const bg = colours[i % colours.length];
+    const initial = (s.name || '?')[0].toUpperCase();
     return `
       <div class="ss-card" onclick="selectSet('${s.id}')">
-        <div class="ss-card-preview">${preview}</div>
+        <div class="ss-card-preview" style="background:${bg};display:flex;align-items:center;justify-content:center">
+          <span style="font-size:42px;font-weight:900;color:rgba(255,255,255,.85)">${esc(initial)}</span>
+        </div>
         <div class="ss-card-info">
           <div class="ss-card-name">${esc(s.name || 'Uten navn')}</div>
-          <div class="ss-card-count">${s.cards.length} kort</div>
         </div>
       </div>`;
   }).join('');
@@ -3136,19 +3289,18 @@ async function loadTeacherOwnSets() {
   const empty = document.getElementById('teacherEmpty');
   if (!sets.length) { list.innerHTML = ''; empty.style.display = ''; return; }
   empty.style.display = 'none';
-  list.innerHTML = sets.map(s => {
-    const cardWithImg = s.cards.find(c => c.imageData);
-    const thumb = cardWithImg
-      ? `<img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt="">`
-      : '🃏';
-    const vis = s.visibility || 'private';
+  const colours = ['#4D96FF','#6BCB77','#FF6B6B','#FFD93D','#C77DFF','#FF9F3C'];
+  list.innerHTML = sets.map((s, i) => {
+    const bg      = colours[i % colours.length];
+    const initial = (s.name || '?')[0].toUpperCase();
+    const vis     = s.visibility || 'private';
     return `
       <div class="th-set-item">
         <div class="th-set-main" onclick="editSet('${s.id}')">
-          <div class="th-set-thumb">${cardWithImg ? `<img src="${cardWithImg.imageData}" style="width:100%;height:100%;object-fit:cover" alt="">` : '🃏'}</div>
+          <div class="th-set-thumb" style="background:${bg};color:#fff;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center">${esc(initial)}</div>
           <div class="th-set-info">
             <div class="th-set-name">${esc(s.name || 'Uten navn')}</div>
-            <div class="th-set-meta">${s.cards.length} kort · ${fmtDate(s.createdAt)}</div>
+            <div class="th-set-meta">${fmtDate(s.createdAt)}</div>
           </div>
           <div class="th-set-actions" onclick="event.stopPropagation()">
             <button class="btn-icon" onclick="dupSet('${s.id}')" title="Dupliser">📋</button>
@@ -3194,7 +3346,7 @@ async function loadElevarbeider() {
     const [students, nameRows, setsResp] = await Promise.all([
       sbGetStudentsByTeacher(),
       fetch(`${SUPABASE_URL}/rest/v1/teacher_student_names?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&select=student_id,real_name`, { headers: sbHeaders() }).then(r => r.json()).catch(() => []),
-      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&student_id=neq.&select=*&order=created_at.desc`, { headers: sbHeaders() })
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&student_id=neq.&select=${SETS_META}&order=created_at.desc`, { headers: sbHeaders() })
     ]);
     const nameMap = {};
     nameRows.forEach(n => { nameMap[n.student_id] = n.real_name; });
@@ -3212,16 +3364,18 @@ async function loadElevarbeider() {
       const student = students.find(s => s.id === sid);
       const name    = nameMap[sid] || '—';
       const avatar  = student ? `<div class="th-student-section-avatar" style="background:${esc(student.avatar_color)}">${esc(student.avatar_emoji)}</div>` : '';
-      const cards   = sSets.map(s => {
-        const preview = s.cards.slice(0,4).map(c =>
-          `<div class="th-student-set-preview-cell">${c.imageData ? `<img src="${c.imageData}" alt="" loading="lazy">` : '🃏'}</div>`).join('');
+      const colours = ['#4D96FF','#6BCB77','#FF6B6B','#FFD93D','#C77DFF','#FF9F3C'];
+      const cards   = sSets.map((s, i) => {
+        const bg      = colours[i % colours.length];
+        const initial = (s.name || '?')[0].toUpperCase();
         const vis = s.visibility || 'private';
         return `
           <div class="th-student-set-card">
-            <div class="th-student-set-preview" onclick="editSet('${s.id}')">${preview}</div>
+            <div class="th-student-set-preview" onclick="editSet('${s.id}')" style="background:${bg};display:flex;align-items:center;justify-content:center">
+              <span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.85)">${esc(initial)}</span>
+            </div>
             <div class="th-student-set-info">
               <div class="th-student-set-name">${esc(s.name || 'Uten navn')}</div>
-              <div class="th-student-set-count">${s.cards.length} kort</div>
             </div>
             <div class="th-share-bar">
               <button class="th-share-btn ${vis==='private'?'active-private':''}" onclick="setVisibility('${s.id}','private',this)" style="font-size:10px;padding:6px 4px"><span>🔒</span><span>Privat</span></button>
@@ -4543,7 +4697,8 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('pwModal').classList.contains('open'))        { closePwModal(); return; }
     if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
     if (document.getElementById('teacherModal').classList.contains('open'))   { closeTeacherModal(); return; }
-    if (document.getElementById('libPreviewModal').classList.contains('open')){ closeLibPreviewModal(); return; }
+    if (document.getElementById('libPreviewModal').classList.contains('open'))  { closeLibPreviewModal(); return; }
+    if (document.getElementById('studentPinModal').classList.contains('open')) { closeStudentPinModal(); return; }
     if (history.length > 1) goBack();
   }
   if (document.getElementById('pwModal').classList.contains('open')) {
@@ -4904,24 +5059,27 @@ async function searchLibrary() {
   resultsEl.innerHTML = '<div class="spinner-wrap" style="justify-content:center;padding:40px 0"><div class="spinner"></div><span style="color:var(--text-light)">Søker…</span></div>';
   try {
     // ilike search on name, is_public must be true
-    const url = `${SUPABASE_URL}/rest/v1/card_sets?is_public=eq.true&name=ilike.*${encodeURIComponent(query)}*&select=id,name,cards,created_by,teacher_id&order=created_at.desc&limit=40`;
+    const url = `${SUPABASE_URL}/rest/v1/card_sets?is_public=eq.true&name=ilike.*${encodeURIComponent(query)}*&select=${SETS_META}&order=created_at.desc&limit=40`;
     const resp = await fetch(url, { headers: sbHeaders() });
     if (!resp.ok) throw new Error('Supabase feil');
     const rows = await resp.json();
-    const sets = rows.map(sbRowToSet).filter(s => s.cards?.length >= 2);
+    const sets = rows.map(sbRowToSet);
     if (!sets.length) {
       resultsEl.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Ingen kortsett funnet for «' + esc(query) + '»</div></div>';
       return;
     }
-    resultsEl.innerHTML = `<div class="lib-grid">${sets.map(s => {
-      const preview = s.cards.slice(0,4).map(c =>
-        `<div class="lib-card-cell">${c.imageData ? `<img src="${c.imageData}" alt="${esc(c.text)}" loading="lazy">` : '🃏'}</div>`).join('');
+    const colours = ['#4D96FF','#6BCB77','#FF6B6B','#FFD93D','#C77DFF','#FF9F3C'];
+    resultsEl.innerHTML = `<div class="lib-grid">${sets.map((s, i) => {
+      const bg = colours[i % colours.length];
+      const initial = (s.name || '?')[0].toUpperCase();
       return `
         <div class="lib-card" onclick="previewLibrarySet('${s.id}')">
-          <div class="lib-card-preview">${preview}</div>
+          <div class="lib-card-preview" style="background:${bg};display:flex;align-items:center;justify-content:center;aspect-ratio:1">
+            <span style="font-size:38px;font-weight:900;color:rgba(255,255,255,.85)">${esc(initial)}</span>
+          </div>
           <div class="lib-card-info">
             <div class="lib-card-name">${esc(s.name || 'Uten navn')}</div>
-            <div class="lib-card-meta">${s.cards.length} kort${s.createdBy ? ' · ' + esc(s.createdBy) : ''}</div>
+            <div class="lib-card-meta">${s.createdBy ? esc(s.createdBy) : ''}</div>
           </div>
         </div>`;
     }).join('')}</div>`;
@@ -5215,50 +5373,99 @@ async function checkStudentSession() {
 }
 
 async function showStudentLogin() {
-  const deployId = await getGlobalSetting('deploymentTeacherId');
-  if (!deployId) { toast('Ingen klasse satt opp ennå', 'error'); return; }
-
   showScreen('student-login');
-
   const grid = document.getElementById('studentAvatarList');
   grid.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
-
   try {
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(deployId)}&select=*`, { headers: sbHeaders() });
+    const deployId = await getGlobalSetting('deploymentTeacherId');
+    let url = `${SUPABASE_URL}/rest/v1/students?status=eq.active&select=id,avatar_emoji,avatar_color&order=created_at.asc`;
+    if (deployId) url += `&teacher_id=eq.${encodeURIComponent(deployId)}`;
+    const resp = await fetch(url, { headers: sbHeaders() });
     const students = resp.ok ? await resp.json() : [];
     if (!students.length) {
-      grid.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">Ingen elever ennå. Trykk på «Jeg er ny» for å starte.</div>';
+      grid.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">Ingen elever ennå — trykk «Jeg er ny» for å starte.</div>';
       return;
     }
     grid.innerHTML = students.map(s => `
-      <div class="student-avatar-card" onclick="loginAsStudent('${s.id}')">
-        <div class="avatar-bubble" style="background:${s.avatar_color}">${s.avatar_emoji}</div>
-        <div class="avatar-name">${esc(s.username)}</div>
+      <div class="student-avatar-card" onclick="promptStudentPin('${s.id}','${esc(s.avatar_emoji)}','${esc(s.avatar_color)}')">
+        <div class="avatar-bubble" style="background:${esc(s.avatar_color)}">${esc(s.avatar_emoji)}</div>
       </div>`).join('');
   } catch(err) {
-    grid.innerHTML = `<div style="color:var(--danger)">${esc(err.message)}</div>`;
+    grid.innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center">${esc(err.message)}</div>`;
   }
 }
 
-async function loginAsStudent(id) {
+/* ── STUDENT PIN ── */
+let _sPinStudentId = null;
+let _sPin = '';
+
+function promptStudentPin(id, emoji, color) {
+  _sPinStudentId = id;
+  _sPin = '';
+  const avatar = document.getElementById('sPinAvatar');
+  avatar.textContent = emoji;
+  avatar.style.background = color;
+  document.getElementById('sPinError').style.display = 'none';
+  renderSPinDots();
+  document.getElementById('studentPinModal').classList.add('open');
+}
+
+function renderSPinDots() {
+  const len = Math.max(_sPin.length + 1, 4);
+  document.getElementById('sPinDots').innerHTML =
+    Array.from({ length: len }, (_, i) =>
+      `<div class="pin-dot${i < _sPin.length ? ' filled' : ''}"></div>`).join('');
+}
+
+function sPinPress(d) {
+  if (_sPin.length >= 8) return;
+  _sPin += d;
+  document.getElementById('sPinError').style.display = 'none';
+  renderSPinDots();
+}
+
+function sPinDelete() { _sPin = _sPin.slice(0,-1); renderSPinDots(); }
+
+function closeStudentPinModal() {
+  document.getElementById('studentPinModal').classList.remove('open');
+  _sPinStudentId = null; _sPin = '';
+}
+
+function handleStudentPinModalClick(e) {
+  if (e.target === document.getElementById('studentPinModal')) closeStudentPinModal();
+}
+
+async function checkStudentPin() {
+  if (!_sPinStudentId || _sPin.length < 4) return;
   try {
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(id)}&select=*`, { headers: sbHeaders() });
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(_sPinStudentId)}&select=*`, { headers: sbHeaders() });
     const rows = await resp.json();
-    if (!rows[0]) return;
-    currentStudentData = rows[0];
-    localStorage.setItem('vvo_student_id', id);
-    currentRole = 'student';
-    currentTeacherId = rows[0].teacher_id;
-    await loadCloudSettings();
-    showScreen('student-select');
-    loadStudentSets();
+    const student = rows[0];
+    if (!student) { toast('Fant ikke eleven', 'error'); closeStudentPinModal(); return; }
+    if (student.student_pin === _sPin) {
+      closeStudentPinModal();
+      currentStudentData = student;
+      localStorage.setItem('vvo_student_id', student.id);
+      currentRole = 'student';
+      currentTeacherId = student.teacher_id;
+      await loadCloudSettings();
+      showScreen('student-select');
+      loadStudentSets();
+    } else {
+      const dots = document.getElementById('sPinDots');
+      dots.classList.add('shake');
+      document.getElementById('sPinError').style.display = '';
+      setTimeout(() => dots.classList.remove('shake'), 500);
+      _sPin = ''; renderSPinDots();
+    }
   } catch(err) { toast('Feil: ' + err.message, 'error'); }
 }
 
 function showNewStudentFlow() {
   selectedAvatarEmoji = AVATAR_EMOJIS[0];
   selectedAvatarColor = AVATAR_COLORS[0];
-  document.getElementById('nsClassCode').value = '';
+  document.getElementById('nsClassCode').value  = '';
+  document.getElementById('nsStudentPin').value = '';
   renderEmojiPicker();
   renderColorPicker();
   updateAvatarPreview();
@@ -5286,7 +5493,10 @@ function updateAvatarPreview() {
 
 async function createNewStudent() {
   const code = document.getElementById('nsClassCode').value.trim().toUpperCase();
-  if (!code) { toast('Skriv inn klasskoden', 'error'); return; }
+  const pin  = document.getElementById('nsStudentPin').value.trim();
+  if (!code)          { toast('Skriv inn klasskoden', 'error'); return; }
+  if (pin.length < 4) { toast('PIN-koden må være minst 4 siffer', 'error'); return; }
+  if (!/^\d+$/.test(pin)) { toast('PIN-koden kan bare inneholde tall', 'error'); return; }
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/classes?code=eq.${encodeURIComponent(code)}&select=*`, { headers: sbHeaders() });
@@ -5296,13 +5506,14 @@ async function createNewStudent() {
     const cls = classes[0];
 
     const student = {
-      id: uid(),
-      teacher_id: cls.teacher_id,
-      class_id: cls.id,
-      username: '',           // no username — avatar only
+      id:           uid(),
+      teacher_id:   cls.teacher_id,
+      class_id:     cls.id,
+      username:     '',
       avatar_emoji: selectedAvatarEmoji,
       avatar_color: selectedAvatarColor,
-      status: 'pending'
+      status:       'pending',
+      student_pin:  pin
     };
     await sbUpsertStudent(student);
 
