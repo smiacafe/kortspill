@@ -806,22 +806,35 @@ body {
 .wit-capture-phase {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
   background:linear-gradient(160deg,#0d1b2a 0%,#1a3a5c 100%);
   gap:20px; padding:32px; text-align:center;
 }
+.wit-viewfinder {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
+}
+.wit-viewfinder-overlay {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-end;
+  padding-bottom:40px; gap:16px;
+  background:linear-gradient(to top, rgba(0,0,0,.5) 0%, transparent 50%);
+}
 .wit-shutter-btn {
-  width:160px; height:160px; border-radius:50%;
-  background:linear-gradient(135deg,#0066DD,#004499);
+  width:80px; height:80px; border-radius:50%;
+  background:rgba(255,255,255,.95);
   border:6px solid rgba(255,255,255,.25);
   box-shadow:0 0 0 3px rgba(0,102,221,.4), 0 8px 32px rgba(0,0,0,.4);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:6px; cursor:pointer; transition:transform .12s, box-shadow .12s;
-  color:#fff; font-family:inherit;
+  color:#1a1a2e; font-family:inherit; border:4px solid #fff;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
 }
-.wit-shutter-btn:active { transform:scale(.93); }
-.wit-shutter-icon  { font-size:52px; line-height:1; }
-.wit-shutter-label { font-size:14px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
-.wit-hint { color:rgba(255,255,255,.55); font-size:15px; max-width:260px; line-height:1.5; }
+.wit-shutter-btn:active { transform:scale(.9); }
+.wit-shutter-icon  { font-size:32px; line-height:1; }
+.wit-shutter-label { font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; }
+.wit-hint { color:rgba(255,255,255,.8); font-size:14px; max-width:260px; line-height:1.5; text-align:center; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+.wit-no-camera { color:rgba(255,255,255,.7); font-size:14px; text-align:center; padding:20px; }
 
 .wit-result-phase {
   flex:1; display:flex; flex-direction:column; overflow:hidden;
@@ -1385,13 +1398,17 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ── SCREEN: WHAT IS THIS — CAMERA WORD FINDER ── -->
 <div class="screen wit-screen" id="screen-what-is-this">
 
-  <!-- Phase 1: Capture -->
+  <!-- Phase 1: Live viewfinder -->
   <div id="witCapturePhase" class="wit-capture-phase">
-    <button class="wit-shutter-btn" onclick="triggerWitCapture()">
-      <span class="wit-shutter-icon">🔍</span>
-      <span class="wit-shutter-label">Ta bilde</span>
-    </button>
-    <p class="wit-hint">Pek kameraet mot noe du lurer på hva heter på norsk — og trykk</p>
+    <video id="witVideo" class="wit-viewfinder" autoplay playsinline muted></video>
+    <canvas id="witCanvas" style="display:none"></canvas>
+    <div class="wit-viewfinder-overlay">
+      <p class="wit-hint">Pek mot noe du lurer på hva heter på norsk</p>
+      <button class="wit-shutter-btn" onclick="triggerWitCapture()">
+        <span class="wit-shutter-icon">📸</span>
+        <span class="wit-shutter-label">Ta bilde</span>
+      </button>
+    </div>
   </div>
 
   <!-- Phase 2: Result -->
@@ -1428,15 +1445,12 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       </div>
 
       <!-- Try again -->
-      <button class="btn btn-secondary btn-full" id="witRetryBtn" style="display:none" onclick="witReset()">
-        🔄 Ta et nytt bilde
+      <button class="btn btn-secondary btn-full" id="witRetryBtn" style="display:none" onclick="witReset();witStartCamera()">
+        🔄 Ta nytt bilde
       </button>
 
     </div>
   </div>
-
-  <input type="file" id="witFileInput" accept="image/*" capture="environment"
-         style="display:none" onchange="handleWitCapture(this)" />
 </div>
 
 <!-- ── SCREEN: DIFFICULTY ── -->
@@ -2629,6 +2643,8 @@ let history = ['landing'];
 function currentScreen() { return history[history.length - 1]; }
 
 function showScreen(name, push = true) {
+  // Stop camera if leaving the what-is-this screen
+  if (currentScreen() === 'what-is-this' && name !== 'what-is-this') witStopCamera();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   if (push) history.push(name); else history[history.length - 1] = name;
@@ -4890,17 +4906,8 @@ async function deleteClass(id) {
    ============================================================ */
 
 async function loadPendingCount() {
-  // Only relevant in Voksen mode
-  const appMode = await getCfg('appMode') || 'standard';
-  const notice  = document.getElementById('pendingNotice');
-  const vBar    = document.getElementById('voksenTeacherBar');
-  if (!notice) return;
-  if (appMode !== 'voksen' || !currentTeacherId) {
-    notice.style.display = 'none';
-    if (vBar) vBar.style.display = 'none';
-    return;
-  }
-  if (vBar) vBar.style.display = '';
+  const notice = document.getElementById('pendingNotice');
+  if (!notice || !currentTeacherId) return;
   try {
     const resp = await fetch(
       `${SUPABASE_URL}/rest/v1/students?teacher_id=eq.${encodeURIComponent(currentTeacherId)}&status=eq.pending&select=id`,
@@ -5788,78 +5795,96 @@ async function loadVoksenProgress() {
   } catch { section.style.display = 'none'; }
 }
 
-function openWhatIsThis() {
-  witReset();
-  showScreen('what-is-this');
-}
-
 /* ============================================================
    WHAT IS THIS — CAMERA WORD FINDER
    ============================================================ */
 let _witImageData = null;
 let _witWord      = null;
+let _witStream    = null;
+
+async function openWhatIsThis() {
+  witReset();
+  showScreen('what-is-this');
+  await witStartCamera();
+}
+
+async function witStartCamera() {
+  const video = document.getElementById('witVideo');
+  try {
+    _witStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    video.srcObject = _witStream;
+  } catch(err) {
+    // Camera permission denied or not available — show fallback message
+    document.getElementById('witCapturePhase').innerHTML =
+      `<div class="wit-no-camera">📷 Kameraet er ikke tilgjengelig.<br>Sjekk at du har gitt appen tilgang til kameraet i nettleserinnstillingene.</div>`;
+  }
+}
+
+function witStopCamera() {
+  if (_witStream) {
+    _witStream.getTracks().forEach(t => t.stop());
+    _witStream = null;
+  }
+  const video = document.getElementById('witVideo');
+  if (video) video.srcObject = null;
+}
 
 function witReset() {
   _witImageData = null;
   _witWord      = null;
-  // Show capture phase, hide result phase
   document.getElementById('witCapturePhase').style.display = '';
   document.getElementById('witResultPhase').style.display  = 'none';
-  document.getElementById('witFileInput').value = '';
 }
 
-function triggerWitCapture() {
-  document.getElementById('witFileInput').click();
-}
+async function triggerWitCapture() {
+  const video  = document.getElementById('witVideo');
+  const canvas = document.getElementById('witCanvas');
+  if (!video || !video.srcObject) return;
 
-async function handleWitCapture(input) {
-  const file = input.files[0];
-  if (!file) return;
+  // Capture current frame from video
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-  // Switch to result phase immediately — show spinner
-  document.getElementById('witCapturePhase').style.display = 'none';
-  const resultPhase = document.getElementById('witResultPhase');
-  resultPhase.style.display = 'flex';
-  document.getElementById('witSpinner').style.display    = 'flex';
-  document.getElementById('witWordWrap').style.display   = 'none';
-  document.getElementById('witListenBtn').style.display  = 'none';
-  document.getElementById('witSaveSection').style.display = 'none';
-  document.getElementById('witRetryBtn').style.display   = 'none';
+  // Stop camera stream — no longer needed
+  witStopCamera();
 
-  // Compress and show image preview immediately
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const compressed = await compressImg(e.target.result, 900, 900);
-    _witImageData = compressed;
-    document.getElementById('witResultImg').src = compressed;
-    input.value = '';
+  // Switch to result phase — show spinner
+  document.getElementById('witCapturePhase').style.display  = 'none';
+  document.getElementById('witResultPhase').style.display   = 'flex';
+  document.getElementById('witSpinner').style.display       = 'flex';
+  document.getElementById('witWordWrap').style.display      = 'none';
+  document.getElementById('witListenBtn').style.display     = 'none';
+  document.getElementById('witSaveSection').style.display   = 'none';
+  document.getElementById('witRetryBtn').style.display      = 'none';
 
-    // Call Gemini to identify
-    const apiKey = await getCfg('claude');
-    if (!apiKey) {
-      witShowError('Legg til Gemini API-nøkkel i innstillinger');
-      return;
-    }
-    try {
-      const word = await identifyImageWithGemini(compressed, apiKey);
-      if (!word) { witShowError('Klarte ikke å kjenne igjen bildet — prøv et annet'); return; }
-      _witWord = word;
-      // Show result
-      document.getElementById('witSpinner').style.display    = 'none';
-      document.getElementById('witWord').textContent         = word;
-      document.getElementById('witWordWrap').style.display   = '';
-      document.getElementById('witListenBtn').style.display  = '';
-      document.getElementById('witRetryBtn').style.display   = '';
-      // Auto-speak the word
-      speakText(word);
-      // Populate set dropdown and show save section
-      await witPopulateSetSelect();
-      document.getElementById('witSaveSection').style.display = '';
-    } catch(err) {
-      witShowError('Feil: ' + err.message);
-    }
-  };
-  reader.readAsDataURL(file);
+  // Compress and show preview
+  const compressed = await compressImg(dataUrl, 900, 900);
+  _witImageData = compressed;
+  document.getElementById('witResultImg').src = compressed;
+
+  // Call Gemini
+  const apiKey = await getCfg('claude');
+  if (!apiKey) { witShowError('Legg til Gemini API-nøkkel i innstillinger'); return; }
+  try {
+    const word = await identifyImageWithGemini(compressed, apiKey);
+    if (!word) { witShowError('Klarte ikke å kjenne igjen bildet — prøv et annet'); return; }
+    _witWord = word;
+    document.getElementById('witSpinner').style.display  = 'none';
+    document.getElementById('witWord').textContent       = word;
+    document.getElementById('witWordWrap').style.display = '';
+    document.getElementById('witListenBtn').style.display = '';
+    document.getElementById('witRetryBtn').style.display  = '';
+    speakText(word);
+    await witPopulateSetSelect();
+    document.getElementById('witSaveSection').style.display = '';
+  } catch(err) {
+    witShowError('Feil: ' + err.message);
+  }
 }
 
 function witShowError(msg) {
