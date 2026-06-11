@@ -935,6 +935,38 @@ body {
 .th-share-btn.active-public  { background: #f0fdf4; color: var(--success); }
 .th-share-btn + .th-share-btn { border-left: 1px solid var(--border); }
 
+/* Student detail modal */
+.sd-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 900; display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.sd-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.sd-modal-sheet {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  width: 100%; max-height: 85vh; overflow-y: auto;
+  padding: 0 0 32px; transform: translateY(40px);
+  transition: transform .22s ease;
+}
+.sd-modal-overlay.open .sd-modal-sheet { transform: translateY(0); }
+.sd-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+.sd-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.sd-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; }
+.sd-name  { font-size: 19px; font-weight: 800; }
+.sd-status { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.sd-close { margin-left: auto; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-light); padding: 4px 8px; }
+.sd-section { padding: 16px 20px 0; }
+.sd-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-light); margin-bottom: 10px; }
+.sd-stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 4px; }
+.sd-stat { background: var(--bg); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
+.sd-stat-val { font-size: 22px; font-weight: 900; color: var(--primary); }
+.sd-stat-lbl { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+.sd-sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; }
+
 /* Elevarbeider tab */
 .th-student-section { margin-bottom: 20px; }
 .th-student-section-hd {
@@ -1605,10 +1637,9 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="btn btn-ghost btn-sm" onclick="teacherLogout()" style="color:var(--text-light);flex-shrink:0">↩</button>
     </div>
     <div class="th-tabs">
-      <button class="th-tab active" id="tab-klassen"    onclick="switchTeacherTab('klassen')">   <span class="th-tab-icon">🏫</span>Klassen</button>
-      <button class="th-tab"        id="tab-oppgaver"   onclick="switchTeacherTab('oppgaver')">  <span class="th-tab-icon">📋</span>Oppgaver</button>
-      <button class="th-tab"        id="tab-kortsett"   onclick="switchTeacherTab('kortsett')">  <span class="th-tab-icon">🃏</span>Mine kortsett</button>
-      <button class="th-tab"        id="tab-elevarbeid" onclick="switchTeacherTab('elevarbeid')"><span class="th-tab-icon">👀</span>Elevarbeider</button>
+      <button class="th-tab active" id="tab-klassen"  onclick="switchTeacherTab('klassen')">  <span class="th-tab-icon">🏫</span>Klassen</button>
+      <button class="th-tab"        id="tab-oppgaver" onclick="switchTeacherTab('oppgaver')"> <span class="th-tab-icon">📋</span>Oppgaver</button>
+      <button class="th-tab"        id="tab-kortsett" onclick="switchTeacherTab('kortsett')"> <span class="th-tab-icon">🃏</span>Mine kortsett</button>
     </div>
   </div>
 
@@ -1668,14 +1699,6 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     </div>
   </div>
 
-  <!-- ── TAB: ELEVARBEIDER ── -->
-  <div class="th-tab-content" id="tc-elevarbeid">
-    <div id="thStudentSets"></div>
-    <div id="thStudentSetsEmpty" class="empty" style="display:none">
-      <div class="empty-icon">👀</div>
-      <div class="empty-text">Ingen elevarbeider ennå</div>
-    </div>
-  </div>
 
 </div>
 
@@ -2085,6 +2108,47 @@ hr    { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <div class="settings-desc">Gir tilgang til denne super-admin visningen. Hold den hemmelig. Minst 6 siffer anbefalt.</div>
       <input class="settings-input" type="tel" id="saSuperPin" placeholder="Min. 6 siffer anbefalt" inputmode="numeric" autocomplete="off" />
       <button class="btn btn-primary btn-sm" onclick="saveSuperAdminPin()">Lagre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STUDENT DETAIL MODAL ── -->
+<div class="sd-modal-overlay" id="studentDetailModal" onclick="handleSdModalClick(event)">
+  <div class="sd-modal-sheet" id="studentDetailSheet">
+    <div class="sd-handle"></div>
+    <div class="sd-header">
+      <div class="sd-avatar" id="sdAvatar"></div>
+      <div>
+        <div class="sd-name"  id="sdName"></div>
+        <div class="sd-status" id="sdStatus"></div>
+      </div>
+      <button class="sd-close" onclick="closeStudentDetail()">✕</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="sd-section">
+      <div class="sd-section-title">Aktivitet</div>
+      <div class="sd-stats-grid">
+        <div class="sd-stat">
+          <div class="sd-stat-val" id="sdStatGames">—</div>
+          <div class="sd-stat-lbl">Spill fullført</div>
+        </div>
+        <div class="sd-stat">
+          <div class="sd-stat-val" id="sdStatSets">—</div>
+          <div class="sd-stat-lbl">Kortsett laget</div>
+        </div>
+        <div class="sd-stat">
+          <div class="sd-stat-val" id="sdStatLast">—</div>
+          <div class="sd-stat-lbl">Sist aktiv</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card sets -->
+    <div class="sd-section" style="margin-top:18px">
+      <div class="sd-section-title">Kortsett</div>
+      <div id="sdSetsGrid" class="sd-sets-grid"></div>
+      <div id="sdSetsEmpty" style="display:none;color:var(--text-light);font-size:14px;padding:8px 0">Ingen kortsett ennå</div>
     </div>
   </div>
 </div>
@@ -3218,10 +3282,9 @@ function switchTeacherTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('tc-' + tab).classList.add('active');
   // Load content for tab
-  if (tab === 'klassen')    loadTeacherKlassen();
-  else if (tab === 'oppgaver')   loadTeacherTasks();
-  else if (tab === 'kortsett')   loadTeacherOwnSets();
-  else if (tab === 'elevarbeid') loadElevarbeider();
+  if      (tab === 'klassen')  loadTeacherKlassen();
+  else if (tab === 'oppgaver') loadTeacherTasks();
+  else if (tab === 'kortsett') loadTeacherOwnSets();
 }
 
 async function loadTeacherSets() {
@@ -3271,13 +3334,13 @@ async function loadTeacherKlassen() {
       const name    = nameMap[s.id] || '—';
       const isPending = s.status === 'pending';
       return `
-        <div class="th-student-item">
+        <div class="th-student-item" onclick="openStudentDetail('${s.id}','${esc(name)}','${esc(s.avatar_emoji)}','${esc(s.avatar_color)}','${s.status}')">
           <div class="th-student-avatar" style="background:${esc(s.avatar_color)}">${esc(s.avatar_emoji)}</div>
           <div class="th-student-info">
             <div class="th-student-name">${esc(name)}</div>
             <div class="th-student-meta">${isPending ? 'Venter på godkjenning' : 'Aktiv elev'}</div>
           </div>
-          <span class="th-student-badge ${isPending ? 'th-badge-pending' : 'th-badge-active'}">${isPending ? '⏳' : '✓'}</span>
+          <span class="th-student-badge ${isPending ? 'th-badge-pending' : 'th-badge-active'}">${isPending ? '⏳' : '✓ Vis info'}</span>
         </div>`;
     }).join('');
   } catch(err) { list.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
@@ -3393,6 +3456,77 @@ async function loadElevarbeider() {
         </div>`;
     }).join('');
   } catch(err) { el.innerHTML = ''; toast('Feil: ' + err.message, 'error'); }
+}
+
+/* ============================================================
+   STUDENT DETAIL MODAL
+   ============================================================ */
+async function openStudentDetail(studentId, name, emoji, color, status) {
+  // Populate header immediately
+  document.getElementById('sdAvatar').textContent = emoji;
+  document.getElementById('sdAvatar').style.background = color;
+  document.getElementById('sdName').textContent = name;
+  document.getElementById('sdStatus').textContent = status === 'pending' ? 'Venter på godkjenning' : 'Aktiv elev';
+  document.getElementById('sdStatGames').textContent = '…';
+  document.getElementById('sdStatSets').textContent  = '…';
+  document.getElementById('sdStatLast').textContent  = '…';
+  document.getElementById('sdSetsGrid').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  document.getElementById('sdSetsEmpty').style.display = 'none';
+  document.getElementById('studentDetailModal').classList.add('open');
+
+  // Fetch stats and sets in parallel
+  try {
+    const [activityResp, setsResp] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/activity_log?student_id=eq.${encodeURIComponent(studentId)}&select=game_mode,created_at&order=created_at.desc`, { headers: sbHeaders() }),
+      fetch(`${SUPABASE_URL}/rest/v1/card_sets?student_id=eq.${encodeURIComponent(studentId)}&select=${SETS_META}&order=created_at.desc`, { headers: sbHeaders() })
+    ]);
+    const activity = activityResp.ok ? await activityResp.json() : [];
+    const setsRaw  = setsResp.ok  ? await setsResp.json()  : [];
+
+    // Stats
+    const games = activity.filter(a => a.game_mode !== 'camera_save');
+    const lastActive = activity.length ? new Date(activity[0].created_at).toLocaleDateString('no-NO', { day:'numeric', month:'short' }) : '—';
+    document.getElementById('sdStatGames').textContent = games.length;
+    document.getElementById('sdStatSets').textContent  = setsRaw.length;
+    document.getElementById('sdStatLast').textContent  = lastActive;
+
+    // Card sets
+    const colours = ['#4D96FF','#6BCB77','#FF6B6B','#FFD93D','#C77DFF','#FF9F3C'];
+    const sets = setsRaw.map(sbRowToSet);
+    if (!sets.length) {
+      document.getElementById('sdSetsGrid').innerHTML = '';
+      document.getElementById('sdSetsEmpty').style.display = '';
+    } else {
+      document.getElementById('sdSetsGrid').innerHTML = sets.map((s, i) => {
+        const bg      = colours[i % colours.length];
+        const initial = (s.name || '?')[0].toUpperCase();
+        const vis     = s.visibility || 'private';
+        return `
+          <div class="th-student-set-card">
+            <div class="th-student-set-preview" onclick="editSet('${s.id}')" style="background:${bg};display:flex;align-items:center;justify-content:center">
+              <span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.85)">${esc(initial)}</span>
+            </div>
+            <div class="th-student-set-info">
+              <div class="th-student-set-name">${esc(s.name || 'Uten navn')}</div>
+            </div>
+            <div class="th-share-bar">
+              <button class="th-share-btn ${vis==='private'?'active-private':''}" onclick="setVisibility('${s.id}','private',this)" style="font-size:10px;padding:6px 4px"><span>🔒</span><span>Privat</span></button>
+              <button class="th-share-btn ${vis==='class'?'active-class':''}"   onclick="setVisibility('${s.id}','class',this)"   style="font-size:10px;padding:6px 4px"><span>👥</span><span>Klassen</span></button>
+              <button class="th-share-btn ${vis==='public'?'active-public':''}" onclick="setVisibility('${s.id}','public',this)"  style="font-size:10px;padding:6px 4px"><span>🌍</span><span>Alle</span></button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  } catch(err) {
+    document.getElementById('sdSetsGrid').innerHTML = `<div style="color:var(--danger);font-size:14px">${esc(err.message)}</div>`;
+  }
+}
+
+function closeStudentDetail() {
+  document.getElementById('studentDetailModal').classList.remove('open');
+}
+function handleSdModalClick(e) {
+  if (e.target === document.getElementById('studentDetailModal')) closeStudentDetail();
 }
 
 /* ============================================================
@@ -4700,7 +4834,8 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('imgSearchModal').classList.contains('open')) { closeImgModal(); return; }
     if (document.getElementById('teacherModal').classList.contains('open'))   { closeTeacherModal(); return; }
     if (document.getElementById('libPreviewModal').classList.contains('open'))  { closeLibPreviewModal(); return; }
-    if (document.getElementById('studentPinModal').classList.contains('open')) { closeStudentPinModal(); return; }
+    if (document.getElementById('studentPinModal').classList.contains('open'))   { closeStudentPinModal(); return; }
+    if (document.getElementById('studentDetailModal').classList.contains('open')) { closeStudentDetail(); return; }
     if (history.length > 1) goBack();
   }
   if (document.getElementById('pwModal').classList.contains('open')) {
