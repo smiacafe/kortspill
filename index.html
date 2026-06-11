@@ -4360,7 +4360,7 @@ async function handleCameraCapture(input) {
 async function identifyImageWithGemini(dataUrl, apiKey) {
   const base64 = dataUrl.split(',')[1];
   const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
   const body = JSON.stringify({ contents: [{ parts: [
     { text: 'Hva er det viktigste objektet i dette bildet? Svar på norsk bokmål med ubestemt artikkel og substantiv, for eksempel "en kopp", "et vindu", "en bil". Maks 3 ord. Kun svaret, ingenting annet.' },
     { inline_data: { mime_type: mimeType, data: base64 } }
@@ -4379,7 +4379,7 @@ async function identifyImageWithGemini(dataUrl, apiKey) {
 }
 
 async function geminiRequest(apiKey, promptText, retries = 2) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
   const body = JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] });
   for (let attempt = 0; attempt <= retries; attempt++) {
     if (attempt > 0) await new Promise(r => setTimeout(r, 1500 * attempt));
